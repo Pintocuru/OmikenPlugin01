@@ -1,0 +1,1047 @@
+{
+  "rules": {
+    "1729669868469-531k4": {
+      "id": "1729669868469-531k4",
+      "name": "おみくじ",
+      "color": "#ff0000",
+      "description": "",
+      "enabledIds": [
+        "1729669848759-a4czl",
+        "1730186257904-r3vdg",
+        "1730380299548-w1lfc",
+        "1730380464680-k9tcy",
+        "1730380504277-yfv1r",
+        "1730380661023-714m5",
+        "1730435587723-zj28l"
+      ],
+      "threshold": {
+        "conditionType": "match",
+        "match": ["おみくじ", "omikuji", "omikuzi", "御神籤"]
+      }
+    },
+    "1730186223570-nxukm": {
+      "id": "1730186223570-nxukm",
+      "name": "フラワーおみくじ",
+      "color": "",
+      "description": "",
+      "enabledIds": [
+        "1730186417456-m98tz",
+        "1730186488892-o4w6g",
+        "1730443222489-4lfj9",
+        "1730443225159-86j3g",
+        "1730443226509-e1gfq",
+        "1730443227356-243tp",
+        "1730443354996-49v8q",
+        "1730443324119-ddrt1"
+      ],
+      "threshold": {
+        "conditionType": "match",
+        "match": ["フラワー", "ふらわー", "flower"]
+      }
+    }
+  },
+  "omikuji": {
+    "1729669848759-a4czl": {
+      "id": "1729669848759-a4czl",
+      "name": "おみくじ:大吉",
+      "description": "",
+      "weight": 15,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_01"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "joy02",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【大吉】<<omikuji01>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!レベルアップ"
+        }
+      ]
+    },
+    "1730380661023-714m5": {
+      "id": "1730380661023-714m5",
+      "name": "おみくじ:凶",
+      "description": "",
+      "weight": 10,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_06"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "sorry01",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【凶】<<omikuji06>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!呪いの旋律"
+        }
+      ]
+    },
+    "1730186257904-r3vdg": {
+      "id": "1730186257904-r3vdg",
+      "name": "おみくじ:吉",
+      "description": "",
+      "weight": 20,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_02"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "joy01",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【吉】<<omikuji02>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シャキーン2"
+        }
+      ]
+    },
+    "1730380299548-w1lfc": {
+      "id": "1730380299548-w1lfc",
+      "name": "おみくじ:中吉",
+      "description": "",
+      "weight": 20,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_03"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "fun03",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【吉】<<omikuji03>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730380464680-k9tcy": {
+      "id": "1730380464680-k9tcy",
+      "name": "おみくじ:小吉",
+      "description": "",
+      "weight": 15,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_04"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "fun02",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【小吉】<<omikuji04>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730380504277-yfv1r": {
+      "id": "1730380504277-yfv1r",
+      "name": "おみくじ:末吉",
+      "description": "",
+      "weight": 15,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_05"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "sad01",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【末吉】<<omikuji05>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!間抜け1"
+        }
+      ]
+    },
+    "1730435587723-zj28l": {
+      "id": "1730435587723-zj28l",
+      "name": "おみくじ:残念賞",
+      "description": "",
+      "weight": 5,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": -1,
+          "content": "!omikuji_huru"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 0,
+          "content": "!omikuji_07"
+        },
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "surprise02",
+          "delaySeconds": 1,
+          "content": "<<user>>さんの運勢は【末吉】<<omikuji07>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!ビシッとツッコミ1"
+        }
+      ]
+    },
+    "1730186417456-m98tz": {
+      "id": "1730186417456-m98tz",
+      "name": "フラワー:青色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【青色】<<flowerBlue>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730186488892-o4w6g": {
+      "id": "1730186488892-o4w6g",
+      "name": "フラワー:赤色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【赤色】<<flowerRed>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443222489-4lfj9": {
+      "id": "1730443222489-4lfj9",
+      "name": "フラワー:黄色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【黄色】<<flowerYellow>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443225159-86j3g": {
+      "id": "1730443225159-86j3g",
+      "name": "フラワー:紫色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【紫色】<<flowerPurple>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443226509-e1gfq": {
+      "id": "1730443226509-e1gfq",
+      "name": "フラワー:緑色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【緑色】<<flowerGreen>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443227356-243tp": {
+      "id": "1730443227356-243tp",
+      "name": "フラワー:オレンジ色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【オレンジ色】<<flowerOrange>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443324119-ddrt1": {
+      "id": "1730443324119-ddrt1",
+      "name": "フラワー:白色",
+      "description": "",
+      "weight": 3,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【白色】<<flowerWhite>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!シーン切り替え1"
+        }
+      ]
+    },
+    "1730443354996-49v8q": {
+      "id": "1730443354996-49v8q",
+      "name": "フラワー:キノコ色",
+      "description": "",
+      "weight": 9,
+      "threshold": {
+        "conditionType": "none"
+      },
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "marisa",
+          "iconKey": "joy04",
+          "delaySeconds": 1,
+          "content": "<<user>>さんは【キノコ色】<<flowerKinoko>>"
+        },
+        {
+          "type": "party",
+          "botKey": "reimu",
+          "iconKey": "Default",
+          "delaySeconds": 1,
+          "content": "!間抜け1"
+        }
+      ]
+    }
+  },
+  "place": {
+    "1730215131236-r0mi5": {
+      "id": "1730215131236-r0mi5",
+      "name": "omikuji01",
+      "description": "おみくじ:大吉",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "人との縁が幸運を呼び込みそう。感謝の気持ちを忘れないことが大事よ。"
+        },
+        {
+          "weight": 1,
+          "value": "健康運が特に好調ね。心身ともに充実した日々になるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "努力が実を結び、幸運が訪れるって。積極的に行動すると良いことがあるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "新しい挑戦が成功をもたらす予感。勇気を出して一歩踏み出してみて。"
+        },
+        {
+          "weight": 1,
+          "value": "良い知らせが届くかも。ポジティブな気持ちを持ち続けてね。"
+        },
+        {
+          "weight": 1,
+          "value": "困難な状況も乗り越えられるわ。自信を持って進んで大丈夫よ。"
+        }
+      ]
+    },
+    "1730255242642-ltoka": {
+      "id": "1730255242642-ltoka",
+      "name": "omikuji02",
+      "description": "おみくじ:吉",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "積極的に行動すると運気は上がるわ。新しい挑戦はチャンスよ。"
+        },
+        {
+          "weight": 1,
+          "value": "周囲の人々に感謝の気持ちを忘れずにね。"
+        },
+        {
+          "weight": 1,
+          "value": "今後の展望は明るめね。夢に向かって突き進めばいいことがあるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "仲間との協力が成功への鍵よ。チームワークを大切にしてね。"
+        },
+        {
+          "weight": 1,
+          "value": "小さな努力が大きな成果を生むわ。コツコツと続けることが大事よ。"
+        },
+        {
+          "weight": 1,
+          "value": "ポジティブな考えが良い結果を招くわ。前向きに考え続けてね。"
+        }
+      ]
+    },
+    "1730380366155-m3sdz": {
+      "id": "1730380366155-m3sdz",
+      "name": "omikuji03",
+      "description": "",
+      "isWeight": true,
+      "values": [
+        {
+          "weight": 1,
+          "value": "思いがけない幸運があるかも。チャンスを逃さないようにね。"
+        },
+        {
+          "weight": 1,
+          "value": "周囲の人との協力が大切よ。助けを求めることを恐れないで。"
+        },
+        {
+          "weight": 1,
+          "value": "自分の直感を信じていいわ。大きな成長が待ってるそうよ。"
+        },
+        {
+          "weight": 1,
+          "value": "新しいスキルを学ぶと良いわ。自分を磨くチャンスが来てるわよ。"
+        },
+        {
+          "weight": 1,
+          "value": "楽しい出来事が増えるわ。笑顔を忘れずにね。"
+        },
+        {
+          "weight": 1,
+          "value": "計画をしっかり立てることで、成功への道が開けるわ。"
+        }
+      ]
+    },
+    "1730435669786-qfdm3": {
+      "id": "1730435669786-qfdm3",
+      "name": "omikuji04",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "いまは焦らず、一歩ずつ進むことね。努力すれば、願いは叶うと出ているわ。"
+        },
+        {
+          "weight": 1,
+          "value": "いまは慎重に行動が必要な時。きっと吉へと導かれるわ。慌てない事が大切よ。"
+        },
+        {
+          "weight": 1,
+          "value": "健康面に注意して。規則正しい生活が運気を呼び込むわ。"
+        },
+        {
+          "weight": 1,
+          "value": "周囲のサポートを受け入れることで、運気が上昇するわ。"
+        },
+        {
+          "weight": 1,
+          "value": "小さな喜びを大切にね。それが大きな幸せに繋がるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "ゆっくりとした進展があるわ。焦らずに自分のペースで進んでね。"
+        }
+      ]
+    },
+    "1730435718519-odqvl": {
+      "id": "1730435718519-odqvl",
+      "name": "omikuji05",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "油断が思わぬ結果に繋がるわ。慎重に行動して。"
+        },
+        {
+          "weight": 1,
+          "value": "今は試練の時期ね。乗り越えれば、大きな成長が待ってるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "新しいことより、今の事を見直すといい事があるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "計画を練り直すことで、より良い結果が得られるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "周囲の意見に耳を傾けることが、成功の鍵になるわ。"
+        },
+        {
+          "weight": 1,
+          "value": "自己改善に取り組むことで運が開けるわ。自分を見つめ直す時間を作ってね。"
+        }
+      ]
+    },
+    "1730442460600-8b9m3": {
+      "id": "1730442460600-8b9m3",
+      "name": "omikuji06",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "運気はやや下がり気味。慎重に行動するといいわ。"
+        },
+        {
+          "weight": 1,
+          "value": "周囲の人とのトラブルに注意して。喧嘩になったら、頭を冷やすことね。"
+        },
+        {
+          "weight": 1,
+          "value": "健康面に注意が必要ね。体調管理をしっかり。乳酸菌とってるぅ？"
+        },
+        {
+          "weight": 1,
+          "value": "計画が思い通りに進まないかも。焦らず、柔軟に対応してね。"
+        },
+        {
+          "weight": 1,
+          "value": "信頼できる人に相談すると、助け舟が出るわよ。"
+        },
+        {
+          "weight": 1,
+          "value": "無理をせず、休息を取ることが大切よ。リラックスする時間を作ってね。"
+        }
+      ]
+    },
+    "1730442500777-ec5ax": {
+      "id": "1730442500777-ec5ax",
+      "name": "omikuji07",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "笑いすぎに注意だぜ。腹筋が崩壊するかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "終わったわ、風が強すぎるぜ。強すぎてお亡くなりだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "高嶋ちさ子さんも、長嶋一茂さんも、石原良純さんも、残念！"
+        },
+        {
+          "weight": 1,
+          "value": "知ってる？「コンクリート」っていう漢字があるんだぜ。しかも1文字で。"
+        },
+        {
+          "weight": 1,
+          "value": "女子高生とか好きだからって理由で先生になっちゃいけないぜ。奥さんは美人だぜ。"
+        }
+      ]
+    },
+    "1730255471547-50761": {
+      "id": "1730255471547-50761",
+      "name": "flowerRed",
+      "description": "フラワー:赤色",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "赤いバラは情熱と愛の象徴だぜ。あなたの中にある熱い思いを大切にして欲しいぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いポインセチアは、冬の寒さの中でも鮮やかに咲く強さがあるぜ。あなただって、困難を乗り越える力があるんだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いカーネーションは、深い愛情と尊敬の気持ちを表すぜ。大切な人への感謝を忘れずにな。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いチューリップは、愛の告白を意味するぜ。自分の気持ちを素直に伝えることも大切だぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いゼラニウムは、元気と活力の象徴だぜ。新しいことに挑戦する勇気を与えてくれるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いコスモスは、秋の空の下、風に揺られて咲いているぜ。あなたの心も、自由で穏やかな気持ちで満たされて欲しいぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "赤いポピーは、感謝の気持ちを伝える花だぜ。いつもありがとうだぜ。"
+        }
+      ]
+    },
+    "1730255480352-f1t5h": {
+      "id": "1730255480352-f1t5h",
+      "name": "flowerBlue",
+      "description": "フラワー:青色",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "青い朝顔は、夏の朝を美しく彩るぜ。清々しい一日の始まりを感じさせてくれるんだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いデルフィニウムは、高貴さと優雅さの象徴だぜ。あなたの中にも、そんな魅力が隠れているかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いアジサイは、移り気な心を表すと言われているぜ。でも、それは柔軟性があるということだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いルピナスは、想像力と創造性を刺激してくれるぜ。新しいアイデアが湧いてくるかもだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いコーンフラワーは、希望と幸福を象徴するぜ。明るい未来が待っているはずだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いスミレは、春の息吹を感じさせてくれる、可憐な花だぜ。あなたの心も、きっと温かくて優しいはずだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "青いリンドウは、厳しい冬を乗り越えて咲く花だぜ。あなたは、どんな困難にも立ち向かえる、強い心の持ち主なんだぜ。"
+        }
+      ]
+    },
+    "1730443398960-378mp": {
+      "id": "1730443398960-378mp",
+      "name": "flowerYellow",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "黄色いヒマワリは、太陽のように明るく輝く花だぜ。あなたも周りを明るく照らす存在かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いフリージアは、友情と信頼を表すぜ。大切な友人との絆を深める良い機会かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いスイセンは、新たな始まりを象徴するぜ。何か新しいことを始めるのにぴったりの時期かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いチューリップは、希望に満ちた愛を意味するぜ。明るい未来への期待を持ち続けて欲しいぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いアカシアは、隠された美しさを表すぜ。あなたの中にある才能が花開くかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いカレンデュラは、友情の証だぜ。大切な友達との絆を大切にするんだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "黄色いキンモクセイの香りは、懐かしい思い出を呼び覚ますぜ。大切な人と良い時間を過ごして欲しいぜ。"
+        }
+      ]
+    },
+    "1730443399238-dxvph": {
+      "id": "1730443399238-dxvph",
+      "name": "flowerPurple",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "紫のラベンダーは、優雅さと洗練を象徴するぜ。あなたの中にある美しさが輝く時かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫のアイリスは、知恵と勇気を表すぜ。難しい決断を迫られても、自信を持って進んでいけるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫のクレマチスは、精神的な美しさを象徴するぜ。内面の成長に目を向けるいい機会かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫のリラは、初恋の思い出を意味するぜ。過去の美しい思い出が、今のあなたを支えてくれるかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫のアリウムは、統一と調和を表すぜ。周りの人々との良い関係を築けそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫陽花は、たくさんの小さな花が集まって一輪の花を咲かせるぜ。あなたも周りの人たちと力を合わせれば、大きなことができるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "紫のバラは、高貴な印象を与えるぜ。あなたは、特別な存在だぜ。本当だぜ？"
+        }
+      ]
+    },
+    "1730443399516-tt4l5": {
+      "id": "1730443399516-tt4l5",
+      "name": "flowerGreen",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "緑のクローバーは、幸運と希望の象徴だぜ。小さな幸せに気づける日になりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のベルガモットは、繁栄と豊かさを表すぜ。あなたの努力が実を結ぶ時期かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のユーカリは、保護と癒しを意味するぜ。心身ともにリラックスできる時間を作ってみるといいぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のモスは、母性的な愛と優しさを象徴するぜ。周りの人への思いやりの心が、あなたを豊かにするぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のアンスリウムは、もてなしの心を表すぜ。人との交流を大切にする日になりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のシダは、生命力と復活を象徴するぜ。何か新しいことに挑戦するチャンスかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "緑のマートルは、愛と幸福の象徴だぜ。あなたの愛情が周りに良い影響を与えるぜ。"
+        }
+      ]
+    },
+    "1730443399688-1usll": {
+      "id": "1730443399688-1usll",
+      "name": "flowerOrange",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "オレンジ色のマリーゴールドは、情熱と創造性の象徴だぜ。新しいアイデアが湧いてくるかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のカレンデュラは、喜びと温かさを表すぜ。周りの人を明るい気持ちにできそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のナスタチウムは、勝利と征服を意味するぜ。困難を乗り越える力強さがあなたにはあるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のポピーは、想像力と楽観主義の花だぜ。前向きな姿勢が良い結果を招くぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のハイビスカスは、情熱と魅力を象徴するぜ。あなたの魅力が輝く瞬間が訪れるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のガーベラは、エネルギーと活力を意味するぜ。元気いっぱいの一日を過ごせるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "オレンジ色のルドベキアは、楽しい冒険を予感させるぜ。新しい経験に心を開いてみるといいぜ。"
+        }
+      ]
+    },
+    "1730443399869-nfj9p": {
+      "id": "1730443399869-nfj9p",
+      "name": "flowerWhite",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "白いカサブランカは、純潔と高貴の象徴だぜ。あなたの心の中にも、そんな美しさがあるかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いバラは、尊敬と誠実の気持ちを表すぜ。誰かに感謝の気持ちを伝える良い機会かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いスズランは、幸福と再生を意味するぜ。新しいスタートを切るのにぴったりの時期かもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いチューリップは、純粋な愛と感謝を象徴するぜ。大切な人との絆を深めるチャンスかもしれないぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いカーネーションは、深い愛情と尊敬を表すぜ。大切な人への感謝を忘れずにだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いヒヤシンスは、思いやりと共感を意味するぜ。周りの人を大切にすることで、あなたも幸せになれるぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "白いデイジーは、無邪気さと希望を象徴するぜ。あなたの純粋な心が、周りに良い影響を与えるぜ。"
+        }
+      ]
+    },
+    "1730443400093-ajbw1": {
+      "id": "1730443400093-ajbw1",
+      "name": "flowerKinoko",
+      "description": "",
+      "isWeight": false,
+      "values": [
+        {
+          "weight": 1,
+          "value": "シイタケは「仙人のキノコ」と呼ばれるほど長寿の象徴だぜ。健康運が高まりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "マツタケは「松の寿」という意味があるぜ。あなたの人生も香り高いものになりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "エノキタケは「榎木茸」と書くぜ。大きな木のように、あなたも周りを支える存在になれそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "ナメコは「滑子」と書くけど、逆に人生でつまずかないよう注意が必要かもしれないぜ？おさわり探偵のようにな"
+        },
+        {
+          "weight": 1,
+          "value": "マイタケは「舞茸」。まるで踊るように、人生を楽しく過ごしたいぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "エリンギはイタリア語で「小さな杏」という意味があるぜ。小さな幸せを見つけられそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "ブナシメジは「椪締茸」と書くぜ。「椪」は「結ぶ」という意味があるから、人との縁が深まりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "キクラゲは「木耳」と書くぜ。耳のように、周りの声にも耳を傾けると良いことがありそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "ヒラタケは平べったい形から名付けられたぜ。謙虚な姿勢が大切になりそうだぜ。"
+        },
+        {
+          "weight": 1,
+          "value": "マッシュルームは英語で「きのこ」だけど、マッシュと言えば髪型だよな。マッシュの似合う男の子って可愛いぜ。"
+        }
+      ]
+    }
+  },
+  "rulesOrder": ["1729669868469-531k4", "1730186223570-nxukm"],
+  "preferences": {
+    "basicDelay": 1,
+    "omikujiCooldown": 2,
+    "commentDuration": 5,
+    "BotUserIDname": "FirstCounter"
+  }
+}

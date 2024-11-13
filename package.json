@@ -1,5 +1,5 @@
 {
-  "name": "order-speech-plugin",
+  "name": "omiken-plugin",
   "version": "0.0.1",
   "description": "",
   "main": "public/plugin.js",
