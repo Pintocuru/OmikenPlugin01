@@ -1,11 +1,17 @@
 // src/scripts/PostOmikuji.js
 
 import { OmikujiPostType } from "../../src/types/types";
-import { delayTime } from "./AxiosAction";
+import { delayTime, get, post } from "./AxiosAction";
 
-// Wordpartyへ投稿
-const postOneComme = async (post: OmikujiPostType) => {
-  const charaConfig = {
+// わんコメへ投稿
+export const postOneComme = async (postData: OmikujiPostType) => {
+  const { content, botKey, iconKey, delaySeconds } = postData;
+  
+  // 空のメッセージは処理しない
+  if (!content?.trim()) return;
+
+  // TODO エディターのpresetからキャラデータを取得する関数
+  const CHARA = {
     default: {
       name: " ",
       frameId: "",
@@ -15,63 +21,39 @@ const postOneComme = async (post: OmikujiPostType) => {
     },
   };
   const charaImgConfig = { default: { Default: "" } };
-  const imgDirectory =
-    document.currentScript.src.split("/script/")[0] + "/img/";
+  const imgDirectory = document.currentScript.src.split("/script/")[0] + "/img/";
 
-  const { botKey, iconKey, delaySeconds, content } = post;
+  // キャラクター設定の取得
+  const characterData = CHARA[botKey] || CHARA[Object.keys(CHARA)[0]];
+  const characterImage = charaImgConfig[botKey]?.[iconKey] ||
+    charaImgConfig[botKey]?.Default;
 
-  if (content.trim()) {
-    const { botKey: processedBotKey, iconKey: processedIconKey } = processKeys(
-      botKey,
-      iconKey,
-      charaConfig
-    );
+  // 遅延処理
+  await delayTime(delaySeconds);
 
-    const characterData =
-      charaConfig[processedBotKey] || charaConfig[Object.keys(charaConfig)[0]];
-    const characterImage =
-      charaImgConfig[processedBotKey]?.[processedIconKey] ||
-      charaImgConfig[processedBotKey].Default;
-
-    await delayTime(delaySeconds);
-
-    return post("http://localhost:11180/api/comments", {
-      service: { id: characterData.frameId || (await getFrameId()) },
+  // APIへの投稿
+  try {
+    await post("http://localhost:11180/api/comments", {
+      service: { 
+        id: characterData.frameId || (await getFrameId()) 
+      },
       comment: {
-        userId: BotUserIDname || "FirstCounter",
+        userId: "FirstCounter",
         id: Date.now() + Math.random().toString().slice(2, 12),
         name: characterData.name,
         comment: content,
-        profileImage: imgDirectory + characterImage || "",
+        profileImage: characterImage ? imgDirectory + characterImage : "",
       },
     });
+  } catch (error) {
+    console.error("Failed to post OneComme message:", error);
   }
 };
-
-// defaultキーの設定
-function processKeys(
-  botKey: string,
-  iconKey: any,
-  charaConfig: {
-    default?: {
-      name: string;
-      frameId: string;
-      "--lcv-name-color": string;
-      "--lcv-text-color": string;
-      "--lcv-background-color": string;
-    };
-  }
-) {
-  return {
-    botKey: botKey in charaConfig ? botKey : Object.keys(charaConfig)[0],
-    iconKey: iconKey || "Default",
-  };
-}
 
 // わんコメの一番上の枠IDを取得する
 async function getFrameId() {
   try {
-    const { data } = await this.get("http://localhost:11180/api/services");
+    const { data } = await get("http://localhost:11180/api/services");
     return data[0].id;
   } catch (error) {
     console.error(error);
@@ -80,49 +62,42 @@ async function getFrameId() {
 }
 
 // Wordpartyへ投稿
-const postWordParty = async (post: OmikujiPostType) => {
-  const postPromises = post.map(
-    async (message: { content: any; delaySeconds?: 0 }) => {
-      const { content, delaySeconds = 0 } = message;
+export const postWordParty = async (postData: OmikujiPostType) => {
+  const { content, delaySeconds = 0 } = postData;
 
-      // 遅延処理
-      await delayTime(delaySeconds);
+  // 空のメッセージは処理しない
+  if (!content?.trim()) return;
 
-      if (content && content.trim()) {
-        try {
-          await post("http://localhost:11180/api/reactions", {
-            reactions: [{ key: content, value: 1 }],
-          });
-        } catch (error) {
-          console.error("Failed to post WordParty reaction:", error);
-        }
-      }
-    }
-  );
+  // 遅延処理
+  await delayTime(delaySeconds);
 
-  await Promise.all(postPromises);
+  // APIへの投稿
+  try {
+    await post("http://localhost:11180/api/reactions", {
+      reactions: [{ key: content, value: 1 }],
+    });
+  } catch (error) {
+    console.error("Failed to post WordParty reaction:", error);
+  }
 };
 
 // スピーチ(音声のみ)投稿
-const postSpeech = async (post: OmikujiPostType) => {
-  const postPromises = post.map(
-    async (message: { content: any; delaySeconds?: 0 }) => {
-      const { content, delaySeconds = 0 } = message;
+export const postSpeech = async (postData: OmikujiPostType) => {
+  const { content, delaySeconds = 0 } = postData;
 
-      // 遅延処理
-      await delayTime(delaySeconds);
+  // 空のメッセージは処理しない
+  if (!content?.trim()) return;
 
-      if (content && content.trim()) {
-        try {
-          await post("http://localhost:11180/api/speech", {
-            text: content,
-          });
-        } catch (error) {
-          console.error("Failed to post speech:", error);
-        }
-      }
-    }
-  );
+  // 遅延処理
+  await delayTime(delaySeconds);
 
-  await Promise.all(postPromises);
+  // APIへの投稿
+  try {
+    const axios = require("axios");
+    await axios.post("http://localhost:11180/api/speech", {
+      text: content,
+    });
+  } catch (error) {
+    console.error("Failed to post speech:", error);
+  }
 };

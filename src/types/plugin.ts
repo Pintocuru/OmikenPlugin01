@@ -1,4 +1,4 @@
-// src/types.ts
+// src/types/plugin.ts
 
 import { CHARAType, OmikenType, OmikujiPostType } from "./index";
 
@@ -11,7 +11,7 @@ export interface OnePlugin {
   url?: string; // ドキュメントやサポートページのURL
   author?: string; // 開発者名
   permissions: (PluginFilterEvent | SendType)[]; // 必要な権限
-  defaultState: Record<string, any>; // プラグインの初期状態
+  defaultState: { AppState: defaultStateOmikenType }; // プラグインの初期状態
   init?(api, initialData): void; // 初期化関数
   subscribe?(type, ...args): void; // permissions依存の汎用関数
   filterComment?(comment, service, userData): Promise<false | BaseComment>; // コメントフィルタ関数
@@ -60,42 +60,37 @@ interface PluginResponse {
 // ---------------------------------------------------
 
 // OmikenアプリでのdefaultState の型定義
-interface defaultStateOmikenType {
-  AppState: {
+export interface defaultStateOmikenType {
     Omiken: OmikenType;
-    CHARA: CHARAType;
-    Visits: VisitsType;
-    Games: GanesType;
+    CHARA: Record<string, CHARAType>;
+    Visits: Record<string, VisitType>;
+    Games: Record<string, GameType>;
     nowSlotId: string; // 現在の配信枠のID
-    lastCommentTime: DataTransfer; // 最後にコメントを通したTime
-  };
+    lastCommentTime: number; // 最後にコメントを通したTime
+
 }
 
-// ユーザーデータ
-interface VisitsType {
-  [key: string]: {
-    name: string; // ユーザー名(ニックネーム)
-    nowSlotId: string; // (前回コメントした配信枠のid)
-    visitData: {
-      [key: string]: {
-        id: string;
-        draws: number; // 該当するおみくじを行った配信枠での回数:取得対象
-        totalDraws: number; // 該当するおみくじを行った総回数:取得対象
-        count: [number, number, number]; // 任意で保存する数値(3つまで):取得対象
-        items: string[]; // 任意で保存する文字列:取得対象
-      };
-    };
-  };
+// ユーザーデータ(全体)
+export interface VisitType {
+  name: string; // ユーザー名(ニックネーム)
+  isSyoken:boolean; // 初見フラグ
+  nowSlotId: string; // (前回コメントした配信枠のid)
+  visitData: Record<string, visitDataType>;
 }
-
-// 個別のおみくじデータ
-interface GanesType {
-  [key: string]: {
-    id: string;
-    draws: number; // 該当するおみくじを行った配信枠での回数
-    totalDraws: number; // 該当するおみくじを行った総回数
-    gamesData: any; // scriptで自由に使えるObject
-  };
+// ユーザーデータ(個別)
+export interface visitDataType {
+  id: string;
+  draws: number;
+  totalDraws: number;
+  count: [number, number, number];
+  items: string[];
+}
+// おみくじデータ
+export interface GameType {
+  id: string;
+  draws: number; // 該当するおみくじを行った配信枠での回数
+  totalDraws: number; // 該当するおみくじを行った総回数
+  gamesData: any; // scriptで自由に使えるObject
 }
 
 // ---------------------------------------------------

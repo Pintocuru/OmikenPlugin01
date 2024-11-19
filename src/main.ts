@@ -1,5 +1,14 @@
 // src/main.ts
-import { OnePlugin, BaseComment, OmikenType } from "./types/types";
+import { handleFilterComment } from "./scripts/CommentCheck";
+import { CommentInstance } from "./scripts/CommentInstance";
+import {
+  OnePlugin,
+  BaseComment,
+  OmikenType,
+  CHARAType,
+  defaultStateOmikenType,
+  AppStateType,
+} from "./types/index";
 
 const plugin: OnePlugin = {
   name: "おみくじプラグイン", // プラグイン名
@@ -11,90 +20,24 @@ const plugin: OnePlugin = {
 
   // プラグインの初期状態
   defaultState: {
-    defaultRules: [
-      {
-        name: "おみくじ",
-        modes: "none",
-        modeSelect: ["none"],
-        switch: 1,
-        matchExact: ["🥠"],
-        matchStartsWith: ["おみくじ", "御神籤", "omikuji"],
-        matchIncludes: ["【おみくじ】"],
+    AppState: {
+      Omiken: {
+        rules: {},
+        rulesOrder: [],
+        omikuji: {},
+        place: {},
+        preferences: {
+          omikujiCooldown: 2,
+          basicDelay: 0,
+          commentDuration: 0,
+          BotUserIDname: "",
+        },
       },
-    ],
-    rules: [
-      {
-        name: "おみくじ",
-        modes: "none",
-        modeSelect: ["none"],
-        switch: 1,
-        matchExact: ["🥠"],
-        matchStartsWith: ["おみくじ", "御神籤", "omikuji"],
-        matchIncludes: ["【おみくじ】"],
-      },
-    ],
-    botMessage: {
-      omikuji: [
-        {
-          name: "大吉",
-          weight: 18,
-          threshold: {
-            type: "none",
-            value: 1000,
-            comparison: 0,
-          },
-          message: [
-            {
-              botKey: 0,
-              iconKey: "joy02",
-              delaySeconds: 1,
-              content: "<<user>>さんの運勢は【大吉】<<random1>>",
-            },
-          ],
-          party: [{ delaySeconds: 1, content: "!レベルアップ" }],
-        },
-      ],
-      random: [
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content:
-            "人との縁が幸運を呼び込みそう。感謝の気持ちを忘れないことが大事よ。",
-        },
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content: "健康運が特に好調ね。心身ともに充実した日々になるわ。",
-        },
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content:
-            "努力が実を結び、幸運が訪れるって。積極的に行動すると良いことがあるわ。",
-        },
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content:
-            "新しい挑戦が成功をもたらす予感。勇気を出して一歩踏み出してみて。",
-        },
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content: "良い知らせが届くかも。ポジティブな気持ちを持ち続けてね。",
-        },
-        {
-          placeholder: "random1",
-          weight: 11,
-          group: 0,
-          content: "困難な状況も乗り越えられるわ。自信を持って進んで大丈夫よ。",
-        },
-      ],
+      CHARA: {},
+      Visits: {},
+      Games: {},
+      nowSlotId: "", // 現在の配信枠のID
+      lastCommentTime: 0, // 最後におみくじ機能が実行された時刻
     },
   },
 
@@ -106,16 +49,8 @@ const plugin: OnePlugin = {
    * store: ElectronStore Instance  https://github.com/sindresorhus/electron-store?tab=readme-ov-file#instance
    */
   init({ dir, store }, initialData) {
-    // 適用する条件
-    this.rules = store.get("rules");
-    // おみくじ内容
-    this.botMessage = store.get("botMessage");
-    // 外部関数呼び出し
-    this.func = require("../scripts/omikujiUtils");
-    // 外部JSON // TODO 書き方とか呼び出し方とかは後で生成AIに任せる
-    this.Omiken = require("./state.json");
-    // 外部関数:CommentCheck
-    this.FuncCommentCheck = require("./scripts/CommentCheck");
+    // AppStateの呼び出し
+    this.AppState = store.get("AppState");
   },
 
   /**
@@ -129,56 +64,83 @@ const plugin: OnePlugin = {
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
   async filterComment(comment: BaseComment, service, userData) {
-    // インスタンス化して使用
-    const comment = new CommentFilter(
-      rules,
-      {
-        isSkipOmikuji,
-        checkOverlapping,
-        wordCheck,
-      },
-      functionOmikuji
+    const AppState = this.AppState as defaultStateOmikenType;
+    const Omiken = AppState.Omiken;
+
+    // インスタンスの発行
+    const Instance = new CommentInstance(
+      comment,
+      AppState.Visits[comment.data.userId]
     );
+    try {
+      // 前回のコメントからn秒以内ならスルーする
+      const cooldown = Omiken.preferences.omikujiCooldown;
+      if (this.skipIfRecent(cooldown)) return comment;
 
-    return comment;
+      // おみくじCHECK
+      if (!Instance.omikenSelect(Omiken)) return comment;
 
-    // comment.omikenDataがなければ空のオブジェクトを生成
-    if (!comment.omikenData) comment.omikenData = {};
-    // 処理スキップcheck
-    if (this.func.isSkipOmikuji(comment)) return comment;
-    // 重複チェック
-    if (comment.omikenData.isOverlapping === undefined) {
-      if (await this.func.checkOverlapping(comment)) {
-        comment.omikenData.isOverlapping = true;
-        return comment;
+      // おみくじがあるなら、おみくじを実行
+      const omikujiId = Instance.getDATA("omikujiId");
+      const Game = AppState.Games[omikujiId];
+
+      // メッセージの処理と投稿
+      const result = this.postProcess(Game, Omiken.place);
+
+
+
+    } finally {
+      // gameStatsを書き換える
+      const newGameStats = Instance.getDATA("gameStats");
+      if (JSON.stringify(gameStats) !== JSON.stringify(newGameStats)) {
+        gameStats = newGameStats;
+      }
+
+      // visitを書き換える
+      const userId = Instance.getDATA("userId");
+      // 相違がある時のみ更新
+      if (userId) {
+        const newVisit = Instance.getDATA("visit");
+        if (JSON.stringify(userVisits[userId]) !== JSON.stringify(newVisit)) {
+          userVisits[userId] = newVisit;
+        }
       }
     }
 
-    // おみくじチェック
-    for (const rule of this.rules) {
-      const result = this.func.wordCheck(comment, rule);
-      // おみくじ適用可能なら、おみくじ実行
-      if (result && result.isApplicable) {
-        comment.omikenData.omikujiName = result.omikujiName;
-        // おみくじを非同期で実行し、結果を待たずに次の処理に進む
-        this.functionOmikuji(
-          comment.data.displayName,
-          rule.modes,
-          comment
-        ).catch((error) => {
-          console.error("おみくじ実行中にエラーが発生しました:", error);
-        });
-        break;
-      }
-    }
+    /**
 
-    return comment;
+     * Q.
+     * handleFilterComment(
+     * comment, // コメント
+     * this.AppState.Omiken, // おみくじデータ
+     * this.AppState.Visits[comment.data.userId].visitData, // 個人データ
+     * this.AppState.Games, // おみくじデータ
+     * )
+     *
+     */
+
+    // 前回のコメントからn秒以内ならスルーする
+    const cooldown = this.Omiken.preferences.omikujiCooldown;
+    if (this.skipIfRecent(cooldown)) {
+      return comment;
+    } else {
+      const result = handleFilterComment(comment, this.AppState.Omiken);
+      // resultは、visitData(個別)、Gamesが返る
+      if (result.toast) {
+        comment.omiken.toast = toast;
+      }
+      return comment;
+    }
   },
 
-  // おみくじ
-  async functionOmikuji(displayName, modes, comment) {
-    // processBotMessage にデータを渡す(渡せば投稿までやってくれる)
-    this.func.processBotMessage(displayName, this.botMessage);
+  // クールダウンチェック関数
+  skipIfRecent(cooldownSeconds: number = 2): boolean {
+    const now = Date.now();
+    const elapsed = (now - this.AppState.lastOmikujiTime) / 1000; // 経過秒数
+
+    // 時刻を更新
+    this.AppState.lastOmikujiTime = now;
+    return elapsed <= cooldownSeconds;
   },
 
   /**
@@ -206,20 +168,24 @@ const plugin: OnePlugin = {
         case "GET":
           switch (endpoint) {
             // エディター用
-            //
             case "editor":
               resolve({
                 code: 200,
-                response: JSON.stringify({ ...this.rules, ...this.botMessage }),
+                response: JSON.stringify({
+                  ...this.AppState.Omiken,
+                  ...this.AppState.CHARA,
+                }),
               });
               break;
             // ジェネレーター用
+            // TODO 何をGETできればいい？
             case "display":
               resolve({
                 code: 200,
-                response: JSON.stringify({ score: this.score }),
+                response: JSON.stringify({ score: this.score }), // TODO thisが放置されてる
               });
               break;
+
             default:
               resolve({
                 code: 404,
@@ -227,25 +193,50 @@ const plugin: OnePlugin = {
               });
           }
           break;
+        // POST
         case "POST":
-          // data には this.rules, this.botMessage を入れる
-          const data = JSON.parse(req.body);
-          resolve({
-            code: 200,
-            response: "Data updated successfully",
-          });
+          switch (endpoint) {
+            // 保存:Omiken
+            case "omiken":
+              try {
+                const data = JSON.parse(req.body) as OmikenType;
+                this.AppState.Omiken = data;
+                resolve({
+                  code: 200,
+                  response: "Omiken updated successfully",
+                });
+              } catch (error) {
+                resolve({
+                  code: 400,
+                  response: "Invalid data format",
+                });
+              }
+              break;
+
+            // 保存:CHARA
+            case "chara":
+              try {
+                const data = JSON.parse(req.body) as CHARAType;
+                this.AppState.CHARA = data;
+                resolve({
+                  code: 200,
+                  response: "CHARA updated successfully",
+                });
+              } catch (error) {
+                resolve({
+                  code: 400,
+                  response: "Invalid data format",
+                });
+              }
+              break;
+
+            default:
+              resolve({
+                code: 404,
+                response: "Unknown endpoint",
+              });
+          }
           break;
-        case "PUT":
-          // PUTリクエストの処理
-          break;
-        case "DELETE":
-          // DELETEリクエストの処理
-          break;
-        default:
-          resolve({
-            code: 404,
-            response: "",
-          });
       }
     });
   },
