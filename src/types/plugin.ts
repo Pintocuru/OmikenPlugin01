@@ -61,19 +61,19 @@ interface PluginResponse {
 
 // OmikenアプリでのdefaultState の型定義
 export interface defaultStateOmikenType {
-    Omiken: OmikenType;
-    CHARA: Record<string, CHARAType>;
-    Visits: Record<string, VisitType>;
-    Games: Record<string, GameType>;
-    nowSlotId: string; // 現在の配信枠のID
-    lastCommentTime: number; // 最後にコメントを通したTime
-
+  Omiken: OmikenType;
+  CHARA: Record<string, CHARAType>;
+  Visits: Record<string, VisitType>;
+  Games: Record<string, GameType>;
+  nowSlotId: string; // 現在の配信枠のID
+  lastCommentTime: number; // 最後にコメントを通したTime
 }
 
 // ユーザーデータ(全体)
 export interface VisitType {
   name: string; // ユーザー名(ニックネーム)
-  isSyoken:boolean; // 初見フラグ
+  userId: string; // ユーザーID
+  status: string; // ステータス
   nowSlotId: string; // (前回コメントした配信枠のid)
   visitData: Record<string, visitDataType>;
 }
@@ -90,14 +90,14 @@ export interface GameType {
   id: string;
   draws: number; // 該当するおみくじを行った配信枠での回数
   totalDraws: number; // 該当するおみくじを行った総回数
-  gamesData: any; // scriptで自由に使えるObject
+  gameData: any; // scriptで自由に使えるObject
 }
 
 // ---------------------------------------------------
 
 // 追加:各ジェネレーターで使用するキー集
 export interface OneCommeOmikenType {
-  toast?: OmikujiPostType[];
+  toast?: OmikujiPostType[]; // トーストジェネレーター用
   [key: string]: any;
 }
 

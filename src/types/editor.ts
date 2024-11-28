@@ -67,5 +67,5 @@ export interface CHARAEditType extends fetchJSONType {
 }
 export interface PresetOmikenEditType extends fetchJSONType {
   item: Omit<OmikenType, "preferences">; // キャラデータ(preferences抜き)
-  mode: "overwrite" | "append"; // 追加豊富(上書き/追加)
+  mode: "overwrite" | "append"; // 追加方法(上書き/追加)
 }

@@ -83,8 +83,6 @@ const plugin: OnePlugin = {
       // おみくじがあるなら、おみくじを実行
       const omikujiId = Instance.getDATA("omikujiId");
       const Game = AppState.Games[omikujiId];
-
-      // メッセージの処理と投稿
       const result = this.postProcess(Game, Omiken.place);
 
 

@@ -10,7 +10,6 @@ export interface OmikenType {
   rulesOrder: string[]; // ルールの順序
   omikuji: Record<string, ListTypeMap["omikuji"]>; // おみくじ関連のメッセージ
   place: Record<string, ListTypeMap["place"]>; // プレースホルダー
-  preferences: PreferencesType;
 }
 
 // コンテンツの型マッピング
@@ -83,8 +82,8 @@ export interface ThresholdTypeCommon {
 // ルール用の条件型
 export interface RuleThresholdType extends ThresholdTypeCommon {
   conditionType: ConditionRulesType;
+  timer?: TimerCondition; // タイマー
   syoken?: SyokenCondition; // 初見・久しぶり
-  timer?: TimerCondition; // タイマー(number,時報ありか
 }
 
 // おみくじ用の条件型
@@ -118,8 +117,8 @@ export type ConditionOmikujiType =
 // 初見・コメント履歴の種別
 export enum SyokenCondition {
   SYOKEN = "syoken", // 初見
-  HI = "hi", // その配信枠で1回目のコメント
   AGAIN = "again", // 前回のコメントから7日以上経過
+  HI = "hi", // その配信枠で1回目のコメント
 }
 
 // ルールの有効/無効 0:OFF/1:だれでも/2:メンバー/3:モデレーター/4:管理者
@@ -145,7 +144,7 @@ export interface ClockCondition {
   durationHours: number;
 }
 
-// 共通の定義
+// Threshold共通の定義
 export type ComparisonType = "min" | "max" | "range" | "equal" | "loop";
 export interface BaseCondition {
   value1: number;
@@ -191,15 +190,3 @@ export type PlaceValueType = {
   weight: number; // 出現割合
   value: string; // 値（他のプレースホルダーへの参照可能: <<place_name>>）
 };
-
-///////////////////////////////////
-// Preferences
-///////////////////////////////////
-
-// 設定の型定義
-export interface PreferencesType {
-  basicDelay: number; // コメントしてからBotが反応するまでの遅延(秒)
-  omikujiCooldown: number; // おみくじ機能のクールダウン時間（秒)
-  commentDuration: number; // コメントしてからおみくじを有効とする時間(秒)
-  BotUserIDname: string; // このスクリプトBOTのcomment.data.userId
-}

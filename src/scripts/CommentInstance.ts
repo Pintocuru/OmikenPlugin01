@@ -26,6 +26,7 @@ export class CommentInstance {
   visitData: visitDataType;
   Tester: boolean;
 
+  // TODO 配信枠のデータも取得する
   constructor(comment: BaseComment, visit: VisitType) {
     this.comment = comment;
     // 配信サイトでないコメントはVisitに入れない
@@ -45,6 +46,7 @@ export class CommentInstance {
     this.visit = visit || {
       name: comment.data.displayName,
       isSyoken: comment.meta.interval === 0, // 初見なら、visitに初見をつける
+      // TODO 枠変更した時、visitDataに入っているすべてのdrawsを0にする
     };
   }
 
@@ -77,7 +79,7 @@ export class CommentInstance {
 
   // ---
 
-  // ルールとおみくじの処理
+  // rulesとomikujiから該当するおみくじを抽選する
   omikenSelect(Omiken: OmikenType): boolean {
     // rulesOrderに基づいて配列にする
     const rules = this.omikenRulesSort(Omiken.rules, Omiken.rulesOrder);
