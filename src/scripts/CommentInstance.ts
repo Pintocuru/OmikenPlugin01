@@ -1,12 +1,14 @@
 // src/scripts/CommentInstance.ts
 
 import {
+  CharaType,
   GameType,
   OmikenType,
   OmikujiPostType,
   OmikujiType,
   PlaceType,
   PlaceValueType,
+  postOneCommeRequestType,
   PresetCharaType,
   PresetScriptType,
   RulesType,
@@ -105,7 +107,7 @@ export class CommentInstance {
     const result = rulesArray
       .map((rule) => ({
         rule,
-        omikuji: this.omikenProcessRule(rule, omikujis),
+        omikuji: this.ruleProcess(rule, omikujis),
       }))
       .find(({ omikuji }) => omikuji !== null);
 
@@ -119,7 +121,7 @@ export class CommentInstance {
   }
 
   // 単一ルールの処理
-  omikenProcessRule(
+  ruleProcess(
     rule: RulesType,
     omikujis: Record<string, OmikujiType>
   ): OmikujiType | null {
@@ -136,18 +138,18 @@ export class CommentInstance {
     if (!isValid) return null;
 
     // 有効なおみくじの取得
-    const validOmikuji = rule.enableIds
+    const validOmikujis = rule.enableIds
       .map((id) => omikujis[id])
       .filter((omikuji) =>
         omikuji.threshold.every((threshold) => checker.check(threshold))
       );
-    if (validOmikuji.length === 0) return null;
+    if (validOmikujis.length === 0) return null;
 
-    return this.omikenSelectItem(validOmikuji);
+    return this.omikujisLottery(validOmikujis);
   }
 
-  // アイテム抽選
-  omikenSelectItem(items: OmikujiType[]): OmikujiType | null {
+  // おみくじ(アイテム抽選)
+  omikujisLottery(items: OmikujiType[]): OmikujiType | null {
     if (items.length === 0) return null;
 
     // 1. rankが最も高い値を取得
@@ -174,39 +176,74 @@ export class CommentInstance {
 
   // ---
 
-  // メッセージの処理と投稿
-  async postProcess(
+  // おみくじの処理と投稿
+  async omikujiProcess(
     game: GameType,
-    place: PlaceType,
+    places: Record<string, PlaceType>,
     Charas: Record<string, PresetCharaType>,
     Scripts: Record<string, PresetScriptType>
-  ): Promise<any> {
+  ): Promise<Comment | false> {
     this.game = game; // Gameをthisに入れる
     this.omikenDraws(); // drawsのインクリメント
-    const omikuji = this.selectOmikuji;
 
     // statusがあるなら書き換え
-    if (omikuji.status) this.visit.status = omikuji.status;
-
-    // omikuji.delete = trueなら、コメントを消す
-    const isComment = !omikuji.delete;
+    if (this.selectOmikuji.status)
+      this.visit.status = this.selectOmikuji.status;
 
     // scriptがあるなら、外部スクリプトを実行、返り値を取得する
-    const placeScript = await this.postScriptPlace(omikuji, Scripts);
+    const placeScript = await this.placeScriptHandle(Scripts);
 
-    // メッセージ処理とトースト生成
-    const toastArray = await this.processOmikujiPosts(
-      omikuji,
-      place,
-      placeScript
+    // placeIds があるなら、該当する内容をplacesから取得
+    const placeData = this.placeDataHandle(places);
+
+    // おみくじの回数(個人・総合)
+    const placeDraws = {
+      draws: this.visitData.draws,
+      totalDraws: this.visitData.totalDraws,
+      gameDraws: this.game.draws,
+      gameTotalDraws: this.game.totalDraws,
+    };
+
+    // コメント(名前・コメントの回数)
+    const placeComment = {
+      user: this.comment.data.displayName,
+      tc: this.comment.meta.tc.toString(),
+      no: this.comment.meta.no.toString(),
+      lc: this.comment.meta.lc.toString(),
+    };
+
+    // this.selectOmikuji.postにある content と party に対して、プレースホルダーを置き換えする
+    // プレースホルダーの置き換え処理を共通化
+    const replacePlaceholders = (template: string): string => {
+      return template.replace(/<<(.*?)>>/g, (_, key) => {
+        // スクリプト優先
+        if (key in placeScript) return placeScript[key];
+        if (key in placeData) return placeData[key];
+        if (key in placeDraws) return placeDraws[key].toString();
+        if (key in placeComment) return placeComment[key];
+        return `<<${key}>>`; // 未解決のプレースホルダーはそのまま残す
+      });
+    };
+
+    // 配列内の全要素に対してcontentとpartyを置き換え
+    this.selectOmikuji.post = this.selectOmikuji.post.map((post) => ({
+      ...post,
+      content: replacePlaceholders(post.content),
+      party: replacePlaceholders(post.party),
+    }));
+
+    // メッセージ投稿(わんコメ/他の何らかのサービス)
+    this.selectOmikuji.post.map((post) =>
+      this.postMessage(post, Charas[post.botKey].item)
     );
-    // toast:toastArray[], // コメントにtoastを付与するときのデータ
-    // isComment : Boolean, // コメント削除ならfalseにする
-    return { toastArray, isComment };
+
+    // omikuji.delete = trueなら、コメントを消す
+    // TODO 将来、コメント編集機能も追加したいな
+    return this.selectOmikuji.delete ? false : this.comment;
   }
 
   // visitDataのdrawsをインクリメント
-  omikenDraws() {
+  private omikenDraws() {
     this.visitData = {
       ...this.visitData,
       id: this.selectOmikuji.id,
@@ -221,13 +258,12 @@ export class CommentInstance {
     };
   }
 
-  // スクリプト読み込み
-  private async postScriptPlace(
-    omikuji: OmikujiType,
+  // スクリプトを読み込み、返り値を取得
+  private async placeScriptHandle(
     Scripts: Record<string, PresetScriptType>
   ): Promise<Record<string, string>> {
-    if (!omikuji.script) return {};
-    const { scriptId, parameter } = omikuji.script;
+    if (!this.selectOmikuji.script) return {};
+    const { scriptId, parameter } = this.selectOmikuji.script;
     try {
       const module = await import(`./${Scripts[scriptId].path}`);
 
@@ -243,145 +279,87 @@ export class CommentInstance {
     }
   }
 
-  // メッセージ処理とトースト生成
-  private async processOmikujiPosts(
-    omikuji: OmikujiType,
-    place: PlaceType,
-    placeScript: Record<string, string>
-  ): Promise<OmikujiPostType[]> {
-    const toastArray: OmikujiPostType[] = [];
+  // placeIdsから使用されているプレースホルダーを探し、抽選を行い返り値を渡す
+  private placeDataHandle(
+    places: Record<string, PlaceType>
+  ): Record<string, string> {
+    if (!this.selectOmikuji.placeIds) return {};
 
-    // postの処理
-    for (const post of omikuji.post) {
-      const contentProcess = await this.postPlaceholder(
-        post.content,
-        place,
-        placeScript
-      );
+    const result: Record<string, string> = {};
 
-      const finalPost = { ...post, content: contentProcess };
-      const toast = this.postMessage(finalPost);
+    // プレースホルダー解決関数
+    const resolvePlaceholder = (value: string): string => {
+      const match = value.match(/^<<(.+?)>>$/);
+      if (!match) return value; // プレースホルダー形式でなければそのまま返す
 
-      if (toast) toastArray.push(toast);
-    }
+      const referencedId = match[1];
+      if (!places[referencedId]) return value; // 対応するplaceがなければそのまま返す
 
-    return toastArray;
-  }
-
-  // メッセージ内容の処理
-  postPlaceholder(
-    content: string,
-    place: PlaceType,
-    placeScript: Record<string, string> = {}
-  ): Promise<string> {
-    // コメントの値(user/lcなど)を置き換え
-    let contentProcess = this.postPlaceholderComment(content);
-    if (placeScript) contentProcess = this.hoge(contentProcess, placeScript);
-    // place の置き換え
-    return this.postPlaceholderPlace(contentProcess, place);
-  }
-
-  // プレースホルダー:コメントの値を置換
-  postPlaceholderComment(content: string): string {
-    const commentPlaceholders = {
-      "<<user>>": this.comment.data.displayName,
-      "<<tc>>": this.comment.meta.tc.toString(),
-      "<<no>>": this.comment.meta.no.toString(),
-      "<<lc>>": this.comment.meta.lc.toString(),
+      const selectedValue = this.selectPlaceValue(places[referencedId].values);
+      return selectedValue ? resolvePlaceholder(selectedValue.value) : value;
     };
 
-    return Object.entries(commentPlaceholders).reduce(
-      (acc, [placeholder, value]) =>
-        acc.replace(new RegExp(placeholder, "g"), value),
-      content
-    );
-  }
+    // 各placeIdに対して処理を実行
+    for (const placeId of this.selectOmikuji.placeIds) {
+      const place = places[placeId];
+      if (!place || !place.values.length) continue;
 
-  // プレースホルダー:外部スクリプトの値を置換
-  hoge(content: string, placeScript: Record<string, string>): string {
-    // プレースホルダーのパターンを正規表現でマッチ
-    return content.replace(/<<(\w+)>>/g, (_, key) => {
-      // placeScript にキーが存在する場合はその値に置き換える
-      return placeScript[key] ?? `<<${key}>>`; // 存在しない場合は元のプレースホルダーを維持
-    });
-  }
-
-  // 通常プレースホルダーの置換
-  async postPlaceholderPlace(
-    content: string,
-    place: PlaceType
-  ): Promise<string> {
-    const placeholders = content.match(/<<([^>>]+)>>/g);
-    if (!placeholders) return content;
-
-    let result = content;
-    for (const placeholder of placeholders) {
-      // TODO placeDataの取得方法は、たぶん違う気がする
-      const placeName = placeholder.slice(2, -2);
-      const placeData = place[placeName];
-      if (!placeData) continue;
-
-      const value = await this.placeValueGet(placeData);
-      if (value) {
-        result = result.replace(placeholder, value);
+      const selectedValue = this.selectPlaceValue(place.values);
+      if (selectedValue) {
+        result[placeId] = resolvePlaceholder(selectedValue.value);
       }
     }
     return result;
   }
 
-  // プレースホルダー値の取得を修正
-  private async placeValueGet(placeData: PlaceType): Promise<string | null> {
-    if (!placeData.values?.length) return null;
-    const selectedValue = this.selectPlaceValue(placeData.values);
-    return selectedValue?.value ?? null;
-  }
-
-  // ネストされたプレースホルダーの処理
-  processNestedPlaceholder(value: string, Omiken: OmikenType): string {
-    const nestedPlaceholder = value.match(/<<([^>>]+)>>/);
-    if (!nestedPlaceholder) return value;
-
-    const nestedPlaceName = nestedPlaceholder[1];
-    const nestedPlaceData = Omiken.place[nestedPlaceName];
-    if (!nestedPlaceData) return value;
-
-    const nestedValue = this.selectPlaceValue(nestedPlaceData.values);
-    return nestedValue ? value.replace(/<<[^>>]+>>/, nestedValue.value) : value;
-  }
-
-  // メッセージの投稿 toast ならそのまま返し、それ以外はわんコメへ投稿
-  postMessage(post: OmikujiPostType) {
-    const { type, botKey, iconKey } = post;
-
-    switch (type) {
-      case "toast":
-        return post;
-      case "onecomme":
-        postOneComme(post);
-        break;
-      case "party":
-        postWordParty(post);
-        break;
-      case "speech":
-        postSpeech(post);
-        break;
-    }
-    return null;
-  }
-
-  // プレースホルダー値の抽選ヘルパー関数
-  selectPlaceValue(values: PlaceValueType[]): PlaceValueType | null {
+  // selectPlaceValue関数
+  private selectPlaceValue(values: PlaceValueType[]): PlaceValueType | null {
     const totalWeight = values.reduce(
-      (sum, { weight }) => sum + (weight >= 0 ? weight : 1),
+      (sum, { weight }) => sum + Math.max(weight, 0), // 負のweightは0として扱う
       0
     );
     if (totalWeight <= 0) return null;
 
     let rand = Math.random() * totalWeight;
-    return (
-      values.find(
-        (value) => (rand -= value.weight >= 0 ? value.weight : 1) < 0
-      ) ?? null
-    );
+    for (const value of values) {
+      rand -= Math.max(value.weight, 0);
+      if (rand < 0) return value;
+    }
+
+    return null;
+  }
+
+  // メッセージ投稿(現在はわんコメのみ、toast 機能は未実装)
+  postMessage(post: OmikujiPostType, chara: CharaType) {
+    const { type, iconKey, content, party, delaySeconds } = post;
+    if (!content?.trim()) return; // 空のメッセージは処理しない
+
+    switch (type) {
+      case "onecomme":
+        // キャラデータを取得
+        const charaImage = chara.image[iconKey] || chara.image.Default;
+
+        const Request: postOneCommeRequestType = {
+          service: {
+            id: chara.frameId || this.TimeConfig.defaultFrameId,
+          },
+          comment: {
+            id: Date.now() + Math.random().toString().slice(2, 12),
+            userId: "FirstCounter",
+            name: chara.name,
+            comment: content,
+            profileImage: charaImage ? charaImage : "",
+          },
+        };
+        postOneComme(delaySeconds, Request);
+        break;
+      case "party":
+        postWordParty(delaySeconds, content);
+        break;
+      case "speech":
+        postSpeech(delaySeconds, content);
+        break;
+    }
+    return null;
   }
 }

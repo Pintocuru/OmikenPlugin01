@@ -43,6 +43,7 @@ const plugin: OnePluginOmiken = {
     Visits: {},
     Games: {},
     TimeConfig: {
+      defaultFrameId: "", // わんコメの一番上の枠ID
       pluginTime: 0, // プラグインを起動した時刻
       lastTime: 0, // 最後におみくじ機能が実行された時刻
       lastUserId: "", // 最後におみくじを行ったuserId
@@ -50,7 +51,7 @@ const plugin: OnePluginOmiken = {
   },
 
   // プラグインの初期化
-  init({ store }: { store: ElectronStore<StoreType> }) {
+  init({ store }: { store: ElectronStore<StoreType> }, initialData) {
     // データ読み込み
     this.store = store;
     this.initLoadData();
@@ -58,6 +59,10 @@ const plugin: OnePluginOmiken = {
     // 枠情報の更新
     const now = Date.now();
     this.store.set(`TimeConfig.pluginTime`, now);
+    // わんコメの一番上の枠IDを取得し、defaultFrameIdにする
+    const servicesId = initialData.services[0].id;
+    console.warn(servicesId); // TODO ちゃんとID取得できてる?
+    this.store.set(`TimeConfig.defaultFrameId`, servicesId);
 
     // プリセットデータの読み込み
     this.initPresetLoad();
@@ -159,7 +164,7 @@ const plugin: OnePluginOmiken = {
       const game = this.Games[ruleId] as GameType;
 
       // 編集したコメントかfalseを返す
-      return this.postProcess(game, places, this.Charas, this.Scripts);
+      return Instance.omikujiProcess(game, places, this.Charas, this.Scripts);
     } finally {
       const ruleId = Instance.getDATA("ruleId") as string;
       // おみくじを実行した場合

@@ -4,6 +4,7 @@ import { Comment } from "@onecomme.com/onesdk/types/Comment";
 import { CharaType, OmikenType, OmikujiPostType, PresetScriptType } from "./index";
 import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
 import ElectronStore from "electron-store";
+import { Service } from "@onecomme.com/onesdk/types/Service";
 
 // ---------------------------------------------------
 
@@ -45,12 +46,27 @@ export interface GameType extends DrawsBase {
 }
 
 // TimeConfig
-export interface TimeConfigType  {
+export interface TimeConfigType {
+  defaultFrameId: string; // わんコメの一番上の枠ID(わんコメの投稿で使用)
   pluginTime: number; // プラグインを起動した時刻
   lastTime: number; // 最後におみくじ機能が実行された時刻
   lastUserId: string; // 最後におみくじを行ったuserId
 }
 
+
+// ---
+
+// わんコメにpostする際の型定義
+export interface postOneCommeRequestType {
+  service: Pick<Service, "id">;
+  comment: {
+    id: string;
+    userId: string;
+    name: string;
+    comment: string;
+    profileImage?: string;
+  };
+}
 
 // ---------------------------------------------------
 
