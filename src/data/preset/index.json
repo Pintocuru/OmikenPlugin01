@@ -1,0 +1,42 @@
+[
+  {
+    "id": "reimu",
+    "name": "ゆっくり霊夢",
+    "description": "アイコンの配布先とか書いておきたいね",
+    "type": "CHARA",
+    "path": "/img/reimu.json",
+    "banner": "/images/preset-3-banner.jpg"
+  },
+  {
+    "id": "marisa",
+    "name": "ゆっくり魔理沙",
+    "description": "アイコンの配布先とか書いておきたいね",
+    "type": "CHARA",
+    "path": "/img/marisa.json",
+    "banner": "/images/preset-3-banner.jpg"
+  },
+  {
+    "id": "preset-1",
+    "name": "おみくじ",
+    "description": "霊夢のおみくじ・魔理沙のフラワーおみくじセット",
+    "type": "Omiken",
+    "path": "/preset-1.json",
+    "banner": "/images/preset-1-banner.jpg"
+  },
+  {
+    "id": "checkCount",
+    "name": "初見判定ちゃん",
+    "description": "初見判定ちゃんセット",
+    "type": "Omiken",
+    "path": "/preset-checkCount.json",
+    "banner": "/images/preset-1-banner.jpg"
+  },
+  {
+    "id": "preset-0",
+    "name": "リセット",
+    "description": "null",
+    "type": "Omiken",
+    "path": "/preset-0.json",
+    "banner": "/images/preset-1-banner.jpg"
+  }
+]

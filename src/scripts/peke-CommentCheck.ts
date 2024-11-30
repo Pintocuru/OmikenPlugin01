@@ -1,6 +1,6 @@
 // src/scripts/CommentCheck.js
 import {
-  BaseComment,
+  CommentOmiken,
   OmikenType,
   OmikujiPostType,
   OmikujiType,
@@ -8,11 +8,10 @@ import {
   RulesType,
 } from "../types/index";
 import { postOneComme, postSpeech, postWordParty } from "./PostOmikuji";
-import { thresholdCheck } from "./ThresholdCheck";
 
 // おみくじ:メイン処理
 export const handleFilterComment =  (
-  comment: BaseComment,
+  comment: CommentOmiken,
   Omiken: OmikenType,
   visitData: undefined, // 個人データ
   Ganes: undefined, // おみくじデータ
@@ -33,7 +32,7 @@ export const handleFilterComment =  (
 
 // ルールとおみくじの処理
 const omikenSelect = (
-  comment: BaseComment,
+  comment: CommentOmiken,
   Omiken: OmikenType
 ): OmikujiType | null => {
   // rulesOrderに基づいて配列にする
@@ -86,7 +85,7 @@ const omikenValidOmikuji = (
   rule: RulesType,
   Omiken: OmikenType
 ): OmikujiType[] => {
-  return rule.enabledIds
+  return rule.enableIds
     .map((id) => Omiken.omikuji[id])
     .filter((omikuji) => thresholdCheck(comment, omikuji.threshold));
 };

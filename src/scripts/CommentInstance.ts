@@ -1,53 +1,67 @@
 // src/scripts/CommentInstance.ts
 
 import {
-  BaseComment,
   GameType,
   OmikenType,
   OmikujiPostType,
   OmikujiType,
   PlaceType,
   PlaceValueType,
+  PresetCharaType,
+  PresetScriptType,
   RulesType,
   visitDataType,
   VisitType,
 } from "../../src/types/index";
 import { postOneComme, postWordParty, postSpeech } from "./PostOmikuji";
-import { thresholdCheck } from "./ThresholdCheck";
+import { ThresholdChecker } from "./ThresholdCheck";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
 //////////////////////////////////
 // コメントのインスタンス化
 //////////////////////////////////
 export class CommentInstance {
-  comment: BaseComment;
-  selectOmikuji: OmikujiType;
-  visit: Partial<VisitType>;
-  Game: GameType;
-  visitData: visitDataType;
-  Tester: boolean;
+  private comment: Comment;
+  private AppSettings: any; // TODO あとで型指定
+  private selectRule: RulesType;
+  private selectOmikuji: OmikujiType;
+  private visit: VisitType;
+  private game: GameType;
+  private visitData: visitDataType;
+  private isTester: boolean;
 
   // TODO 配信枠のデータも取得する
-  constructor(comment: BaseComment, visit: VisitType) {
-    this.comment = comment;
-    // 配信サイトでないコメントはVisitに入れない
-    this.Tester =
-      comment.service === "external" || comment.id === "COMMENT_TESTER";
-    // コメントテスターであれば、仮のmetaデータを入れる
-    this.comment.meta =
-      comment.id === "COMMENT_TESTER"
-        ? { interval: 999999, tc: 10, no: 2, lc: 10 }
-        : this.comment.meta;
-    // ギフトが存在し、かつunitが$ならpriceを100倍(えっ、1ドル100円ですか?)
-    if (this.comment.data?.unit === "$") {
-      this.comment.data.price *= 100;
-      this.comment.data.unit = "¥";
-    }
-    // visitData // TODO visitはリセットしなくなったので、作り直さないといけない
+  constructor(comment: Comment, visit: VisitType, AppSettings: any) {
+    this.comment = this.thisComment(comment);
+    this.AppSettings = AppSettings;
     this.visit = visit || {
       name: comment.data.displayName,
-      isSyoken: comment.meta.interval === 0, // 初見なら、visitに初見をつける
-      // TODO 枠変更した時、visitDataに入っているすべてのdrawsを0にする
+      userId: comment.data.userId,
+      status: "syoken",
+      serviceId: "",
+      visitData: {},
     };
+  }
+
+  // コメントの前処理
+  private thisComment(comment: Comment): Comment {
+    this.isTester =
+      comment.service === "external" || comment.id === "COMMENT_TESTER";
+
+    // コメントテスター用の擬似メタデータ
+    comment.meta =
+      comment.id === "COMMENT_TESTER"
+        ? { interval: 999999, tc: 10, no: 2, lc: 10 }
+        : comment.meta;
+
+    // ギフト価格の通貨変換(えっ、1ドル100円ですか?)
+    if (comment.data && "unit" in comment.data) {
+      if (comment.data.unit === "$") {
+        comment.data.price *= 100;
+        comment.data.unit = "¥";
+      }
+    }
+    return comment;
   }
 
   // データを返す
@@ -56,25 +70,24 @@ export class CommentInstance {
       // テスターでないなら、comment.data.userIdを返す
       userId: () => this.comment.data.userId,
       // おみくじのidを返す
-      omikujiId: () => this.selectOmikuji.id,
+      ruleId: () => this.selectRule.id,
       // Gameを返す
-      Game: () => this.Game,
+      Game: () => this.game,
       // visit情報を返す
       visit: () => this.visit,
     };
     return dataMap[data] && dataMap[data]();
   }
 
-  // おみくじCheck・実行の全体の処理
-  handleOmiken() {
-    // ルールとおみくじの処理
-    const selectedOmikuji = this.omikenSelect(Omiken);
-    if (!selectedOmikuji) return null;
+  // ユーザーの枠情報が空白または異なるなら、Visitを初期化
+  resetVisit(nowServiceId: string) {
+    if (this.visit.serviceId === nowServiceId) return;
 
-    // メッセージの処理と投稿
-    const toast = this.postProcess(selectedOmikuji, this.comment, Omiken);
-    if (!toast) return null;
-    return toast;
+    // statusを空白にし、drawsを0にする
+    this.visit.status = "";
+    Object.values(this.visit.visitData).forEach((data) => {
+      data.draws = 0;
+    });
   }
 
   // ---
@@ -82,113 +95,184 @@ export class CommentInstance {
   // rulesとomikujiから該当するおみくじを抽選する
   omikenSelect(Omiken: OmikenType): boolean {
     // rulesOrderに基づいて配列にする
-    const rules = this.omikenRulesSort(Omiken.rules, Omiken.rulesOrder);
+    const rules = Omiken.rulesOrder.map((key) => Omiken.rules[key]);
 
-    // 各ルールに対して処理を実行
-    const selectedOmikuji = rules
-      .map((rule) => this.omikenProcessRule(this.comment, rule, Omiken))
-      .find((result) => result !== null);
+    // 各ルールに対して処理を実行し、ruleも一緒に返す
+    const result = rules
+      .map((rule) => ({
+        rule,
+        omikuji: this.omikenProcessRule(rule, Omiken.omikuji),
+      }))
+      .find(({ omikuji }) => omikuji !== null);
 
-    if (selectedOmikuji) {
-      this.selectOmikuji = selectedOmikuji;
-      this.visitData = this.visit.visitData[selectedOmikuji.id];
-      this.omikenVisitDraws();
+    if (result) {
+      this.selectRule = result.rule; // ヒットしたruleを設定
+      this.selectOmikuji = result.omikuji; // ヒットしたomikujiを設定
+      this.visitData = this.visit.visitData[result.rule.id]; // visitDataを取得
       return true;
     }
     return false;
   }
 
-  // visitDataのdrawsをインクリメント
-  omikenVisitDraws() {
-    this.visitData = {
-      ...this.visitData,
-      id: this.selectOmikuji.id,
-      draws: (this.visitData.draws || 0) + 1, // TODO 枠変更時に初期化したい
-      totalDraws: (this.visitData.totalDraws || 0) + 1,
-    };
-  }
-
-  // ルールの並び替え処理
-  omikenRulesSort(
-    rules: Record<string, RulesType>,
-    rulesOrder: string[]
-  ): RulesType[] {
-    // 優先順位
-    const conditionTypeOrder = ["match", "gift", "syoken", "access", "count"];
-
-    return rulesOrder
-      .map((key) => rules[key])
-      .filter((rule) => rule.threshold.conditionType !== "timer")
-      .sort((a, b) => {
-        const indexA = conditionTypeOrder.indexOf(a.threshold.conditionType);
-        const indexB = conditionTypeOrder.indexOf(b.threshold.conditionType);
-        return indexA - indexB;
-      });
-  }
-
   // 単一ルールの処理
   omikenProcessRule(
-    comment: BaseComment,
     rule: RulesType,
-    Omiken: OmikenType
+    omikujis: Record<string, OmikujiType>
   ): OmikujiType | null {
-    if (!thresholdCheck(comment, rule.threshold)) return null;
+    // thresholdチェック(New)
+    const checker = new ThresholdChecker(
+      rule,
+      this.comment,
+      this.visit,
+      this.AppSettings
+    );
+    const isValid = rule.threshold.every((threshold) =>
+      checker.check(threshold)
+    );
+    if (!isValid) return null;
 
-    const validOmikuji = this.omikenValidOmikuji(comment, rule, Omiken);
+    // 有効なおみくじの取得
+    const validOmikuji = rule.enableIds
+      .map((id) => omikujis[id])
+      .filter((omikuji) =>
+        omikuji.threshold.every((threshold) => checker.check(threshold))
+      );
     if (validOmikuji.length === 0) return null;
 
     return this.omikenSelectItem(validOmikuji);
   }
 
-  // 有効なおみくじの取得
-  omikenValidOmikuji(
-    comment: BaseComment,
-    rule: RulesType,
-    Omiken: OmikenType
-  ): OmikujiType[] {
-    return rule.enabledIds
-      .map((id) => Omiken.omikuji[id])
-      .filter((omikuji) => thresholdCheck(comment, omikuji.threshold));
-  }
-
   // アイテム抽選
   omikenSelectItem(items: OmikujiType[]): OmikujiType | null {
-    const totalWeight = items.reduce(
+    if (items.length === 0) return null;
+
+    // 1. rankが最も高い値を取得
+    const maxRank = Math.max(...items.map((item) => item.rank));
+
+    // 2. rankが最も高いアイテムだけをフィルタリング
+    const filteredItems = items.filter((item) => item.rank === maxRank);
+
+    // 3. 合計ウェイトを計算
+    const totalWeight = filteredItems.reduce(
       (sum, { weight }) => sum + (weight >= 0 ? weight : 1),
       0
     );
     if (totalWeight <= 0) return null;
 
+    // 4. 抽選処理
     let rand = Math.random() * totalWeight;
     return (
-      items.find((item) => (rand -= item.weight >= 0 ? item.weight : 1) < 0) ??
-      null
+      filteredItems.find(
+        (item) => (rand -= item.weight >= 0 ? item.weight : 1) < 0
+      ) ?? null
     );
   }
 
   // ---
 
   // メッセージの処理と投稿
-  async postProcess(Game: GameType, place: PlaceType): Promise<any> {
-    // Gameをthisに入れる
-    this.Game = Game;
+  async postProcess(
+    game: GameType,
+    place: PlaceType,
+    Charas: Record<string, PresetCharaType>,
+    Scripts: Record<string, PresetScriptType>
+  ): Promise<any> {
+    this.game = game; // Gameをthisに入れる
+    this.omikenDraws(); // drawsのインクリメント
+    const omikuji = this.selectOmikuji;
+
+    // statusがあるなら書き換え
+    if (omikuji.status) this.visit.status = omikuji.status;
+
+    // omikuji.delete = trueなら、コメントを消す
+    const isComment = !omikuji.delete;
+
+    // scriptがあるなら、外部スクリプトを実行、返り値を取得する
+    const placeScript = await this.postScriptPlace(omikuji, Scripts);
+
+    // メッセージ処理とトースト生成
+    const toastArray = await this.processOmikujiPosts(
+      omikuji,
+      place,
+      placeScript
+    );
+    // toast:toastArray[], // コメントにtoastを付与するときのデータ
+    // isComment : Boolean, // コメント削除ならfalseにする
+    return { toastArray, isComment };
+  }
+
+  // visitDataのdrawsをインクリメント
+  omikenDraws() {
+    this.visitData = {
+      ...this.visitData,
+      id: this.selectOmikuji.id,
+      draws: (this.visitData.draws || 0) + 1,
+      totalDraws: (this.visitData.totalDraws || 0) + 1,
+    };
+    this.game = {
+      ...this.game,
+      id: this.selectRule.id,
+      draws: (this.visitData.draws || 0) + 1,
+      totalDraws: (this.visitData.totalDraws || 0) + 1,
+    };
+  }
+
+  // スクリプト読み込み
+  private async postScriptPlace(
+    omikuji: OmikujiType,
+    Scripts: Record<string, PresetScriptType>
+  ): Promise<Record<string, string>> {
+    if (!omikuji.script) return {};
+    const { scriptId, parameter } = omikuji.script;
+    try {
+      const module = await import(`./${Scripts[scriptId].path}`);
+
+      if (typeof module.default === "function") {
+        return module.default(parameter) || {};
+      }
+
+      console.error("スクリプトに実行可能な関数が見つかりません。");
+      return {};
+    } catch (err) {
+      console.error(`スクリプトの読み込みに失敗しました: ${err}`);
+      return {};
+    }
+  }
+
+  // メッセージ処理とトースト生成
+  private async processOmikujiPosts(
+    omikuji: OmikujiType,
+    place: PlaceType,
+    placeScript: Record<string, string>
+  ): Promise<OmikujiPostType[]> {
+    const toastArray: OmikujiPostType[] = [];
 
     // postの処理
-    const toastArray: OmikujiPostType[] = [];
-    for (const post of this.selectOmikuji.post) {
-      const contentProcess = await this.postPlaceholder(post.content, place);
+    for (const post of omikuji.post) {
+      const contentProcess = await this.postPlaceholder(
+        post.content,
+        place,
+        placeScript
+      );
+
       const finalPost = { ...post, content: contentProcess };
-      const toast = postMessage(finalPost);
-      // toast投稿があるなら蓄える
+      const toast = this.postMessage(finalPost);
+
       if (toast) toastArray.push(toast);
     }
-    return toastArray.length !== 0 ? toastArray : null;
+
+    return toastArray;
   }
 
   // メッセージ内容の処理
-  postPlaceholder(content: string, place: PlaceType): Promise<string> {
+  postPlaceholder(
+    content: string,
+    place: PlaceType,
+    placeScript: Record<string, string> = {}
+  ): Promise<string> {
     // コメントの値(user/lcなど)を置き換え
     let contentProcess = this.postPlaceholderComment(content);
+    if (placeScript) contentProcess = this.hoge(contentProcess, placeScript);
     // place の置き換え
     return this.postPlaceholderPlace(contentProcess, place);
   }
@@ -207,6 +291,15 @@ export class CommentInstance {
         acc.replace(new RegExp(placeholder, "g"), value),
       content
     );
+  }
+
+  // プレースホルダー:外部スクリプトの値を置換
+  hoge(content: string, placeScript: Record<string, string>): string {
+    // プレースホルダーのパターンを正規表現でマッチ
+    return content.replace(/<<(\w+)>>/g, (_, key) => {
+      // placeScript にキーが存在する場合はその値に置き換える
+      return placeScript[key] ?? `<<${key}>>`; // 存在しない場合は元のプレースホルダーを維持
+    });
   }
 
   // 通常プレースホルダーの置換
@@ -234,30 +327,9 @@ export class CommentInstance {
 
   // プレースホルダー値の取得を修正
   private async placeValueGet(placeData: PlaceType): Promise<string | null> {
-    try {
-      switch (placeData.type) {
-        case "single":
-          // values が undefined の場合のガード
-          if (!placeData.values?.length) return null;
-          return placeData.values[0].value;
-
-        case "weight":
-          if (!placeData.values?.length) return null;
-          const selectedValue = this.selectPlaceValue(placeData.values);
-          return selectedValue?.value ?? null;
-
-        case "script":
-          if (!placeData.script) return null;
-          return await this.executeScript(placeData);
-
-        default:
-          const _exhaustiveCheck: never = placeData.type; // 型の網羅性チェック
-          return null;
-      }
-    } catch (error) {
-      console.error("Error in placeValueGet:", error);
-      return null;
-    }
+    if (!placeData.values?.length) return null;
+    const selectedValue = this.selectPlaceValue(placeData.values);
+    return selectedValue?.value ?? null;
   }
 
   // ネストされたプレースホルダーの処理
@@ -307,18 +379,5 @@ export class CommentInstance {
         (value) => (rand -= value.weight >= 0 ? value.weight : 1) < 0
       ) ?? null
     );
-  }
-
-  // スクリプト実行処理を追加
-  private async executeScript(placeData: PlaceType): Promise<string | null> {
-    if (!placeData.script?.url) return null;
-    try {
-      const scriptModule = await import(placeData.script.url);
-      const result = await scriptModule.default(this.visit);
-      return String(result);
-    } catch (error) {
-      console.error("Script execution error:", error);
-      return null;
-    }
   }
 }

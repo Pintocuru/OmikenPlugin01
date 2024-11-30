@@ -1,0 +1,12 @@
+{
+  "rules": {},
+  "omikuji": {},
+  "place": {},
+  "rulesOrder": [],
+  "preferences": {
+    "basicDelay": 1,
+    "omikujiCooldown": 2,
+    "commentDuration": 5,
+    "BotUserIDname": "FirstCounter"
+  }
+}

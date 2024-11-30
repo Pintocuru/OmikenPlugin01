@@ -1,185 +1,168 @@
-// src/scripts/ThresholdCheck.js
+// src/scripts/ThresholdCheck.ts
 
 import {
-  BaseComment,
-  ThresholdType,
-  SyokenCondition,
   AccessCondition,
-  ClockCondition,
-  GiftCondition,
   CountCondition,
-  ElapsedCondition,
-  ComparisonType,
-} from "../../src/types/types";
+  MatchCondition,
+  RulesType,
+  SyokenCondition,
+  ThresholdType,
+  VisitType,
+} from "../../src/types/index";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
-// threshold判定(rules/omikuji)
-export const thresholdCheck = (comment: BaseComment, threshold: ThresholdType) => {
+// 条件
+export class ThresholdChecker {
+  private rule: RulesType;
+  private comment?: Comment;
+  private visit: VisitType;
+  private AppSettings: any;
 
-  switch (threshold.conditionType) {
-    case "none":
-      return true;
-    case "match":
-      return matchCommentText(comment.data.comment, threshold.match);
-    case "gift":
-      return matchIsGift(comment, threshold.gift);
-    case "syoken":
-      return matchIsSyoken(comment, threshold.syoken);
-    case "access":
-      return matchIsAccess(comment, threshold.access);
-    case "count":
-      return matchIsCount(comment, threshold.count);
-    case "clock":
-      return matchIsClock(comment, threshold.clock);
-    case "elapsed":
-      return matchIsElapsed(comment.meta.interval, threshold.elapsed);
-    default:
-      return false;
+  constructor(
+    rule: RulesType,
+    comment: Comment | undefined,
+    visit: VisitType,
+    AppSettings: any // TODO 型指定を追加
+  ) {
+    this.rule = rule;
+    this.comment = comment;
+    this.visit = visit;
+    this.AppSettings = AppSettings;
   }
-};
 
-// match:キーワードと一致するか
-function matchCommentText(commentText: string, match: string[]) {
-  return ["matchExact", "matchStartsWith", "matchIncludes"].some(
-    (matchType) => {
-      const words = match[matchType];
-      return (
-        words?.some((word: string) => {
-          const isEmoji = /\p{Emoji}/u.test(word);
-          const compareWord = isEmoji ? word : word.toLowerCase();
-          const compareComment = isEmoji
-            ? commentText
-            : commentText.toLowerCase();
+  /**
+   * 閾値条件をチェックする主要メソッド
+   * @param threshold 閾値の条件オブジェクト
+   * @returns 条件に合致するかどうかのブール値
+   */
+  check(threshold: ThresholdType): boolean {
+    const conditionMap = {
+      target: () => this.matchIsTarget(),
+      cooldown: () => this.matchIsCooldown(threshold.cooldown),
+      syoken: () => this.matchIsSyoken(threshold.syoken),
+      access: () => this.matchIsAccess(threshold.access),
+      count: () => this.matchIsCount(threshold.count),
+      match: () => this.matchIsMatch(threshold.match),
+    };
 
-          switch (matchType) {
-            case "matchExact":
-              return compareWord === compareComment;
-            case "matchStartsWith":
-              return compareComment.startsWith(compareWord);
-            case "matchIncludes":
-              return compareComment.includes(compareWord);
-            default:
-              return false;
-          }
-        }) || false
-      );
+    return conditionMap[threshold.conditionType]?.() ?? false;
+  }
+
+  // 前回のコメントと今回のコメントが同一人物なら適用
+  private matchIsTarget(): boolean {
+    return this.AppSettings.lastUserId === this.comment.data.userId;
+  }
+
+  // クールダウンのチェック
+  private matchIsCooldown(cooldown: number): boolean {
+    const now = Date.now();
+    const lastTime = this.AppSettings.lastTime;
+    return lastTime > now + cooldown * 1000;
+  }
+
+  // 初見・久しぶりのチェック
+  private matchIsSyoken(syoken: SyokenCondition): boolean {
+    if (!this.comment) return false; // コメントがない場合はfalse
+
+    // 1回目のコメントでない場合は即座にfalse
+    if (this.comment.meta.no !== 1) return false;
+
+    const { interval } = this.comment.meta;
+    const conditions = {
+      1: () => interval === 0, // 初見
+      2: () => interval > 7 * 24 * 60 * 60 * 1000, // 久しぶり
+      3: () => true, // こんにちは
+    };
+
+    return conditions[syoken]?.() ?? false;
+  }
+
+  // ユーザーの役職
+  private matchIsAccess(access: AccessCondition): boolean {
+    if (!this.comment) return false; // コメントがない場合はfalse
+
+    const isOwner = this.comment.data.isOwner; // 配信者
+    // isModerator isMember はすべてのdataにあるわけではない
+    const isModerator = (this.comment.data as { isModerator?: boolean })
+      .isModerator; // モデレーター
+    const isMember = (this.comment.data as { isMember?: boolean }).isMember; // メンバー
+
+    // 条件判定
+    if (access <= 4 && isOwner) return true;
+    if (access <= 3 && isModerator) return true;
+    if (access <= 2 && isMember) return true;
+    return false;
+  }
+
+  // 数値を参照する
+  private matchIsCount(count: CountCondition): boolean {
+    // draws以外が選ばれていてcommentがundefinedならfalse
+    if (!this.comment && count.unit !== "draws") return false;
+
+    // giftはすべてのdataにあるわけではない
+    let gift = 0;
+    if (this.comment?.data && "price" in this.comment.data) {
+      gift = this.comment.data.price;
     }
-  );
-}
 
-// 初見判定ちゃん
-function matchIsSyoken(comment: BaseComment, syoken: SyokenCondition): boolean {
-  // tc:個人総コメント数/no:該当枠内の個人コメント数
-  const { tc, no, interval } = comment.meta;
+    const unitMap = {
+      draws: this.visit.visitData[this.rule.id].draws || 0,
+      gift,
+      lc: this.comment.meta.lc,
+      no: this.comment.meta.no,
+      tc: this.comment.meta.tc,
+      interval: this.comment.meta.interval,
+    };
 
-  const SYOKEN_COMMENT_LIMIT = 5;
-  const SYOKEN_INTERVAL = 60 * 60 * 1000; // 1時間
-  const AGAIN_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7日
-
-  // 早期リターンで簡潔に
-  if (syoken === "syoken")
-    return tc <= SYOKEN_COMMENT_LIMIT && interval < SYOKEN_INTERVAL;
-  if (syoken === "again") return interval > AGAIN_INTERVAL;
-  if (syoken === "hi") return no === 1;
-  return false;
-}
-
-// 役職チェック
-function matchIsAccess(comment: BaseComment, access: AccessCondition): boolean {
-  // インライン型定義を使用し、`isModerator` と `isMember` の存在チェックを追加
-  const isOwner = comment.data.isOwner; // 配信者
-  const isModerator = (comment.data as { isModerator?: boolean }).isModerator; // モデレーター
-  const isMember = (comment.data as { isMember?: boolean }).isMember; // メンバー
-
-  // 条件判定
-  if (access === 1) return true;
-  if (access <= 4 && isOwner) return true;
-  if (access <= 3 && isModerator) return true;
-  if (access <= 2 && isMember) return true;
-
-  return false;
-}
-
-// 時計
-function matchIsClock(comment: BaseComment, clock: ClockCondition): boolean {
-  const startHour = clock.startHour; // 開始時刻 (0-23)
-  const durationHours = clock.durationHours; // 有効な時間の継続時間
-
-  // 現在時刻 (日本時間) を取得し、時間のみを取得
-  const now = new Date().getHours(); // 仮に 19:33 の場合、19 が返る
-
-  // 開始時刻からの有効範囲の終了時刻を計算
-  const endHour = (startHour + durationHours) % 24;
-
-  // 範囲チェック
-  if (startHour < endHour) {
-    // 開始時刻から終了時刻が同日内の場合
-    return now >= startHour && now < endHour;
-  } else {
-    // 開始時刻から終了時刻が翌日にまたがる場合
-    return now >= startHour || now < endHour;
+    return matchIsCountHelper(unitMap[count.unit] || 0, count);
   }
-}
 
-// ギフト関数
-function matchIsGift(comment: BaseComment, gift: GiftCondition): boolean {
-  const giftObj = comment.data.gift;
-  console.log(giftObj); // TODO gift の値がわからない
-  return false;
+  // 文字列を参照する
+  private matchIsMatch(match: MatchCondition): boolean {
+    // status以外が選ばれていてcommentがundefinedならfalse
+    if (!this.comment && match.target !== "status") return false;
 
-  // 数値比較用ヘルパー関数を呼び出し、結果を返す
-  //return matchNumberHelper(count.comparison, value, count.value1, count.value2);
-}
+    // マッチング対象のテキストを安全に取得
+    const targetMap = {
+      status: this.visit.status,
+      comment: this.comment.data?.comment,
+      name: this.comment.data?.name,
+      displayName: this.comment.data?.displayName,
+    };
 
-// カウントチェック関数
-function matchIsCount(comment: BaseComment, count: CountCondition): boolean {
-  // tc:個人総コメント数/no:該当枠内の個人コメント数/lc:該当枠内のコメント数
-  const { tc, no, lc } = comment.meta;
-  const value = count.unit === "tc" ? tc : count.unit === "no" ? no : lc;
+    const text = targetMap[match.target] || "";
 
-  // 数値比較用ヘルパー関数を呼び出し、結果を返す
-  return matchNumberHelper(count.comparison, value, count.value1, count.value2);
-}
+    return match.value.some((word) => {
+      // 絵文字の特別扱い
+      const isEmoji = /\p{Emoji}/u.test(word);
+      const normalizedWord = isEmoji ? word : word.toLowerCase();
+      const normalizedText = isEmoji ? text : text.toLowerCase();
 
-// 経過時間を見る関数
-function matchIsElapsed(interval: number, elapsed: ElapsedCondition): boolean {
-  // tc:個人総コメント数/no:該当枠内の個人コメント数/lc:該当枠内のコメント数
-  const unit = elapsed.unit;
-  let bai = 1000;
-  if (unit === "minute") bai *= 60;
-  if (unit === "hour") bai *= 60 * 60;
-  if (unit === "day") bai *= 60 * 60 * 24;
+      const matchMethods = {
+        exact: () => normalizedWord === normalizedText,
+        starts: () => normalizedText.startsWith(normalizedWord),
+        include: () => normalizedText.includes(normalizedWord),
+      };
 
-  // 数値比較用ヘルパー関数を呼び出し、結果を返す
-  return matchNumberHelper(
-    elapsed.comparison,
-    interval,
-    elapsed.value1 * bai,
-    elapsed.value2 * bai
-  );
+      return matchMethods[match.case]();
+    });
+  }
 }
 
 // 数値比較ヘルパー関数
-function matchNumberHelper(
-  comparison: ComparisonType, // 型を明確に指定
-  value: number,
-  limit1: number,
-  limit2?: number
-): boolean {
-  switch (comparison) {
-    case "range":
-      if (limit2 === undefined) return false; // 早期リターン
-      const [lower, upper] =
-        limit1 < limit2 ? [limit1, limit2] : [limit2, limit1];
-      return value >= lower && value <= upper;
-    case "loop":
-      return limit1 !== 0 && value % limit1 === 0;
-    case "min":
-      return value >= limit1;
-    case "max":
-      return value <= limit1;
-    case "equal":
-      return value === limit1;
-    default:
-      return false;
-  }
+function matchIsCountHelper(value: number, count: CountCondition): boolean {
+  const { comparison, value1, value2 } = count;
+
+  const comparisonStrategies = {
+    range: () =>
+      value2 !== undefined &&
+      value >= Math.min(value1, value2) &&
+      value <= Math.max(value1, value2),
+    loop: () => value1 !== 0 && value % value1 === 0,
+    min: () => value >= value1,
+    max: () => value <= value1,
+    equal: () => value === value1,
+  };
+
+  return comparisonStrategies[comparison]?.() ?? false;
 }

@@ -1,6 +1,6 @@
 // src/scripts/PostOmikuji.js
 
-import { OmikujiPostType } from "../../src/types/types";
+import { OmikujiPostType } from "../../src/types/index";
 import { delayTime, get, post } from "./AxiosAction";
 
 // わんコメへ投稿

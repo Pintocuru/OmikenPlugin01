@@ -1,13 +1,21 @@
 // src/main.ts
-import { handleFilterComment } from "./scripts/CommentCheck";
+import { Service } from "@onecomme.com/onesdk/types/Service";
+// プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
+import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
+import { UserNameData } from "@onecomme.com/onesdk/types/UserData";
+import ElectronStore from "electron-store";
 import { CommentInstance } from "./scripts/CommentInstance";
 import {
-  OnePlugin,
-  BaseComment,
+  StoreType,
   OmikenType,
-  CHARAType,
-  defaultStateOmikenType,
-  AppStateType,
+  CharaType,
+  VisitType,
+  GameType,
+  RulesType,
+  PresetType,
+  PresetCharaType,
+  PresetScriptType,
 } from "./types/index";
 
 const plugin: OnePlugin = {
@@ -20,24 +28,20 @@ const plugin: OnePlugin = {
 
   // プラグインの初期状態
   defaultState: {
-    AppState: {
-      Omiken: {
-        rules: {},
-        rulesOrder: [],
-        omikuji: {},
-        place: {},
-        preferences: {
-          omikujiCooldown: 2,
-          basicDelay: 0,
-          commentDuration: 0,
-          BotUserIDname: "",
-        },
-      },
-      CHARA: {},
-      Visits: {},
-      Games: {},
+    Omiken: {
+      rules: {},
+      rulesOrder: [],
+      omikuji: {},
+      place: {},
+    },
+    Charas: {},
+    Scripts: {},
+    Visits: {},
+    Games: {},
+    AppSettings: {
       nowSlotId: "", // 現在の配信枠のID
-      lastCommentTime: 0, // 最後におみくじ機能が実行された時刻
+      lastTime: 0, // 最後におみくじ機能が実行された時刻
+      lastUserId: "", // 最後におみくじを行ったuserId
     },
   },
 
@@ -48,9 +52,44 @@ const plugin: OnePlugin = {
    * filepath: this script's path
    * store: ElectronStore Instance  https://github.com/sindresorhus/electron-store?tab=readme-ov-file#instance
    */
-  init({ dir, store }, initialData) {
-    // AppStateの呼び出し
-    this.AppState = store.get("AppState");
+  init({ store }: { store: ElectronStore<StoreType> }, initialData) {
+    // データ読み込み
+    this.store = store;
+    this.Omiken = this.store.get("Omiken");
+    this.Visits = this.store.get("Visits");
+    this.Games = this.store.get("Games");
+    this.AppSettings = this.store.get("AppSettings");
+
+    // ruleTypeごとにOmiken.rulesのデータを分別する
+    this.OmikenComment = this.Omiken.rules.filter(
+      (rule: RulesType) => rule.ruleType === "comment"
+    );
+    this.OmikenTimer = this.Omiken.rules.filter(
+      (rule: RulesType) => rule.ruleType === "timer"
+    );
+
+    // Charas Scripts のプリセットデータを読み込み
+    const preset: Record<
+      string,
+      PresetType
+    > = require("./data/preset/index.json");
+    this.Charas = {};
+    this.Scripts = {};
+    // presetを振り分ける
+    Object.entries(preset).forEach(([key, value]) => {
+      if (value.type === "Chara") {
+        this.Charas[key] = value as PresetCharaType;
+      } else if (value.type === "Script") {
+        this.Scripts[key] = value as PresetScriptType;
+      }
+    });
+
+    // 初期化時、Gamesのdrawsをすべて0にする
+    const Games = this.store.get("Games") as Record<string, GameType>;
+    Object.values(Games).forEach((game) => {
+      game.draws = 0;
+    });
+    this.store.set("Games", Games);
   },
 
   /**
@@ -63,30 +102,42 @@ const plugin: OnePlugin = {
    * @param  userData - コメント投稿者のユーザーデータ
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
-  async filterComment(comment: BaseComment, service, userData) {
-    const AppState = this.AppState as defaultStateOmikenType;
-    const Omiken = AppState.Omiken;
+  async filterComment(
+    comment: Comment,
+    service: Service,
+    userData: UserNameData
+  ): Promise<Comment | false> {
+    // このプラグインが投稿したコメントを除く
+    if (comment.data.userId === "FirstCounter") return comment;
+
+    // 初期化
+    const Omiken = this.OmikenComment as OmikenType; // おみくじデータ
+    const visit = this.Visits[comment.data.userId] as VisitType; // ユーザーのvisit
+    const AppSettings = this.AppSettings as any; // 前回データ
+    const serviceId = service.id; // 現在の枠ID
+    console.warn(serviceId); // TODO 枠のID取れてるか確認して
 
     // インスタンスの発行
-    const Instance = new CommentInstance(
-      comment,
-      AppState.Visits[comment.data.userId]
-    );
+    const Instance = new CommentInstance(comment, visit, AppSettings);
     try {
-      // 前回のコメントからn秒以内ならスルーする
-      const cooldown = Omiken.preferences.omikujiCooldown;
-      if (this.skipIfRecent(cooldown)) return comment;
+      // ユーザーの枠情報が空白または異なるなら、Visitを初期化
+      Instance.resetVisit(serviceId);
+
+      // 前回のコメントから3秒以内なら、isRecentのフラグ
+      const isRecent = this.ifRecent();
 
       // おみくじCHECK
       if (!Instance.omikenSelect(Omiken)) return comment;
 
       // おみくじがあるなら、おみくじを実行
-      const omikujiId = Instance.getDATA("omikujiId");
-      const Game = AppState.Games[omikujiId];
-      const result = this.postProcess(Game, Omiken.place);
-
-
-
+      const ruleId = Instance.getDATA("ruleId") as string;
+      const game = this.Games[ruleId] as GameType;
+      const result = this.postProcess(
+        game,
+        Omiken.place,
+        this.Charas,
+        this.Scripts
+      );
     } finally {
       // gameStatsを書き換える
       const newGameStats = Instance.getDATA("gameStats");
@@ -104,41 +155,18 @@ const plugin: OnePlugin = {
         }
       }
     }
-
-    /**
-
-     * Q.
-     * handleFilterComment(
-     * comment, // コメント
-     * this.AppState.Omiken, // おみくじデータ
-     * this.AppState.Visits[comment.data.userId].visitData, // 個人データ
-     * this.AppState.Games, // おみくじデータ
-     * )
-     *
-     */
-
-    // 前回のコメントからn秒以内ならスルーする
-    const cooldown = this.Omiken.preferences.omikujiCooldown;
-    if (this.skipIfRecent(cooldown)) {
-      return comment;
-    } else {
-      const result = handleFilterComment(comment, this.AppState.Omiken);
-      // resultは、visitData(個別)、Gamesが返る
-      if (result.toast) {
-        comment.omiken.toast = toast;
-      }
-      return comment;
-    }
   },
 
   // クールダウンチェック関数
-  skipIfRecent(cooldownSeconds: number = 2): boolean {
+  ifRecent(cooldownSeconds: number = 3): boolean {
     const now = Date.now();
-    const elapsed = (now - this.AppState.lastOmikujiTime) / 1000; // 経過秒数
+    const lastTime = this.store.get("AppSettings.lastTime");
+    const elapsed = (now - lastTime) / 1000; // 経過秒数
+    const isOnCooldown = elapsed <= cooldownSeconds;
 
-    // 時刻を更新
-    this.AppState.lastOmikujiTime = now;
-    return elapsed <= cooldownSeconds;
+    // cooldownSecondsより経過してるなら、lastTimeを更新
+    if (!isOnCooldown) this.store.set("AppSettings.lastTime", now);
+    return isOnCooldown;
   },
 
   /**
@@ -170,8 +198,8 @@ const plugin: OnePlugin = {
               resolve({
                 code: 200,
                 response: JSON.stringify({
-                  ...this.AppState.Omiken,
-                  ...this.AppState.CHARA,
+                  ...this.store.Omiken,
+                  ...this.store.CHARA,
                 }),
               });
               break;
@@ -198,7 +226,7 @@ const plugin: OnePlugin = {
             case "omiken":
               try {
                 const data = JSON.parse(req.body) as OmikenType;
-                this.AppState.Omiken = data;
+                this.store.Omiken = data;
                 resolve({
                   code: 200,
                   response: "Omiken updated successfully",
@@ -214,8 +242,8 @@ const plugin: OnePlugin = {
             // 保存:CHARA
             case "chara":
               try {
-                const data = JSON.parse(req.body) as CHARAType;
-                this.AppState.CHARA = data;
+                const data = JSON.parse(req.body) as CharaType;
+                this.store.CHARA = data;
                 resolve({
                   code: 200,
                   response: "CHARA updated successfully",
