@@ -4,7 +4,7 @@
 // Omiken
 ///////////////////////////////////
 
-// Omibot:おみくじボット用型定義
+// Omiken:おみくじ&初見判定ちゃんBOT用型定義
 export interface OmikenType {
   rules: Record<string, RulesType>; // おみくじのルールを管理
   rulesOrder: string[]; // ルールの順序

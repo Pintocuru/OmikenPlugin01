@@ -16,11 +16,15 @@ import {
   PresetType,
   PresetCharaType,
   PresetScriptType,
+  OmikujiType,
+  PlaceType,
+  OnePluginOmiken,
+  TimeConfigType,
 } from "./types/index";
 
-const plugin: OnePlugin = {
-  name: "おみくじプラグイン", // プラグイン名
-  uid: "OmiKen100-omi", // プラグイン固有の一意のID
+const plugin: OnePluginOmiken = {
+  name: "おみくじBOTプラグイン", // プラグイン名
+  uid: "OmikenPlugin01", // プラグイン固有の一意のID
   version: "0.0.6", // プラグインのバージョン番号
   author: "Pintocuru", // 開発者名
   url: "https://onecomme.com", // サポートページのURL
@@ -38,44 +42,68 @@ const plugin: OnePlugin = {
     Scripts: {},
     Visits: {},
     Games: {},
-    AppSettings: {
-      nowSlotId: "", // 現在の配信枠のID
+    TimeConfig: {
+      pluginTime: 0, // プラグインを起動した時刻
       lastTime: 0, // 最後におみくじ機能が実行された時刻
       lastUserId: "", // 最後におみくじを行ったuserId
     },
   },
 
-  /** プラグインの初期化関数
-   *
-   * @param { dir: string, filepath: string, store: ElectronStore} param
-   * dir: plugin directory path
-   * filepath: this script's path
-   * store: ElectronStore Instance  https://github.com/sindresorhus/electron-store?tab=readme-ov-file#instance
-   */
-  init({ store }: { store: ElectronStore<StoreType> }, initialData) {
+  // プラグインの初期化
+  init({ store }: { store: ElectronStore<StoreType> }) {
     // データ読み込み
     this.store = store;
-    this.Omiken = this.store.get("Omiken");
-    this.Visits = this.store.get("Visits");
-    this.Games = this.store.get("Games");
-    this.AppSettings = this.store.get("AppSettings");
+    this.initLoadData();
+
+    // 枠情報の更新
+    const now = Date.now();
+    this.store.set(`TimeConfig.pluginTime`, now);
+
+    // プリセットデータの読み込み
+    this.initPresetLoad();
+
+    // 初期化時、Gamesのdrawsをすべて0にする
+    this.initGamesinitialize();
+  },
+
+  // データ読み込み
+  initLoadData() {
+    // データの読み込み
+    const storeKeys = {
+      OmikenOmikuji: "Omiken.omikuji",
+      OmikenPlace: "Omiken.place",
+      Visits: "Visits",
+      Games: "Games",
+      TimeConfig: "TimeConfig",
+    };
+    Object.entries(storeKeys).forEach(([prop, key]) => {
+      this[prop] = this.store.get(key);
+    });
 
     // ruleTypeごとにOmiken.rulesのデータを分別する
-    this.OmikenComment = this.Omiken.rules.filter(
-      (rule: RulesType) => rule.ruleType === "comment"
-    );
-    this.OmikenTimer = this.Omiken.rules.filter(
-      (rule: RulesType) => rule.ruleType === "timer"
-    );
+    const rules = this.store.get("Omiken.rules") as Record<string, RulesType>;
+    const rulesOrder = this.store.get("Omiken.rulesOrder") as string[];
 
-    // Charas Scripts のプリセットデータを読み込み
+    const ruleTypes = ["comment", "timer"] as const;
+    ruleTypes.forEach((type) => {
+      const propertyName = `OmikenRules${
+        type.charAt(0).toUpperCase() + type.slice(1)
+      }`;
+      this[propertyName] = rulesOrder
+        .map((key) => rules[key])
+        .filter((rule) => rule.ruleType === type);
+    });
+  },
+
+  // プリセットデータの読み込み
+  initPresetLoad() {
     const preset: Record<
       string,
       PresetType
     > = require("./data/preset/index.json");
     this.Charas = {};
     this.Scripts = {};
-    // presetを振り分ける
+
     Object.entries(preset).forEach(([key, value]) => {
       if (value.type === "Chara") {
         this.Charas[key] = value as PresetCharaType;
@@ -83,13 +111,15 @@ const plugin: OnePlugin = {
         this.Scripts[key] = value as PresetScriptType;
       }
     });
+  },
 
-    // 初期化時、Gamesのdrawsをすべて0にする
+  // 初期化時、Gamesのdrawsをすべて0にする
+  initGamesinitialize() {
     const Games = this.store.get("Games") as Record<string, GameType>;
-    Object.values(Games).forEach((game) => {
-      game.draws = 0;
-    });
-    this.store.set("Games", Games);
+    const GamesNew = Object.fromEntries(
+      Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
+    );
+    this.store.set("Games", GamesNew);
   },
 
   /**
@@ -111,62 +141,48 @@ const plugin: OnePlugin = {
     if (comment.data.userId === "FirstCounter") return comment;
 
     // 初期化
-    const Omiken = this.OmikenComment as OmikenType; // おみくじデータ
-    const visit = this.Visits[comment.data.userId] as VisitType; // ユーザーのvisit
-    const AppSettings = this.AppSettings as any; // 前回データ
-    const serviceId = service.id; // 現在の枠ID
-    console.warn(serviceId); // TODO 枠のID取れてるか確認して
+    const rulesArray = this.OmikenRulesComment as RulesType[];
+    const omikujis = this.OmikenOmikuji as Record<string, OmikujiType>;
+    const places = this.OmikenPlace as Record<string, PlaceType>;
+    const userId = comment.data.userId;
+    const visit = this.Visits[userId] as VisitType; // ユーザーのvisit
+    const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
     // インスタンスの発行
-    const Instance = new CommentInstance(comment, visit, AppSettings);
+    const Instance = new CommentInstance(comment, visit, TimeConfig);
     try {
-      // ユーザーの枠情報が空白または異なるなら、Visitを初期化
-      Instance.resetVisit(serviceId);
-
-      // 前回のコメントから3秒以内なら、isRecentのフラグ
-      const isRecent = this.ifRecent();
-
       // おみくじCHECK
-      if (!Instance.omikenSelect(Omiken)) return comment;
+      if (!Instance.omikenSelect(rulesArray, omikujis)) return comment;
 
       // おみくじがあるなら、おみくじを実行
       const ruleId = Instance.getDATA("ruleId") as string;
       const game = this.Games[ruleId] as GameType;
-      const result = this.postProcess(
-        game,
-        Omiken.place,
-        this.Charas,
-        this.Scripts
-      );
-    } finally {
-      // gameStatsを書き換える
-      const newGameStats = Instance.getDATA("gameStats");
-      if (JSON.stringify(gameStats) !== JSON.stringify(newGameStats)) {
-        gameStats = newGameStats;
-      }
 
-      // visitを書き換える
-      const userId = Instance.getDATA("userId");
-      // 相違がある時のみ更新
-      if (userId) {
-        const newVisit = Instance.getDATA("visit");
-        if (JSON.stringify(userVisits[userId]) !== JSON.stringify(newVisit)) {
-          userVisits[userId] = newVisit;
+      // 編集したコメントかfalseを返す
+      return this.postProcess(game, places, this.Charas, this.Scripts);
+    } finally {
+      const ruleId = Instance.getDATA("ruleId") as string;
+      // おみくじを実行した場合
+      if (ruleId) {
+        // lastTime と lastUserId を更新
+        const now = Date.now();
+        this.store.set("TimeConfig.lastTime", now);
+        this.store.set("TimeConfig.lastUserId", userId);
+
+        // 相違がある時、gameを書き換える
+        const game = this.Games[ruleId] as GameType;
+        const gameNew = Instance.getDATA("game") as GameType;
+        if (JSON.stringify(game) !== JSON.stringify(gameNew)) {
+          this.store.set(`Games.${ruleId}`, gameNew);
+        }
+
+        // 相違がある時、visitを書き換える
+        const visitNew = Instance.getDATA("visit") as VisitType;
+        if (JSON.stringify(visit) !== JSON.stringify(visitNew)) {
+          this.store.set(`Visits.${userId}`, visitNew);
         }
       }
     }
-  },
-
-  // クールダウンチェック関数
-  ifRecent(cooldownSeconds: number = 3): boolean {
-    const now = Date.now();
-    const lastTime = this.store.get("AppSettings.lastTime");
-    const elapsed = (now - lastTime) / 1000; // 経過秒数
-    const isOnCooldown = elapsed <= cooldownSeconds;
-
-    // cooldownSecondsより経過してるなら、lastTimeを更新
-    if (!isOnCooldown) this.store.set("AppSettings.lastTime", now);
-    return isOnCooldown;
   },
 
   /**

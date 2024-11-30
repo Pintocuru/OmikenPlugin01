@@ -1,8 +1,5 @@
-// src/types/chara.ts
-// TODO src/types/preset.ts に変更したい
-
+// src/types/preset.ts
 import { BaseType, OmikenType } from "./index";
-
 
 // presetデータ
 export type PresetType = PresetOmikenType | PresetCharaType | PresetScriptType;
@@ -24,28 +21,12 @@ export interface PresetCharaType extends PresetBaseType {
 }
 
 // preset用外部スクリプトデータ
-export interface PresetScriptType extends PresetBaseType {
-}
+export interface PresetScriptType extends PresetBaseType {}
 
 // ---
 
 // Chara:キャラクターJSONの型定義
 export interface CharaType extends BaseType {
-  frameId: string | null; // わんコメの枠
-  color: {
-    "--lcv-name-color": string; // 名前の色
-    "--lcv-text-color": string; // コメントの色
-    "--lcv-background-color": string; // 背景色
-  };
-  image: {
-    Default: string; // defaultは必須
-    [key: string]: string; // 追加のキーに対応
-  };
-  party: string[]; // キャラクター表示時、WordPartyを発動させるキー群
-}
-
-// Script:外部スクリプトの型定義
-export interface ScriptType extends BaseType {
   frameId: string | null; // わんコメの枠
   color: {
     "--lcv-name-color": string; // 名前の色

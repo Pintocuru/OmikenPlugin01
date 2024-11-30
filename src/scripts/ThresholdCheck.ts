@@ -7,6 +7,7 @@ import {
   RulesType,
   SyokenCondition,
   ThresholdType,
+  TimeConfigType,
   VisitType,
 } from "../../src/types/index";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
@@ -16,18 +17,18 @@ export class ThresholdChecker {
   private rule: RulesType;
   private comment?: Comment;
   private visit: VisitType;
-  private AppSettings: any;
+  private TimeConfig: TimeConfigType;
 
   constructor(
     rule: RulesType,
     comment: Comment | undefined,
     visit: VisitType,
-    AppSettings: any // TODO 型指定を追加
+    TimeConfig: TimeConfigType
   ) {
     this.rule = rule;
     this.comment = comment;
     this.visit = visit;
-    this.AppSettings = AppSettings;
+    this.TimeConfig = TimeConfig;
   }
 
   /**
@@ -50,13 +51,13 @@ export class ThresholdChecker {
 
   // 前回のコメントと今回のコメントが同一人物なら適用
   private matchIsTarget(): boolean {
-    return this.AppSettings.lastUserId === this.comment.data.userId;
+    return this.TimeConfig.lastUserId === this.comment.data.userId;
   }
 
   // クールダウンのチェック
   private matchIsCooldown(cooldown: number): boolean {
     const now = Date.now();
-    const lastTime = this.AppSettings.lastTime;
+    const lastTime = this.TimeConfig.lastTime;
     return lastTime > now + cooldown * 1000;
   }
 

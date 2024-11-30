@@ -57,7 +57,7 @@ describe("CommentInstance", () => {
       name: "TestUser",
       userId: "user123",
       status: "syoken",
-      serviceId: "",
+      lastPluginTime: "",
       visitData: {},
     };
 

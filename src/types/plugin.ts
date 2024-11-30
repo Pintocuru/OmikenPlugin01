@@ -1,7 +1,9 @@
 // src/types/plugin.ts
 
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import { CharaType, OmikenType, OmikujiPostType } from "./index";
+import { CharaType, OmikenType, OmikujiPostType, PresetScriptType } from "./index";
+import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
+import ElectronStore from "electron-store";
 
 // ---------------------------------------------------
 
@@ -9,11 +11,11 @@ import { CharaType, OmikenType, OmikujiPostType } from "./index";
 // TODO 修正が必要
 export interface StoreType {
   Omiken: OmikenType;
-  Chara: Record<string, CharaType>;
+  Charas: Record<string, CharaType>;
+  Scripts: Record<string, PresetScriptType>;
   Visits: Record<string, VisitType>;
   Games: Record<string, GameType>;
-  nowSlotId: string; // 現在の配信枠のID
-  lastCommentTime: number; // 最後にコメントを通したTime
+  TimeConfig: TimeConfigType;
 }
 
 // ユーザーデータ(全体)
@@ -21,7 +23,7 @@ export interface VisitType {
   name: string; // ユーザー名(ニックネーム)
   userId: string; // ユーザーID
   status: string; // ステータス
-  serviceId: string; // (前回コメントした配信枠のid)
+  lastPluginTime: number; // 前回コメントした配信枠のactiveTime
   visitData: Record<string, visitDataType>;
 }
 
@@ -42,16 +44,33 @@ export interface GameType extends DrawsBase {
   gameData: any; // scriptで自由に使えるObject
 }
 
+// TimeConfig
+export interface TimeConfigType  {
+  pluginTime: number; // プラグインを起動した時刻
+  lastTime: number; // 最後におみくじ機能が実行された時刻
+  lastUserId: string; // 最後におみくじを行ったuserId
+}
+
+
 // ---------------------------------------------------
 
 // commentの型定義にOmikenを追加
+// ! この仕様は実現できなそう…(コメントを非表示にできれば別だけど)
 // https://types.onecomme.com/interfaces/types_Comment.BaseComment
 export type CommentOmiken = Comment & {
   omiken: OneCommeOmikenType;
 };
 
 // 追加:各ジェネレーターで使用するキー集
-export interface OneCommeOmikenType {
+interface OneCommeOmikenType {
   toast?: OmikujiPostType[]; // トーストジェネレーター用
   [key: string]: any;
+}
+
+// 既存のOnePluginに追加する拡張型
+export interface OnePluginOmiken extends OnePlugin {
+  defaultState: Partial<StoreType>;
+
+  // プラグイン固有の追加メソッドや属性も必要に応じて定義可能
+  initLoadData?(): void;
 }

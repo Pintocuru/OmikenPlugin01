@@ -10,6 +10,7 @@ import {
   PresetCharaType,
   PresetScriptType,
   RulesType,
+  TimeConfigType,
   visitDataType,
   VisitType,
 } from "../../src/types/index";
@@ -22,7 +23,7 @@ import { Comment } from "@onecomme.com/onesdk/types/Comment";
 //////////////////////////////////
 export class CommentInstance {
   private comment: Comment;
-  private AppSettings: any; // TODO あとで型指定
+  private TimeConfig: TimeConfigType;
   private selectRule: RulesType;
   private selectOmikuji: OmikujiType;
   private visit: VisitType;
@@ -30,17 +31,19 @@ export class CommentInstance {
   private visitData: visitDataType;
   private isTester: boolean;
 
-  // TODO 配信枠のデータも取得する
-  constructor(comment: Comment, visit: VisitType, AppSettings: any) {
+  // 初期化
+  constructor(comment: Comment, visit: VisitType, TimeConfig: TimeConfigType) {
     this.comment = this.thisComment(comment);
-    this.AppSettings = AppSettings;
+    this.TimeConfig = TimeConfig;
     this.visit = visit || {
       name: comment.data.displayName,
       userId: comment.data.userId,
       status: "syoken",
-      serviceId: "",
+      lastPluginTime: this.TimeConfig.pluginTime,
       visitData: {},
     };
+    // ユーザーの枠情報が空白または異なるなら、Visitを初期化
+    this.resetVisit();
   }
 
   // コメントの前処理
@@ -67,12 +70,12 @@ export class CommentInstance {
   // データを返す
   getDATA(data: string) {
     const dataMap = {
-      // テスターでないなら、comment.data.userIdを返す
+      // comment.data.userIdを返す
       userId: () => this.comment.data.userId,
       // おみくじのidを返す
       ruleId: () => this.selectRule.id,
       // Gameを返す
-      Game: () => this.game,
+      game: () => this.game,
       // visit情報を返す
       visit: () => this.visit,
     };
@@ -80,8 +83,9 @@ export class CommentInstance {
   }
 
   // ユーザーの枠情報が空白または異なるなら、Visitを初期化
-  resetVisit(nowServiceId: string) {
-    if (this.visit.serviceId === nowServiceId) return;
+  resetVisit() {
+    const pluginTime = this.TimeConfig.pluginTime;
+    if (this.visit.lastPluginTime === pluginTime) return;
 
     // statusを空白にし、drawsを0にする
     this.visit.status = "";
@@ -93,15 +97,15 @@ export class CommentInstance {
   // ---
 
   // rulesとomikujiから該当するおみくじを抽選する
-  omikenSelect(Omiken: OmikenType): boolean {
-    // rulesOrderに基づいて配列にする
-    const rules = Omiken.rulesOrder.map((key) => Omiken.rules[key]);
-
+  omikenSelect(
+    rulesArray: RulesType[],
+    omikujis: Record<string, OmikujiType>
+  ): boolean {
     // 各ルールに対して処理を実行し、ruleも一緒に返す
-    const result = rules
+    const result = rulesArray
       .map((rule) => ({
         rule,
-        omikuji: this.omikenProcessRule(rule, Omiken.omikuji),
+        omikuji: this.omikenProcessRule(rule, omikujis),
       }))
       .find(({ omikuji }) => omikuji !== null);
 
@@ -124,7 +128,7 @@ export class CommentInstance {
       rule,
       this.comment,
       this.visit,
-      this.AppSettings
+      this.TimeConfig
     );
     const isValid = rule.threshold.every((threshold) =>
       checker.check(threshold)
