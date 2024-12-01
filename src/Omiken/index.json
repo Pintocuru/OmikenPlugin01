@@ -3,9 +3,10 @@
     "1729669868469-531k4": {
       "id": "1729669868469-531k4",
       "name": "おみくじ",
+      "ruleType": "comment",
       "color": "#ff0000",
       "description": "",
-      "enabledIds": [
+      "enableIds": [
         "1729669848759-a4czl",
         "1730186257904-r3vdg",
         "1730380299548-w1lfc",
@@ -14,17 +15,25 @@
         "1730380661023-714m5",
         "1730435587723-zj28l"
       ],
-      "threshold": [{
-        "conditionType": "match",
-        "match": ["おみくじ", "omikuji", "omikuzi", "御神籤"]
-      }]
+      "threshold": [
+        {
+          "conditionType": "match",
+          "match": {
+            "target": "comment",
+            "case": "starts",
+            "value": ["おみくじ", "omikuji", "omikuzi", "御神籤"]
+          }
+        }
+      ]
     },
+
     "1730186223570-nxukm": {
       "id": "1730186223570-nxukm",
       "name": "フラワーおみくじ",
-      "color": "",
       "description": "",
-      "enabledIds": [
+      "ruleType": "comment",
+      "color": "",
+      "enableIds": [
         "1730186417456-m98tz",
         "1730186488892-o4w6g",
         "1730443222489-4lfj9",
@@ -34,10 +43,16 @@
         "1730443354996-49v8q",
         "1730443324119-ddrt1"
       ],
-      "threshold": {
-        "conditionType": "match",
-        "match": ["フラワー", "ふらわー", "flower"]
-      }
+      "threshold": [
+        {
+          "conditionType": "match",
+          "match": {
+            "target": "comment",
+            "case": "starts",
+            "value": ["フラワー", "ふらわー", "flower"]
+          }
+        }
+      ]
     }
   },
   "omikuji": {
@@ -46,9 +61,9 @@
       "name": "おみくじ:大吉",
       "description": "",
       "weight": 15,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -85,9 +100,9 @@
       "name": "おみくじ:凶",
       "description": "",
       "weight": 10,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -124,9 +139,9 @@
       "name": "おみくじ:吉",
       "description": "",
       "weight": 20,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -163,9 +178,9 @@
       "name": "おみくじ:中吉",
       "description": "",
       "weight": 20,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -202,9 +217,9 @@
       "name": "おみくじ:小吉",
       "description": "",
       "weight": 15,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -241,9 +256,9 @@
       "name": "おみくじ:末吉",
       "description": "",
       "weight": 15,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -280,9 +295,9 @@
       "name": "おみくじ:残念賞",
       "description": "",
       "weight": 5,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "party",
@@ -319,9 +334,9 @@
       "name": "フラワー:青色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -344,9 +359,9 @@
       "name": "フラワー:赤色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -369,9 +384,9 @@
       "name": "フラワー:黄色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -394,9 +409,9 @@
       "name": "フラワー:紫色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -419,9 +434,9 @@
       "name": "フラワー:緑色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -444,9 +459,9 @@
       "name": "フラワー:オレンジ色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -469,9 +484,9 @@
       "name": "フラワー:白色",
       "description": "",
       "weight": 3,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -494,9 +509,9 @@
       "name": "フラワー:キノコ色",
       "description": "",
       "weight": 9,
-      "threshold": {
-        "conditionType": "none"
-      },
+      "rank": 0,
+      "threshold": [],
+      "placeIds": [],
       "post": [
         {
           "type": "onecomme",
@@ -1037,11 +1052,5 @@
       ]
     }
   },
-  "rulesOrder": ["1729669868469-531k4", "1730186223570-nxukm"],
-  "preferences": {
-    "basicDelay": 1,
-    "omikujiCooldown": 2,
-    "commentDuration": 5,
-    "BotUserIDname": "FirstCounter"
-  }
+  "rulesOrder": ["1729669868469-531k4", "1730186223570-nxukm"]
 }

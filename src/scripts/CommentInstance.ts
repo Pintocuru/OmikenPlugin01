@@ -1,13 +1,9 @@
 // src/scripts/CommentInstance.ts
 
 import {
-  CharaType,
   GameType,
-  OmikujiPostType,
   OmikujiType,
   PlaceType,
-  PlaceValueType,
-  postOneCommeRequestType,
   PresetCharaType,
   PresetScriptType,
   RulesType,
@@ -16,12 +12,7 @@ import {
   VisitType,
 } from "../../src/types/index";
 import { PlaceProcess } from "./PlaceProcess";
-import {
-  postOneComme,
-  postWordParty,
-  postSpeech,
-  PostMessages,
-} from "./PostOmikuji";
+import { PostMessages } from "./PostOmikuji";
 import { ThresholdChecker } from "./ThresholdCheck";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
@@ -80,7 +71,7 @@ export class CommentInstance {
       // comment.data.userIdを返す
       userId: () => this.comment.data.userId,
       // おみくじのidを返す
-      ruleId: () => this.selectRule.id,
+      ruleId: () => this.selectRule?.id ?? null,
       // Gameを返す
       game: () => this.game,
       // visit情報を返す
@@ -102,25 +93,34 @@ export class CommentInstance {
   }
 
   // ---
-
   // rulesとomikujiから該当するおみくじを抽選する
   omikenSelect(
     rulesArray: RulesType[],
     omikujis: Record<string, OmikujiType>
   ): boolean {
+    console.log("omikenSelect 開始: ", { rulesArray, omikujis });
+
     // 各ルールに対して処理を実行し、ruleも一緒に返す
     const result = rulesArray
-      .map((rule) => ({
-        rule,
-        omikuji: this.ruleProcess(rule, omikujis),
-      }))
+      .map((rule) => {
+        console.log("ruleProcess 呼び出し: ", { rule });
+        const omikuji = this.ruleProcess(rule, omikujis);
+        console.log("ruleProcess 結果: ", { rule, omikuji });
+        return { rule, omikuji };
+      })
       .find(({ omikuji }) => omikuji !== null);
 
     if (result) {
       this.selectRule = result.rule; // ヒットしたruleを設定
       this.selectOmikuji = result.omikuji; // ヒットしたomikujiを設定
+      console.log("omikenSelect ヒット: ", {
+        selectRule: this.selectRule,
+        selectOmikuji: this.selectOmikuji,
+      });
       return true;
     }
+
+    console.log("omikenSelect 結果なし");
     return false;
   }
 
@@ -129,6 +129,8 @@ export class CommentInstance {
     rule: RulesType,
     omikujis: Record<string, OmikujiType>
   ): OmikujiType | null {
+    console.log("ruleProcess 開始: ", { rule });
+
     // thresholdチェック(New)
     const checker = new ThresholdChecker(
       rule,
@@ -136,20 +138,35 @@ export class CommentInstance {
       this.visit,
       this.TimeConfig
     );
-    const isValid = rule.threshold.every((threshold) =>
-      checker.check(threshold)
-    );
-    if (!isValid) return null;
+    const isValid = rule.threshold.every((threshold) => {
+      const result = checker.check(threshold);
+      console.log("Threshold チェック: ", { threshold, result });
+      return result;
+    });
+    if (!isValid) {
+      console.log("ruleProcess 結果: Threshold 無効");
+      return null;
+    }
 
     // 有効なおみくじの取得
     const validOmikujis = rule.enableIds
       .map((id) => omikujis[id])
-      .filter((omikuji) =>
-        omikuji.threshold.every((threshold) => checker.check(threshold))
-      );
-    if (validOmikujis.length === 0) return null;
+      .filter((omikuji) => {
+        const isValidOmikuji = omikuji.threshold.every((threshold) =>
+          checker.check(threshold)
+        );
+        console.log("Omikuji チェック: ", { omikuji, isValidOmikuji });
+        return isValidOmikuji;
+      });
 
-    return this.omikujisLottery(validOmikujis);
+    if (validOmikujis.length === 0) {
+      console.log("ruleProcess 結果: 有効なおみくじなし");
+      return null;
+    }
+
+    const selectedOmikuji = this.omikujisLottery(validOmikujis);
+    console.log("ruleProcess 抽選結果: ", { selectedOmikuji });
+    return selectedOmikuji;
   }
 
   // おみくじ(アイテム抽選)
@@ -238,14 +255,14 @@ export class CommentInstance {
     this.visitData = {
       ...this.visitData,
       id: this.selectOmikuji.id,
-      draws: (this.visitData.draws || 0) + 1,
-      totalDraws: (this.visitData.totalDraws || 0) + 1,
+      draws: (this.visitData?.draws || 0) + 1,
+      totalDraws: (this.visitData?.totalDraws || 0) + 1,
     };
     this.game = {
       ...this.game,
       id: this.selectRule.id,
-      draws: (this.visitData.draws || 0) + 1,
-      totalDraws: (this.visitData.totalDraws || 0) + 1,
+      draws: (this.game?.draws || 0) + 1,
+      totalDraws: (this.game?.totalDraws || 0) + 1,
     };
   }
 }

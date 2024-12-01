@@ -94,34 +94,57 @@ export class ThresholdChecker {
     if (access <= 2 && isMember) return true;
     return false;
   }
-
   // 数値を参照する
   private matchIsCount(count: CountCondition): boolean {
+    console.log("matchIsCount 開始: ", {
+      count,
+      comment: this.comment,
+      ruleId: this.rule.id,
+    });
+
     // draws以外が選ばれていてcommentがundefinedならfalse
-    if (!this.comment && count.unit !== "draws") return false;
+    if (!this.comment && count.unit !== "draws") {
+      console.log("matchIsCount 結果: commentがundefinedでdraws以外", false);
+      return false;
+    }
 
     // giftはすべてのdataにあるわけではない
     let gift = 0;
     if (this.comment?.data && "price" in this.comment.data) {
       gift = this.comment.data.price;
     }
+    console.log("matchIsCount gift取得: ", { gift });
 
     const unitMap = {
       draws: this.visit.visitData[this.rule.id].draws || 0,
       gift,
-      lc: this.comment.meta.lc,
-      no: this.comment.meta.no,
-      tc: this.comment.meta.tc,
-      interval: this.comment.meta.interval,
+      lc: this.comment.meta?.lc,
+      no: this.comment.meta?.no,
+      tc: this.comment.meta?.tc,
+      interval: this.comment.meta?.interval,
     };
+    console.log("matchIsCount unitMap: ", { unitMap });
 
-    return matchIsCountHelper(unitMap[count.unit] || 0, count);
+    const unitValue = unitMap[count.unit] || 0;
+    const result = matchIsCountHelper(unitValue, count);
+    console.log("matchIsCount 結果: ", {
+      unit: count.unit,
+      unitValue,
+      result,
+    });
+
+    return result;
   }
 
   // 文字列を参照する
   private matchIsMatch(match: MatchCondition): boolean {
+    console.log("matchIsMatch 開始: ", { match, comment: this.comment });
+
     // status以外が選ばれていてcommentがundefinedならfalse
-    if (!this.comment && match.target !== "status") return false;
+    if (!this.comment && match.target !== "status") {
+      console.log("matchIsMatch 結果: commentがundefinedでstatus以外", false);
+      return false;
+    }
 
     // マッチング対象のテキストを安全に取得
     const targetMap = {
@@ -130,14 +153,22 @@ export class ThresholdChecker {
       name: this.comment.data?.name,
       displayName: this.comment.data?.displayName,
     };
+    console.log("matchIsMatch targetMap: ", { targetMap });
 
     const text = targetMap[match.target] || "";
+    console.log("matchIsMatch テキスト取得: ", { text });
 
-    return match.value.some((word) => {
+    const result = match.value.some((word) => {
       // 絵文字の特別扱い
       const isEmoji = /\p{Emoji}/u.test(word);
       const normalizedWord = isEmoji ? word : word.toLowerCase();
       const normalizedText = isEmoji ? text : text.toLowerCase();
+      console.log("matchIsMatch 比較: ", {
+        word,
+        isEmoji,
+        normalizedWord,
+        normalizedText,
+      });
 
       const matchMethods = {
         exact: () => normalizedWord === normalizedText,
@@ -145,8 +176,16 @@ export class ThresholdChecker {
         include: () => normalizedText.includes(normalizedWord),
       };
 
-      return matchMethods[match.case]();
+      const methodResult = matchMethods[match.case]();
+      console.log("matchIsMatch メソッド結果: ", {
+        case: match.case,
+        methodResult,
+      });
+      return methodResult;
     });
+
+    console.log("matchIsMatch 結果: ", { result });
+    return result;
   }
 }
 

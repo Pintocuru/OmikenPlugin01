@@ -1,4 +1,4 @@
-// src/main.ts
+// src/plugin.ts
 import { Service } from "@onecomme.com/onesdk/types/Service";
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
@@ -24,10 +24,11 @@ import path from "path";
 const plugin: OnePluginOmiken = {
   name: "おみくじBOTプラグイン", // プラグイン名
   uid: "OmikenPlugin01", // プラグイン固有の一意のID
-  version: "0.0.6", // プラグインのバージョン番号
+  version: "0.0.8", // プラグインのバージョン番号
   author: "Pintocuru", // 開発者名
   url: "https://onecomme.com", // サポートページのURL
-  permissions: ["filter.comment"], // データタイプ
+  // services:枠情報,filter.comment:コメント
+  permissions: ["services", "filter.comment"],
 
   // プラグインの初期状態
   defaultState: {
@@ -48,43 +49,64 @@ const plugin: OnePluginOmiken = {
       lastUserId: "", // 最後におみくじを行ったuserId
     },
   },
-
   // プラグインの初期化
   init({ store }: { store: ElectronStore<StoreType> }, initialData) {
+    console.warn("プラグイン初期化開始");
+
     // データ読み込み
     this.store = store;
+    console.warn("ストアの初期化完了: ", { store });
 
     // 枠情報の更新・初期化
+    const defaultFrameId = initialData?.services?.[0]?.id || "";
     this.store.set("TimeConfig", {
       pluginTime: Date.now(),
-      // わんコメの一番上の枠IDを取得し、defaultFrameIdにする
-      defaultFrameId: initialData?.services?.[0]?.id || "",
+      defaultFrameId,
+      lastTime: 0,
+      lastUserId: "",
+    });
+    console.warn("TimeConfig 初期化完了: ", {
+      pluginTime: Date.now(),
+      defaultFrameId,
       lastTime: 0,
       lastUserId: "",
     });
 
     this.initLoadData(); // JSONデータ読み込み
+    console.warn("JSONデータの読み込み完了");
+
     this.initGamesinitialize(); // 初期化時、Gamesのdrawsをすべて0にする
+    console.warn("Games の初期化完了");
   },
 
   // データ読み込み
   initLoadData() {
+    console.warn("データ読み込み開始");
+
+    // Omikenを外部から読み込み
+    const OmikenPath = path.join(__dirname, "data/Omiken/index.json");
+    const Omiken = initLoadHelper.loadOmiken(OmikenPath);
+    //console.warn("Omiken データ読み込み完了: ", OmikenPath);
+
     // presetを外部から読み込み
     const presetPath = path.join(__dirname, "data/preset/index.json");
     const { Charas, Scripts } = initLoadHelper.loadPresets(presetPath);
+    console.warn("Preset データ読み込み完了: ", presetPath);
 
     // ストアからデータを読み込み
     const storeData = {
-      OmikenOmikuji: this.store.get("Omiken.omikuji", {}),
-      OmikenPlace: this.store.get("Omiken.place", {}),
-      Visits: this.store.get("Visits", {}),
-      Games: this.store.get("Games", {}),
-      TimeConfig: this.store.get("TimeConfig", {}),
+      OmikenOmikuji: Omiken.omikuji,
+      OmikenPlace: Omiken.place,
+      Visits: this.store.get("Visits", {}) as Record<string, VisitType>,
+      Games: this.store.get("Games", {}) as Record<string, GameType>,
+      TimeConfig: this.store.get("TimeConfig", {}) as TimeConfigType,
     };
+    //console.warn("ストアデータ読み込み完了: ", storeData);
 
     // rulesは配列に
-    const rules = this.store.get("Omiken.rules", {});
-    const rulesOrder = this.store.get("Omiken.rulesOrder", []);
+    const rules = Omiken.rules;
+    const rulesOrder = Omiken.rulesOrder;
+    //console.warn("Rules データ: ", { rules, rulesOrder });
 
     // オブジェクトに追加
     Object.assign(
@@ -93,15 +115,27 @@ const plugin: OnePluginOmiken = {
       initLoadHelper.filterRulesByType(rules, rulesOrder),
       { Charas, Scripts }
     );
+    console.warn(
+      "RulesArary データ: ",
+      initLoadHelper.filterRulesByType(rules, rulesOrder)
+    );
+    console.warn("データのオブジェクトへの割り当て完了");
   },
 
   // 初期化時、Gamesのdrawsをすべて0にする
   initGamesinitialize() {
+    console.warn("Games 初期化開始");
+
     const Games = this.store.get("Games", {}) as Record<string, GameType>;
+    console.warn("現在の Games: ", Games);
+
     const GamesNew = Object.fromEntries(
       Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
     );
+    console.warn("初期化された Games: ", GamesNew);
+
     this.store.set("Games", GamesNew);
+    console.warn("Games のストアへの保存完了");
   },
 
   /**
@@ -115,6 +149,7 @@ const plugin: OnePluginOmiken = {
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
   async filterComment(comment: Comment): Promise<Comment | false> {
+    console.warn(comment);
     // 自身のプラグインの投稿は除外
     if (comment.data.userId === "FirstCounter") return comment;
 
@@ -130,35 +165,52 @@ const plugin: OnePluginOmiken = {
     const Instance = new CommentInstance(comment, visit, TimeConfig);
     try {
       // おみくじCHECK
-      if (!Instance.omikenSelect(rulesArray, omikujis)) return comment;
+      const isOmikuji = Instance.omikenSelect(rulesArray, omikujis);
+      console.warn("おみくじ選択結果: ", isOmikuji);
+
+      if (!isOmikuji) {
+        console.warn("おみくじ未選択のため終了: ", comment);
+        return comment;
+      }
 
       // おみくじがあるなら、おみくじを実行
-      return Instance.omikujiProcess(
+      console.warn("おみくじ処理を開始");
+      const processResult = await Instance.omikujiProcess(
         this.Games,
         places,
         this.Charas,
         this.Scripts
       );
+      console.warn("おみくじ処理完了: ", processResult);
+      return processResult;
     } finally {
       const ruleId = Instance.getDATA("ruleId") as string;
+      console.warn("ルールID: ", ruleId);
+
       // おみくじを実行した場合
       if (ruleId) {
         // lastTime と lastUserId を更新
         this.store.set("TimeConfig.lastTime", Date.now());
         this.store.set("TimeConfig.lastUserId", userId);
+        console.warn("TimeConfig 更新: ", {
+          lastTime: Date.now(),
+          lastUserId: userId,
+        });
 
         // 相違がある時、gameを書き換える
         const game = this.Games[ruleId] as GameType;
         const gameNew = Instance.getDATA("game") as GameType;
         if (JSON.stringify(game) !== JSON.stringify(gameNew)) {
           this.store.set(`Games.${ruleId}`, gameNew);
+          console.warn("Game 更新: ", { old: game, new: gameNew });
         }
+      }
 
-        // 相違がある時、visitを書き換える
-        const visitNew = Instance.getDATA("visit") as VisitType;
-        if (JSON.stringify(visit) !== JSON.stringify(visitNew)) {
-          this.store.set(`Visits.${userId}`, visitNew);
-        }
+      // 相違がある時、visitを書き換える
+      const visitNew = Instance.getDATA("visit") as VisitType;
+      if (JSON.stringify(visit) !== JSON.stringify(visitNew)) {
+        this.store.set(`Visits.${userId}`, visitNew);
+        console.warn("Visit 更新: ", { old: visit, new: visitNew });
       }
     }
   },
@@ -282,7 +334,20 @@ class initLoadHelper {
     }
   }
 
-  static filterRulesByType(rules: RulesType, rulesOrder: string[]) {
+  static loadOmiken(presetPath: string) {
+    try {
+      const Omiken = require(presetPath) as OmikenType;
+      return Omiken;
+    } catch (error) {
+      console.error("プリセットの読み込みに失敗:", error);
+      return {} as OmikenType;
+    }
+  }
+
+  static filterRulesByType(
+    rules: Record<string, RulesType>,
+    rulesOrder: string[]
+  ) {
     return {
       OmikenRulesComment: rulesOrder
         .map((key) => rules[key])
@@ -293,3 +358,5 @@ class initLoadHelper {
     };
   }
 }
+export { OnePluginOmiken };
+
