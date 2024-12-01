@@ -14,13 +14,12 @@ import {
   GameType,
   RulesType,
   PresetType,
-  PresetCharaType,
-  PresetScriptType,
   OmikujiType,
   PlaceType,
   OnePluginOmiken,
   TimeConfigType,
-} from "./types/index";
+} from "./types";
+import path from "path";
 
 const plugin: OnePluginOmiken = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -54,73 +53,51 @@ const plugin: OnePluginOmiken = {
   init({ store }: { store: ElectronStore<StoreType> }, initialData) {
     // データ読み込み
     this.store = store;
-    this.initLoadData();
 
-    // 枠情報の更新
-    const now = Date.now();
-    this.store.set(`TimeConfig.pluginTime`, now);
-    // わんコメの一番上の枠IDを取得し、defaultFrameIdにする
-    const servicesId = initialData.services[0].id;
-    console.warn(servicesId); // TODO ちゃんとID取得できてる?
-    this.store.set(`TimeConfig.defaultFrameId`, servicesId);
+    // 枠情報の更新・初期化
+    this.store.set("TimeConfig", {
+      pluginTime: Date.now(),
+      // わんコメの一番上の枠IDを取得し、defaultFrameIdにする
+      defaultFrameId: initialData?.services?.[0]?.id || "",
+      lastTime: 0,
+      lastUserId: "",
+    });
 
-    // プリセットデータの読み込み
-    this.initPresetLoad();
-
-    // 初期化時、Gamesのdrawsをすべて0にする
-    this.initGamesinitialize();
+    this.initLoadData(); // JSONデータ読み込み
+    this.initGamesinitialize(); // 初期化時、Gamesのdrawsをすべて0にする
   },
 
   // データ読み込み
   initLoadData() {
-    // データの読み込み
-    const storeKeys = {
-      OmikenOmikuji: "Omiken.omikuji",
-      OmikenPlace: "Omiken.place",
-      Visits: "Visits",
-      Games: "Games",
-      TimeConfig: "TimeConfig",
+    // presetを外部から読み込み
+    const presetPath = path.join(__dirname, "data/preset/index.json");
+    const { Charas, Scripts } = initLoadHelper.loadPresets(presetPath);
+
+    // ストアからデータを読み込み
+    const storeData = {
+      OmikenOmikuji: this.store.get("Omiken.omikuji", {}),
+      OmikenPlace: this.store.get("Omiken.place", {}),
+      Visits: this.store.get("Visits", {}),
+      Games: this.store.get("Games", {}),
+      TimeConfig: this.store.get("TimeConfig", {}),
     };
-    Object.entries(storeKeys).forEach(([prop, key]) => {
-      this[prop] = this.store.get(key);
-    });
 
-    // ruleTypeごとにOmiken.rulesのデータを分別する
-    const rules = this.store.get("Omiken.rules") as Record<string, RulesType>;
-    const rulesOrder = this.store.get("Omiken.rulesOrder") as string[];
+    // rulesは配列に
+    const rules = this.store.get("Omiken.rules", {});
+    const rulesOrder = this.store.get("Omiken.rulesOrder", []);
 
-    const ruleTypes = ["comment", "timer"] as const;
-    ruleTypes.forEach((type) => {
-      const propertyName = `OmikenRules${
-        type.charAt(0).toUpperCase() + type.slice(1)
-      }`;
-      this[propertyName] = rulesOrder
-        .map((key) => rules[key])
-        .filter((rule) => rule.ruleType === type);
-    });
-  },
-
-  // プリセットデータの読み込み
-  initPresetLoad() {
-    const preset: Record<
-      string,
-      PresetType
-    > = require("./data/preset/index.json");
-    this.Charas = {};
-    this.Scripts = {};
-
-    Object.entries(preset).forEach(([key, value]) => {
-      if (value.type === "Chara") {
-        this.Charas[key] = value as PresetCharaType;
-      } else if (value.type === "Script") {
-        this.Scripts[key] = value as PresetScriptType;
-      }
-    });
+    // オブジェクトに追加
+    Object.assign(
+      this,
+      storeData,
+      initLoadHelper.filterRulesByType(rules, rulesOrder),
+      { Charas, Scripts }
+    );
   },
 
   // 初期化時、Gamesのdrawsをすべて0にする
   initGamesinitialize() {
-    const Games = this.store.get("Games") as Record<string, GameType>;
+    const Games = this.store.get("Games", {}) as Record<string, GameType>;
     const GamesNew = Object.fromEntries(
       Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
     );
@@ -137,12 +114,8 @@ const plugin: OnePluginOmiken = {
    * @param  userData - コメント投稿者のユーザーデータ
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
-  async filterComment(
-    comment: Comment,
-    service: Service,
-    userData: UserNameData
-  ): Promise<Comment | false> {
-    // このプラグインが投稿したコメントを除く
+  async filterComment(comment: Comment): Promise<Comment | false> {
+    // 自身のプラグインの投稿は除外
     if (comment.data.userId === "FirstCounter") return comment;
 
     // 初期化
@@ -160,18 +133,18 @@ const plugin: OnePluginOmiken = {
       if (!Instance.omikenSelect(rulesArray, omikujis)) return comment;
 
       // おみくじがあるなら、おみくじを実行
-      const ruleId = Instance.getDATA("ruleId") as string;
-      const game = this.Games[ruleId] as GameType;
-
-      // 編集したコメントかfalseを返す
-      return Instance.omikujiProcess(game, places, this.Charas, this.Scripts);
+      return Instance.omikujiProcess(
+        this.Games,
+        places,
+        this.Charas,
+        this.Scripts
+      );
     } finally {
       const ruleId = Instance.getDATA("ruleId") as string;
       // おみくじを実行した場合
       if (ruleId) {
         // lastTime と lastUserId を更新
-        const now = Date.now();
-        this.store.set("TimeConfig.lastTime", now);
+        this.store.set("TimeConfig.lastTime", Date.now());
         this.store.set("TimeConfig.lastUserId", userId);
 
         // 相違がある時、gameを書き換える
@@ -290,3 +263,33 @@ const plugin: OnePluginOmiken = {
 };
 
 module.exports = plugin;
+
+class initLoadHelper {
+  static loadPresets(presetPath: string) {
+    try {
+      const preset = require(presetPath) as PresetType;
+      return {
+        Charas: Object.fromEntries(
+          Object.entries(preset).filter(([_, value]) => value.type === "Chara")
+        ),
+        Scripts: Object.fromEntries(
+          Object.entries(preset).filter(([_, value]) => value.type === "Script")
+        ),
+      };
+    } catch (error) {
+      console.error("プリセットの読み込みに失敗:", error);
+      return { Charas: {}, Scripts: {} };
+    }
+  }
+
+  static filterRulesByType(rules: RulesType, rulesOrder: string[]) {
+    return {
+      OmikenRulesComment: rulesOrder
+        .map((key) => rules[key])
+        .filter((rule) => rule.ruleType === "comment"),
+      OmikenRulesTimer: rulesOrder
+        .map((key) => rules[key])
+        .filter((rule) => rule.ruleType === "timer"),
+    };
+  }
+}
