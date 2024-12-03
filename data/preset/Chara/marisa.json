@@ -1,11 +1,18 @@
 {
   "id": "marisa",
   "name": "ゆっくり魔理沙",
-  "frameId": "",
+  "description": "",
+  "frameId": "OmikenMarisa",
+  "party": ["!test", "!test2"],
   "color": {
     "--lcv-name-color": "#FFE082",
     "--lcv-text-color": "#333333",
     "--lcv-background-color": "#FF8F00"
+  },
+  "serviceColor": {
+    "r": 255,
+    "g": 143,
+    "b": 0
   },
   "image": {
     "Default": "marisa/Default.png",

@@ -2,7 +2,34 @@
 
 import ElectronStore from "electron-store";
 import { StoreType } from "./types";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
+
+// テストコメント
+  export const commentMock: Comment = {
+    id: "COMMENT_TESTER",
+    service: "external",
+    name: "CommentTester",
+    url: "",
+    color: { r: 0, g: 0, b: 0 },
+    data: {
+      comment: "おみくじ",
+      id: "yt-1733023389806",
+      liveId: "youtube-test",
+      userId: "テストユーザー",
+      name: "テストユーザー",
+      isOwner: false,
+      timestamp: "2024-12-01T03:23:09.806Z",
+      badges: [],
+      hasGift: false,
+      profileImage: "",
+      displayName: "テストユーザー",
+      originalProfileImage: "",
+      meta: {},
+      speechText: "テ",
+    },
+    meta: { interval: 999999, tc: 10, no: 2, lc: 10 },
+  };
 
 // プラグインデータモック
 export const defaultStateMock: StoreType = {

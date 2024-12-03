@@ -20,6 +20,8 @@ import {
   TimeConfigType,
 } from "./types";
 import path from "path";
+import { InitDataLoader } from "./scripts/InitDataLoader";
+import { configs } from "./config";
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -43,94 +45,17 @@ const plugin: OnePlugin = {
   },
   // プラグインの初期化
   init({ store }: { store: ElectronStore<StoreType> }, initialData) {
-    console.warn("プラグイン初期化開始");
-
-    // データ読み込み
+    console.log("プラグイン初期化開始");
     this.store = store;
-    console.warn("ストアの初期化完了: ", { store });
 
-    // 枠情報の更新・初期化
+    const loader = new InitDataLoader(store, configs.dataRoot);
     const defaultFrameId = initialData?.services?.[0]?.id || "";
-    this.store.set("TimeConfig", {
-      pluginTime: Date.now(),
-      defaultFrameId,
-      lastTime: 0,
-      lastUserId: "",
-    });
-    console.warn("TimeConfig 初期化完了: ", {
-      pluginTime: Date.now(),
-      defaultFrameId,
-      lastTime: 0,
-      lastUserId: "",
-    });
 
-    this.initLoadData(); // JSONデータ読み込み
-    console.warn("JSONデータの読み込み完了");
+    const loadedData = loader.loadPluginData();
+    loader.initializeTimeConfig(defaultFrameId);
+    loader.initializeGames();
 
-    this.initGamesinitialize(); // 初期化時、Gamesのdrawsをすべて0にする
-    console.warn("Games の初期化完了");
-  },
-
-  // データ読み込み
-  initLoadData(): void {
-    console.warn("データ読み込み開始");
-
-    // Omikenを外部から読み込み
-    const OmikenPath = path.join(__dirname, "data/Omiken/index.json");
-    const Omiken = initLoadHelper.loadOmiken(OmikenPath);
-    //console.warn("Omiken データ読み込み完了: ", OmikenPath);
-
-    // presetを外部から読み込み
-    const presetPath = path.join(__dirname, "data/preset/index.json");
-    const { Charas, Scripts } = initLoadHelper.loadPresets(presetPath);
-    console.warn("Preset データ読み込み完了: ", presetPath);
-
-    // Charasを外部から読み込み
-        console.warn("Charas データ: ", Charas);
-
-    // ストアからデータを読み込み
-    const storeData = {
-      OmikenOmikuji: Omiken.omikuji,
-      OmikenPlace: Omiken.place,
-      Visits: this.store.get("Visits", {}) as Record<string, VisitType>,
-      Games: this.store.get("Games", {}) as Record<string, GameType>,
-      TimeConfig: this.store.get("TimeConfig", {}) as TimeConfigType,
-    };
-    //console.warn("ストアデータ読み込み完了: ", storeData);
-
-    // rulesは配列に
-    const rules = Omiken.rules;
-    const rulesOrder = Omiken.rulesOrder;
-    //console.warn("Rules データ: ", { rules, rulesOrder });
-
-    // オブジェクトに追加
-    Object.assign(
-      this,
-      storeData,
-      initLoadHelper.filterRulesByType(rules, rulesOrder),
-      { Charas, Scripts }
-    );
-    console.warn(
-      "RulesArary データ: ",
-      initLoadHelper.filterRulesByType(rules, rulesOrder)
-    );
-    console.warn("データのオブジェクトへの割り当て完了");
-  },
-
-  // 初期化時、Gamesのdrawsをすべて0にする
-  initGamesinitialize(): void {
-    console.warn("Games 初期化開始");
-
-    const Games = this.store.get("Games", {}) as Record<string, GameType>;
-    console.warn("現在の Games: ", Games);
-
-    const GamesNew = Object.fromEntries(
-      Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
-    );
-    console.warn("初期化された Games: ", GamesNew);
-
-    this.store.set("Games", GamesNew);
-    console.warn("Games のストアへの保存完了");
+    Object.assign(this, loadedData);
   },
 
   /**
@@ -145,9 +70,7 @@ const plugin: OnePlugin = {
    */
   async filterComment(comment: Comment): Promise<Comment | false> {
     // 自身のプラグインの投稿は除外
-    if (comment.data.userId === "FirstCounter") {
-      return comment
-    };
+    if (comment.data.userId === "FirstCounter") return comment;
 
     // 初期化
     const rulesArray = this.OmikenRulesComment as RulesType[];
@@ -157,38 +80,46 @@ const plugin: OnePlugin = {
     const visit = this.Visits[userId] as VisitType; // ユーザーのvisit
     const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
+    // undefinedの場合にエラーを投げたい:
+    if (!rulesArray) console.error("OmikenRulesComment is undefined");
+    if (!omikujis) console.error("OmikenOmikuji is undefined");
+    if (!places) console.error("OmikenPlace is undefined");
+    if (!userId) console.error("User ID is undefined");
+    if (!visit) console.error(`Visit data for user ${userId} is undefined`);
+    if (!TimeConfig) console.error("TimeConfig is undefined");
+
     // インスタンスの発行
     const Instance = new CommentInstance(comment, visit, TimeConfig);
     try {
       // おみくじCHECK
       const isOmikuji = Instance.omikenSelect(rulesArray, omikujis);
-      console.warn("おみくじ選択結果: ", isOmikuji);
+      console.log("おみくじ選択結果: ", isOmikuji);
 
       if (!isOmikuji) {
-        console.warn("おみくじ未選択のため終了: ", comment);
+        console.log("おみくじ未選択のため終了: ", comment);
         return comment;
       }
 
       // おみくじがあるなら、おみくじを実行
-      console.warn("おみくじ処理を開始");
+      console.log("おみくじ処理を開始");
       const processResult = await Instance.omikujiProcess(
         this.Games,
         places,
         this.Charas,
         this.Scripts
       );
-      console.warn("おみくじ処理完了: ", processResult);
+      console.log("おみくじ処理完了: ", processResult);
       return processResult;
     } finally {
       const ruleId = Instance.getDATA("ruleId") as string;
-      console.warn("ルールID: ", ruleId);
+      console.log("ルールID: ", ruleId);
 
       // おみくじを実行した場合
       if (ruleId) {
         // lastTime と lastUserId を更新
         this.store.set("TimeConfig.lastTime", Date.now());
         this.store.set("TimeConfig.lastUserId", userId);
-        console.warn("TimeConfig 更新: ", {
+        console.log("TimeConfig 更新: ", {
           lastTime: Date.now(),
           lastUserId: userId,
         });
@@ -198,7 +129,7 @@ const plugin: OnePlugin = {
         const gameNew = Instance.getDATA("game") as GameType;
         if (JSON.stringify(game) !== JSON.stringify(gameNew)) {
           this.store.set(`Games.${ruleId}`, gameNew);
-          console.warn("Game 更新: ", { old: game, new: gameNew });
+          console.log("Game 更新: ", { old: game, new: gameNew });
         }
       }
 
@@ -206,7 +137,7 @@ const plugin: OnePlugin = {
       const visitNew = Instance.getDATA("visit") as VisitType;
       if (JSON.stringify(visit) !== JSON.stringify(visitNew)) {
         this.store.set(`Visits.${userId}`, visitNew);
-        console.warn("Visit 更新: ", { old: visit, new: visitNew });
+        console.log("Visit 更新: ", { old: visit, new: visitNew });
       }
     }
   },
@@ -311,44 +242,3 @@ const plugin: OnePlugin = {
 };
 
 module.exports = plugin;
-
-class initLoadHelper {
-  static loadPresets(presetPath: string) {
-    try {
-      const preset = require(presetPath) as PresetType[];
-      return {
-        Charas: preset.filter((item) => item.type === "Chara"),
-        Scripts: preset.filter((item) => item.type === "Script"),
-      };
-    } catch (error) {
-      console.error("プリセットの読み込みに失敗:", error);
-      return { Charas: [], Scripts: [] };
-    }
-  }
-
-  static loadOmiken(presetPath: string) {
-    try {
-      const Omiken = require(presetPath) as OmikenType;
-      return Omiken;
-    } catch (error) {
-      console.error("プリセットの読み込みに失敗:", error);
-      return {} as OmikenType;
-    }
-  }
-
-  static filterRulesByType(
-    rules: Record<string, RulesType>,
-    rulesOrder: string[]
-  ) {
-    return {
-      OmikenRulesComment: rulesOrder
-        .map((key) => rules[key])
-        .filter((rule) => rule.ruleType === "comment"),
-      OmikenRulesTimer: rulesOrder
-        .map((key) => rules[key])
-        .filter((rule) => rule.ruleType === "timer"),
-    };
-  }
-}
-export { OnePluginOmiken };
-

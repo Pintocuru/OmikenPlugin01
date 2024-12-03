@@ -1,11 +1,18 @@
 {
   "id": "reimu",
   "name": "ゆっくり霊夢",
-  "frameId": "",
+  "description": "",
+  "frameId": "OmikenReimu",
+  "party": ["!test", "!test2"],
   "color": {
     "--lcv-name-color": "#FFC107",
     "--lcv-text-color": "#ECEFF1",
     "--lcv-background-color": "#FF4081"
+  },
+  "serviceColor": {
+    "r": 255,
+    "g": 64,
+    "b": 129
   },
   "image": {
     "Default": "reimu/Default.png",

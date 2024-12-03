@@ -1,5 +1,6 @@
 // src/scripts/PostOmikuji.js
 
+import fs from "fs";
 import { Service } from "@onecomme.com/onesdk/types/Service";
 import {
   CharaType,
@@ -9,6 +10,7 @@ import {
 import { configs } from "../config";
 import { RGBColor } from "@onecomme.com/onesdk/types/Color";
 import axios from "axios";
+import path from "path";
 
 
 interface PostService {
@@ -81,6 +83,16 @@ export class PostMessages implements PostService {
       ? this.services[0].id
       : null;
 
+    // 画像のファイルパスを確認
+    const profileImagePath = path.join(configs.dataRoot, "preset/Chara/", charaImage);
+    fs.access(profileImagePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error("Image does not exist:", profileImagePath);
+      } else {
+        console.log("Image exists:", profileImagePath);
+      }
+    });
+
     const request: postOneCommeRequestType = {
       service: {
         id: chara.frameId || DefaultFrameId,
@@ -90,7 +102,7 @@ export class PostMessages implements PostService {
         userId: "FirstCounter",
         name: chara.name,
         comment: content,
-        profileImage: charaImage,
+        profileImage: configs.dataRoot + charaImage,
         badges: [],
         nickname: nickname ? nickname : chara.name,
       },
@@ -148,7 +160,7 @@ export class PostMessages implements PostService {
     }
   }
 
-  // 遅延function
+  // 遅延function // TODO 遅延が機能していない
   private async delay(seconds: number): Promise<void> {
     return new Promise((r) => setTimeout(r, Math.max(seconds * 1000, 0)));
   }

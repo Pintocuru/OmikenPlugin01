@@ -60,7 +60,7 @@ export class PlaceProcess {
       console.log(`placeDataHandle - Processing placeId: ${placeId}`, place);
 
       if (!place || !place.values.length) {
-        console.warn(
+        console.log(
           `placeDataHandle - No place found or empty values for placeId: ${placeId}`
         );
         continue;
@@ -94,7 +94,7 @@ export class PlaceProcess {
     console.log("resolvePlaceholder - referencedId:", referencedId);
 
     if (!places[referencedId]) {
-      console.warn(
+      console.log(
         `resolvePlaceholder - No place found for referencedId: ${referencedId}`
       );
       return value;

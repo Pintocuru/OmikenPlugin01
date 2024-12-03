@@ -81,21 +81,20 @@ const CharasMock: Record<string, CharaType> = {
     name: "ゆっくり霊夢",
     description: "",
     frameId: "OmikenReimu",
-
     color: {
-      "--lcv-name-color": "#333333",
-      "--lcv-text-color": "#333333",
-      "--lcv-background-color": "#333333",
+      "--lcv-name-color": "#FFC107",
+      "--lcv-text-color": "#ECEFF1",
+      "--lcv-background-color": "#FF4081",
     },
     image: {
       Default: "preset/img/reimu/Default.png",
     },
     party: ["!test", "!test2"],
     serviceColor: {
-      r: 250,
-      g: 52,
-      b: 53
-    }
+      r: 255,
+      g: 64,
+      b: 129,
+    },
   },
 };
 

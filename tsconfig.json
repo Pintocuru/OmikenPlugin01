@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "target": "es6",
     "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "target": "es6",
     "moduleResolution": "node",
-    "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "*": [
