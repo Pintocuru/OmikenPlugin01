@@ -21,7 +21,7 @@ import {
 } from "./types";
 import path from "path";
 
-const plugin: OnePluginOmiken = {
+const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
   uid: "OmikenPlugin01", // プラグイン固有の一意のID
   version: "0.0.8", // プラグインのバージョン番号
@@ -32,14 +32,6 @@ const plugin: OnePluginOmiken = {
 
   // プラグインの初期状態
   defaultState: {
-    Omiken: {
-      rules: {},
-      rulesOrder: [],
-      omikuji: {},
-      place: {},
-    },
-    Charas: {},
-    Scripts: {},
     Visits: {},
     Games: {},
     TimeConfig: {
@@ -80,7 +72,7 @@ const plugin: OnePluginOmiken = {
   },
 
   // データ読み込み
-  initLoadData() {
+  initLoadData(): void {
     console.warn("データ読み込み開始");
 
     // Omikenを外部から読み込み
@@ -123,7 +115,7 @@ const plugin: OnePluginOmiken = {
   },
 
   // 初期化時、Gamesのdrawsをすべて0にする
-  initGamesinitialize() {
+  initGamesinitialize(): void {
     console.warn("Games 初期化開始");
 
     const Games = this.store.get("Games", {}) as Record<string, GameType>;
@@ -149,9 +141,10 @@ const plugin: OnePluginOmiken = {
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
   async filterComment(comment: Comment): Promise<Comment | false> {
-    console.warn(comment);
     // 自身のプラグインの投稿は除外
-    if (comment.data.userId === "FirstCounter") return comment;
+    if (comment.data.userId === "FirstCounter") {
+      return comment
+    };
 
     // 初期化
     const rulesArray = this.OmikenRulesComment as RulesType[];

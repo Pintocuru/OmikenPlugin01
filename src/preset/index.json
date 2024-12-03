@@ -3,16 +3,16 @@
     "id": "reimu",
     "name": "ゆっくり霊夢",
     "description": "アイコンの配布先とか書いておきたいね",
-    "type": "CHARA",
-    "path": "/img/reimu.json",
+    "type": "Chara",
+    "path": "/Chara/reimu.json",
     "banner": "/images/preset-3-banner.jpg"
   },
   {
     "id": "marisa",
     "name": "ゆっくり魔理沙",
     "description": "アイコンの配布先とか書いておきたいね",
-    "type": "CHARA",
-    "path": "/img/marisa.json",
+    "type": "Chara",
+    "path": "/Chara/marisa.json",
     "banner": "/images/preset-3-banner.jpg"
   },
   {

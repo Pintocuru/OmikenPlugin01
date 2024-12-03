@@ -1,33 +1,22 @@
 // src/types/preset.ts
-import { BaseType, OmikenType } from "./index";
+import { BaseType } from "./index";
+import { RGBColor } from "@onecomme.com/onesdk/types/Color";
 
 // presetデータ
-export type PresetType = PresetOmikenType | PresetCharaType | PresetScriptType;
-interface PresetBaseType extends BaseType {
+export interface PresetType extends BaseType {
   type: "Omiken" | "Chara" | "Script";
   path: string;
-  banner: string;
-}
-
-// preset用Omikenデータ
-export interface PresetOmikenType extends PresetBaseType {
-  item: OmikenType; // キャラデータ
+  banner?: string;
   mode?: "overwrite" | "append"; // 追加方法(上書き/追加)
 }
-
-// preset用キャラデータ
-export interface PresetCharaType extends PresetBaseType {
-  item: CharaType; // キャラデータ
-}
-
-// preset用外部スクリプトデータ
-export interface PresetScriptType extends PresetBaseType {}
 
 // ---
 
 // Chara:キャラクターJSONの型定義
 export interface CharaType extends BaseType {
+  nickname?: string; // 読み上げ時の名前の読ませ方
   frameId: string | null; // わんコメの枠
+  serviceColor: RGBColor; // 枠情報の色{b:number,g:number,r:number,}
   color: {
     "--lcv-name-color": string; // 名前の色
     "--lcv-text-color": string; // コメントの色

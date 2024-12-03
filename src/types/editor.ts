@@ -1,5 +1,5 @@
 // src/types/editor.ts
-// ! 未修正
+// ! 古いタイプです
 
 import { ListTypeMap, ListItemTypeMap, OmikenType } from "./index";
 import { CharaType, PresetOmikenType } from "./index";

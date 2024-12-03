@@ -1,19 +1,13 @@
 // src/types/plugin.ts
 
-import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import { CharaType, OmikenType, OmikujiPostType, PresetScriptType } from "./index";
 import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
-import ElectronStore from "electron-store";
 import { Service } from "@onecomme.com/onesdk/types/Service";
+import { BaseResponse } from "@onecomme.com/onesdk/types/BaseResponse";
 
 // ---------------------------------------------------
 
 // プラグイン:AppPlugin の型定義
-// TODO 修正が必要
 export interface StoreType {
-  Omiken: OmikenType;
-  Charas: Record<string, CharaType>;
-  Scripts: Record<string, PresetScriptType>;
   Visits: Record<string, VisitType>;
   Games: Record<string, GameType>;
   TimeConfig: TimeConfigType;
@@ -58,30 +52,46 @@ export interface TimeConfigType {
 
 // わんコメにpostする際の型定義
 export interface postOneCommeRequestType {
-  service: Pick<Service, "id">;
-  comment: {
-    id: string;
-    userId: string;
-    name: string;
-    comment: string;
-    profileImage?: string;
-  };
+  service: Pick<Service, "id" | "translate">;
+  comment: Pick<
+    BaseResponse,
+    | "id" // 一意のID
+    | "userId" // 
+    | "name" // 表示名
+    | "nickname" // ユーザーネームの変更、nameを表示させたいが読み上げさせない時に使う
+    | "comment" // コメント
+    | "profileImage" // アイコン
+    | "badges" // メンバーやモデレーター等の表示用バッジ
+  >;
 }
+/*
+プラグインで使えるキー/仕様変更で使えなくなる可能性あり
+service.translate(string[])
+comment.liveId(string)
+comment.badges(url:string,label:string,) ただしジェネレーターでバッチ部分に空白ができる
+comment.isOwner(boolean)
+comment.isFirstTime(boolean)
+comment.isRepeater(boolean)
+
+・BaseResponse にはないキー
+comment.colors(Colors)
+
+
+
+timestamp 変更する理由がない
+hasGift(boolean): ギフトリストに載るが、priceやunit等が使えなかった
+commentVisible(boolean): プラグインのfilter.commentでfalseする効果と同じ
+
+効かなかったリスト
+speechText
+originalProfileImage
+meta
+
+*/
 
 // ---------------------------------------------------
 
-// commentの型定義にOmikenを追加
-// ! この仕様は実現できなそう…(コメントを非表示にできれば別だけど)
-// https://types.onecomme.com/interfaces/types_Comment.BaseComment
-export type CommentOmiken = Comment & {
-  omiken: OneCommeOmikenType;
-};
 
-// 追加:各ジェネレーターで使用するキー集
-interface OneCommeOmikenType {
-  toast?: OmikujiPostType[]; // トーストジェネレーター用
-  [key: string]: any;
-}
 
 // 既存のOnePluginに追加する拡張型
 export interface OnePluginOmiken extends OnePlugin {
