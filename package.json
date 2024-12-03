@@ -5,7 +5,8 @@
   "main": "public/plugin.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "test:plugin": "jest plugin.test.ts"
   },
   "keywords": [
     "わんコメ",

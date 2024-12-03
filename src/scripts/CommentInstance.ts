@@ -1,11 +1,11 @@
 // src/scripts/CommentInstance.ts
 
 import {
+  CharaType,
   GameType,
   OmikujiType,
   PlaceType,
-  PresetCharaType,
-  PresetScriptType,
+  PresetType,
   RulesType,
   TimeConfigType,
   visitDataType,
@@ -201,8 +201,8 @@ export class CommentInstance {
   async omikujiProcess(
     Games: Record<string, GameType>,
     places: Record<string, PlaceType>,
-    Charas: Record<string, PresetCharaType>,
-    Scripts: Record<string, PresetScriptType>
+    Charas: Record<string, CharaType>,
+    Scripts: Record<string, PresetType>
   ): Promise<Comment | false> {
     this.visitData = this.visit.visitData[this.selectRule.id]; // visitDataを取得
     this.game = Games[this.selectRule.id]; // Gameをthisに入れる
@@ -242,7 +242,6 @@ export class CommentInstance {
     new PostMessages(
       this.selectOmikuji.post,
       Charas,
-      this.TimeConfig.defaultFrameId
     );
 
     // omikuji.delete = trueなら、コメントを消す

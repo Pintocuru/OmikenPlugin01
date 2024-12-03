@@ -180,6 +180,8 @@ export class PostMessages implements PostService {
         color: isSilent ? toastServiceColor : serviceColor,
       });
 
+      this.services.push(response.data); // 作成した枠をthis.servicesに追加
+
       return response.data;
     } catch (error) {
       console.error("Failed to create service:", error);

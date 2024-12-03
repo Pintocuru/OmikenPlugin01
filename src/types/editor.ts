@@ -2,7 +2,7 @@
 // ! 古いタイプです
 
 import { ListTypeMap, ListItemTypeMap, OmikenType } from "./index";
-import { CharaType, PresetOmikenType } from "./index";
+import { CharaType, PresetType } from "./index";
 
 // エディター用型定義
 
@@ -10,8 +10,8 @@ import { CharaType, PresetOmikenType } from "./index";
 export interface AppEditerType {
   Omiken: OmikenType;
   Chara: Record<string, CharaType>;
-  Preset: Record<string, PresetOmikenType>; // プリセットデータ
-  Script:any;
+  Preset: Record<string, PresetType>; // プリセットデータ
+  Script: any;
 }
 
 // xxxOrder用の型
@@ -49,5 +49,5 @@ export type OmikenEntry<T extends OmikenCategory> = {
     : never;
   delKeys?: string | string[]; // 削除するアイテムのキー名
   reorder?: T extends ListCategory ? string[] : never; // 順番の指定
-  preset?: T extends "preset" ? PresetOmikenType : never; // プリセット用
+  preset?: T extends "preset" ? PresetType : never; // プリセット用
 } | null;

@@ -85,6 +85,9 @@ const plugin: OnePlugin = {
     const { Charas, Scripts } = initLoadHelper.loadPresets(presetPath);
     console.warn("Preset データ読み込み完了: ", presetPath);
 
+    // Charasを外部から読み込み
+        console.warn("Charas データ: ", Charas);
+
     // ストアからデータを読み込み
     const storeData = {
       OmikenOmikuji: Omiken.omikuji,
@@ -312,18 +315,14 @@ module.exports = plugin;
 class initLoadHelper {
   static loadPresets(presetPath: string) {
     try {
-      const preset = require(presetPath) as PresetType;
+      const preset = require(presetPath) as PresetType[];
       return {
-        Charas: Object.fromEntries(
-          Object.entries(preset).filter(([_, value]) => value.type === "Chara")
-        ),
-        Scripts: Object.fromEntries(
-          Object.entries(preset).filter(([_, value]) => value.type === "Script")
-        ),
+        Charas: preset.filter((item) => item.type === "Chara"),
+        Scripts: preset.filter((item) => item.type === "Script"),
       };
     } catch (error) {
       console.error("プリセットの読み込みに失敗:", error);
-      return { Charas: {}, Scripts: {} };
+      return { Charas: [], Scripts: [] };
     }
   }
 
