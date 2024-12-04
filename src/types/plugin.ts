@@ -41,7 +41,6 @@ export interface GameType extends DrawsBase {
 
 // TimeConfig
 export interface TimeConfigType {
-  defaultFrameId: string; // わんコメの一番上の枠ID(わんコメの投稿で使用)
   pluginTime: number; // プラグインを起動した時刻
   lastTime: number; // 最後におみくじ機能が実行された時刻
   lastUserId: string; // 最後におみくじを行ったuserId

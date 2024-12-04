@@ -37,7 +37,7 @@ export class CommentInstance {
       name: comment.data.displayName,
       userId: comment.data.userId,
       status: "syoken",
-      lastPluginTime: this.TimeConfig.pluginTime,
+      lastPluginTime: TimeConfig.pluginTime,
       visitData: {},
     };
     // ユーザーの枠情報が空白または異なるなら、Visitを初期化
@@ -239,14 +239,13 @@ export class CommentInstance {
     this.selectOmikuji = placeClass.replacementPlace();
 
     // メッセージ投稿(わんコメ/他の何らかのサービス)
-    new PostMessages(
-      this.selectOmikuji.post,
-      Charas,
-    );
+    new PostMessages(this.selectOmikuji.post, Charas);
 
     // omikuji.delete = trueなら、コメントを消す
+    if (this.selectOmikuji.isSilent) this.comment.data.speechText = " ";
+
     // TODO 将来、コメント編集機能も追加したいな
-    return this.selectOmikuji.delete ? false : this.comment;
+    return this.selectOmikuji.isDelete ? false : this.comment;
   }
 
   // visitDataのdrawsをインクリメント

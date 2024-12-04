@@ -1,9 +1,7 @@
 // src/plugin.ts
-import { Service } from "@onecomme.com/onesdk/types/Service";
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import { UserNameData } from "@onecomme.com/onesdk/types/UserData";
 import ElectronStore from "electron-store";
 import { CommentInstance } from "./scripts/CommentInstance";
 import {
@@ -13,19 +11,18 @@ import {
   VisitType,
   GameType,
   RulesType,
-  PresetType,
   OmikujiType,
   PlaceType,
-  OnePluginOmiken,
   TimeConfigType,
 } from "./types";
-import path from "path";
 import { InitDataLoader } from "./scripts/InitDataLoader";
 import { configs } from "./config";
 
+const PLUGIN_UID = "OmikenPlugin01"; // プラグイン固有の一意のID
+
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
-  uid: "OmikenPlugin01", // プラグイン固有の一意のID
+  uid: PLUGIN_UID, // プラグイン固有の一意のID
   version: "0.0.8", // プラグインのバージョン番号
   author: "Pintocuru", // 開発者名
   url: "https://onecomme.com", // サポートページのURL
@@ -37,22 +34,20 @@ const plugin: OnePlugin = {
     Visits: {},
     Games: {},
     TimeConfig: {
-      defaultFrameId: "", // わんコメの一番上の枠ID
       pluginTime: 0, // プラグインを起動した時刻
       lastTime: 0, // 最後におみくじ機能が実行された時刻
       lastUserId: "", // 最後におみくじを行ったuserId
     },
   },
   // プラグインの初期化
-  init({ store }: { store: ElectronStore<StoreType> }, initialData) {
+  init({ store }: { store: ElectronStore<StoreType> }) {
     console.log("プラグイン初期化開始");
     this.store = store;
 
     const loader = new InitDataLoader(store, configs.dataRoot);
-    const defaultFrameId = initialData?.services?.[0]?.id || "";
 
     const loadedData = loader.loadPluginData();
-    loader.initializeTimeConfig(defaultFrameId);
+    loader.initializeTimeConfig();
     loader.initializeGames();
 
     Object.assign(this, loadedData);
@@ -77,7 +72,7 @@ const plugin: OnePlugin = {
     const omikujis = this.OmikenOmikuji as Record<string, OmikujiType>;
     const places = this.OmikenPlace as Record<string, PlaceType>;
     const userId = comment.data.userId;
-    const visit = this.Visits[userId] as VisitType; // ユーザーのvisit
+    const visit = this.Visits?.[userId] as VisitType; // ユーザーのvisit
     const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
     // undefinedの場合にエラーを投げたい:
@@ -156,86 +151,41 @@ const plugin: OnePlugin = {
    * }
    */
   async request(req) {
-    // [GET, POST, PUT, DELETE]
-    // endpoint: localhost:11180/api/plugins/com.onecomme.plugin-sample
-    const path = new URL(req.url).pathname;
-    const segments = path.split("/").filter(Boolean);
-    const endpoint = segments[segments.length - 1]; // 最後のパスセグメントをエンドポイントとして使用
+    const baseUrl = "http://localhost:11180";
+    const fullUrl = new URL(req.url, baseUrl).href;
+    const { searchParams } = new URL(fullUrl);
+    const typeParam = searchParams.get("type");
 
     return new Promise((resolve) => {
       switch (req.method) {
         case "GET":
-          switch (endpoint) {
-            // エディター用
-            case "editor":
-              resolve({
-                code: 200,
-                response: JSON.stringify({
-                  ...this.store.Omiken,
-                  ...this.store.CHARA,
-                }),
-              });
-              break;
-            // ジェネレーター用
-            // TODO 何をGETできればいい？
-            case "display":
-              resolve({
-                code: 200,
-                response: JSON.stringify({ score: this.score }), // TODO thisが放置されてる
-              });
-              break;
-
-            default:
-              resolve({
-                code: 404,
-                response: "Not Found",
-              });
+          if (typeParam === "editor") {
+            resolve({
+              code: 200,
+              response: JSON.stringify(this.Omiken),
+            });
           }
           break;
-        // POST
         case "POST":
-          switch (endpoint) {
-            // 保存:Omiken
-            case "omiken":
-              try {
-                const data = JSON.parse(req.body) as OmikenType;
-                this.store.Omiken = data;
-                resolve({
-                  code: 200,
-                  response: "Omiken updated successfully",
-                });
-              } catch (error) {
-                resolve({
-                  code: 400,
-                  response: "Invalid data format",
-                });
-              }
-              break;
-
-            // 保存:CHARA
-            case "chara":
-              try {
-                const data = JSON.parse(req.body) as CharaType;
-                this.store.CHARA = data;
-                resolve({
-                  code: 200,
-                  response: "CHARA updated successfully",
-                });
-              } catch (error) {
-                resolve({
-                  code: 400,
-                  response: "Invalid data format",
-                });
-              }
-              break;
-
-            default:
-              resolve({
-                code: 404,
-                response: "Unknown endpoint",
-              });
+          try {
+            const data = JSON.parse(req.body);
+            this.store.Omiken = data;
+            resolve({
+              code: 200,
+              response: "Omiken updated successfully",
+            });
+          } catch (error) {
+            resolve({
+              code: 400,
+              response: "Invalid data format",
+            });
           }
           break;
+        default:
+          resolve({
+            code: 404,
+            response: "Not Found",
+          });
       }
     });
   },

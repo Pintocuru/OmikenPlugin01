@@ -3,28 +3,22 @@
 ///////////////////////////////////
 // Omiken
 ///////////////////////////////////
-// ! 古いタイプです
 
 // Omiken:おみくじ&初見判定ちゃんBOT用型定義
 export interface OmikenType {
   rules: Record<string, RulesType>; // おみくじのルールを管理
   rulesOrder: string[]; // ルールの順序
-  omikuji: Record<string, OmikujiType>; // おみくじ関連のメッセージ
-  place: Record<string, PlaceType>; // プレースホルダー
+  omikujis: Record<string, OmikujiType>; // おみくじ関連のメッセージ
+  places: Record<string, PlaceType>; // プレースホルダー
 }
 
 // コンテンツの型マッピング
 export type ListTypeMap = {
-  rules: RulesType;
+  rule: RulesType;
   omikuji: OmikujiType;
   place: PlaceType;
 };
-export type ListItemTypeMap = {
-  rules: Record<string, RulesType>;
-  rulesOrder: string[];
-  omikuji: Record<string, OmikujiType>;
-  place: Record<string, PlaceType>;
-};
+export type ListItemTypeMap = Omit<OmikenType, "rulesOrder">;
 
 ///////////////////////////////////
 // rules/omikuji/place 共通
@@ -67,7 +61,8 @@ export interface OmikujiType extends BaseType {
   weight: number; // 出現割合
   threshold: ThresholdType[]; // 発動条件
   status?: string; // ユーザーに対するステータスの付与
-  delete: boolean; // コメントを無効化するか
+  isDelete: boolean; // コメントを無効にするか
+  isSilent: boolean; // 読み上げを無効にするか
   script?: {
     scriptId: string; // 使用する外部スクリプトのid
     parameter: string; // 外部スクリプトに渡す引数
@@ -150,7 +145,10 @@ export interface CountCondition {
     | "equal" // 等しい
     | "loop"; // 数値をvalue1で割った数
   unit:
-    | "draws" // rulesに該当した回数
+    | "draws" // その枠でrulesに該当した回数(個人)
+    | "totalDraws" // その枠でrulesに該当した回数(合計)
+    | "gameDraws" // rulesに該当した総回数(個人)
+    | "gameTotalDraws" // rulesに該当した総回数(合計)
     | "gift" // ギフトの金額(comment.data.price)
     | "lc" // 配信枠の全体コメ数(comment.meta.lc)
     | "no" // 配信枠の個人コメ数(comment.meta.no)

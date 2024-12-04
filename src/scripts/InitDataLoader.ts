@@ -90,8 +90,9 @@ export class InitDataLoader {
     );
 
     return {
-      OmikenOmikuji: Omiken.omikuji,
-      OmikenPlace: Omiken.place,
+      Omiken,
+      OmikenOmikuji: Omiken.omikujis,
+      OmikenPlace: Omiken.places,
       Visits: (this.store as any).get("Visits", {}),
       Games: (this.store as any).get("Games", {}),
       TimeConfig: (this.store as any).get("TimeConfig", {}),
@@ -115,10 +116,9 @@ export class InitDataLoader {
     return GamesNew;
   }
 
-  initializeTimeConfig(defaultFrameId: string) {
+  initializeTimeConfig() {
     const timeConfig = {
       pluginTime: Date.now(),
-      defaultFrameId,
       lastTime: 0,
       lastUserId: "",
     };
