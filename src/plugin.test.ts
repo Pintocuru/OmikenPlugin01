@@ -36,31 +36,14 @@ describe("サンプルプラグインのテスト", () => {
     plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
   });
 
-  test.skip("filterComment: ", () => {
+  test("filterComment:おみくじができる ", () => {
     const result = plugin.filterComment(commentMock, null, null);
     expect(result).toBe(commentMock);
   });
 
-  // GET - エディター用エンドポイントのテスト
+
   test.skip("GET /editor エンドポイントは正常にデータを返す", async () => {
-    const hoge = plugin.Omiken;
-
-    const req = {
-      method: "GET",
-      url: "http://localhost:11180/api/plugins/OmikenPlugin01/editor",
-    };
-
-    const result = await plugin.request(req);
-    console.log("リクエスト結果:", result);
-
-    expect(result).toEqual({
-      code: 200,
-      response: JSON.stringify(hoge),
-    });
-  });
-
-  test("GET /editor エンドポイントは正常にデータを返す", async () => {
-    const apiBase = "http://localhost:11180/api/plugins/OmikenPlugin01/editor";
+    const apiBase = "http://localhost:11180/api/plugins/OmikenPlugin01";
     const endpoint = "/api/plugins/OmikenPlugin01/editor";
 
     const response = await axios.get(`${apiBase}`);

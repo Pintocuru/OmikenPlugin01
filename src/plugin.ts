@@ -1,6 +1,6 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
+import { OnePlugin, PluginResponse } from "@onecomme.com/onesdk/types/Plugin";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 import ElectronStore from "electron-store";
 import { CommentInstance } from "./scripts/CommentInstance";
@@ -17,6 +17,9 @@ import {
 } from "./types";
 import { InitDataLoader } from "./scripts/InitDataLoader";
 import { configs } from "./config";
+import { BackupService } from "./scripts/BackupService";
+const fs = require("fs");
+const path = require("path");
 
 const PLUGIN_UID = "OmikenPlugin01"; // プラグイン固有の一意のID
 
@@ -138,7 +141,7 @@ const plugin: OnePlugin = {
   },
 
   /**
-   * called when a request is made to the plugin-specific RestAPI
+   * called when a request is made to the plugin-specific
    * @param {
    *   url: string // request url
    *   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -150,44 +153,90 @@ const plugin: OnePlugin = {
    *   response: Object or Array // response data
    * }
    */
-  async request(req) {
-    const baseUrl = "http://localhost:11180";
-    const fullUrl = new URL(req.url, baseUrl).href;
-    const { searchParams } = new URL(fullUrl);
-    const typeParam = searchParams.get("type");
+  async request(req): Promise<PluginResponse> {
+    const { method, params, body } = req;
 
-    return new Promise((resolve) => {
-      switch (req.method) {
-        case "GET":
-          if (typeParam === "editor") {
-            resolve({
-              code: 200,
-              response: JSON.stringify(this.Omiken),
-            });
-          }
-          break;
-        case "POST":
-          try {
-            const data = JSON.parse(req.body);
-            this.store.Omiken = data;
-            resolve({
-              code: 200,
-              response: "Omiken updated successfully",
-            });
-          } catch (error) {
-            resolve({
-              code: 400,
-              response: "Invalid data format",
-            });
-          }
-          break;
-        default:
-          resolve({
-            code: 404,
-            response: "Not Found",
-          });
-      }
+    // データ型のマッピング
+    const responseMap = {
+      Omiken: this.Omiken,
+      Presets: this.Presets,
+      Charas: this.Charas,
+      Scripts: this.Scripts,
+      Visits: this.Visits,
+      Games: this.Games,
+    };
+
+    // エラーレスポンスの共通関数
+    const createErrorResponse = (code: number, message: string) => ({
+      code,
+      response: message,
     });
+
+    // 成功レスポンスの共通関数
+    const createSuccessResponse = (data: string, code: number = 200) => ({
+      code,
+      response: data,
+    });
+
+    try {
+      switch (method) {
+        case "GET":
+          // データ取得モード
+          if (params.mode === "data") {
+            if (!params.type) {
+              return createErrorResponse(400, "タイプパラメータが必要です");
+            }
+
+            const response = responseMap[params.type];
+
+            return response
+              ? createSuccessResponse(response)
+              : createErrorResponse(400, "無効なタイプ");
+          }
+
+          // バックアップモード
+          if (params.mode === "backup") {
+            // TODO: バックアップの取得実装
+            return createErrorResponse(501, "バックアップの取得は未実装");
+          }
+
+          return createErrorResponse(400, "無効なリクエストモード");
+
+        case "POST":
+          // データ書き込みモード
+          if (params.mode === "writing") {
+            const data = JSON.parse(body);
+
+            // Node.jsのfs (file system)モジュールを使用してファイル保存
+            const fs = require("fs");
+            const horuda = path.join(configs.dataRoot, "Omiken");
+            const filePath = path.join(horuda, "index.json");
+
+            // Omiken フォルダが存在しない場合は作成
+            if (!fs.existsSync(horuda)) {
+              fs.mkdirSync(horuda, { recursive: true });
+            }
+
+            // JSON データをファイルに書き込み
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            console.log(`File saved at ${filePath}`);
+
+            // バックアップ
+            const backupService = new BackupService("Omiken");
+            backupService.createBackup(data);
+
+            return createSuccessResponse("ファイルが正常に保存されました");
+          }
+
+          return createErrorResponse(400, "無効なタイプパラメータ");
+
+        default:
+          return createErrorResponse(404, "サポートされていないメソッド");
+      }
+    } catch (error) {
+      console.error("リクエスト処理中にエラーが発生:", error);
+      return createErrorResponse(500, "データ処理中にエラーが発生しました");
+    }
   },
 };
 

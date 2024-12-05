@@ -32,32 +32,42 @@ export class InitDataLoader {
   }
 
   private loadPresets(presetPath: string): {
+    PresetsMoto: PresetType[];
     CharasMoto: PresetType[];
     Scripts: PresetType[];
   } {
-    const presets = this.safeLoadJson<PresetType[]>(presetPath);
-    if (!presets) return { CharasMoto: [], Scripts: [] };
+    const presets = this.safeLoadJson<PresetType[]>(presetPath) || [];
 
-    return {
-      CharasMoto: presets.filter((item) => item.type === "Chara"),
-      Scripts: presets.filter((item) => item.type === "Script"),
-    };
+    return presets.reduce(
+      (acc, item) => {
+        if (item.type === "Omiken") {
+          acc.PresetsMoto.push(item);
+        } else if (item.type === "Chara") {
+          acc.CharasMoto.push(item);
+        } else if (item.type === "Script") {
+          acc.Scripts.push(item);
+        }
+        return acc;
+      },
+      { PresetsMoto: [], CharasMoto: [], Scripts: [] }
+    );
   }
 
-  private loadCharasData(charas: PresetType[]): Record<string, CharaType> {
-    const charasData: Record<string, CharaType> = {};
+  // presetのpathを読んでデータを返す
+  private loadCharasData<T>(items: PresetType[]): Record<string, T> {
+    const dataMap: Record<string, T> = {};
 
-    charas.forEach((chara) => {
-      if (!chara.path) {
-        console.warn(`キャラクターのパスが不明: ${chara.id}`);
+    items.forEach((item) => {
+      if (!item.path) {
+        console.warn(`キャラクターのパスが不明: ${item.id}`);
         return;
       }
 
-      const data = this.safeLoadJson<CharaType>(`preset/${chara.path}`);
-      if (data) charasData[chara.id] = data;
+      const data = this.safeLoadJson<T>(`preset/${item.path}`);
+      if (data) dataMap[item.id] = data;
     });
 
-    return charasData;
+    return dataMap;
   }
 
   private filterRulesByType(
@@ -75,14 +85,17 @@ export class InitDataLoader {
   }
 
   loadPluginData() {
-    const OmikenPath = "Omiken/index.json";
-    const presetPath = "preset/index.json";
+    const OmikenPath = "Omiken/index.json"; // おみくじデータ
+    const presetPath = "preset/index.json"; // presetデータ
 
     const Omiken = this.safeLoadJson<OmikenType>(OmikenPath);
     if (!Omiken) throw new Error("Omikenデータの読み込みに失敗");
 
-    const { CharasMoto, Scripts } = this.loadPresets(presetPath);
-    const Charas = this.loadCharasData(CharasMoto);
+    const { PresetsMoto, CharasMoto, Scripts } = this.loadPresets(presetPath);
+    const Charas: Record<string, CharaType> =
+      this.loadCharasData<CharaType>(CharasMoto);
+    const Presets: Record<string, OmikenType> =
+      this.loadCharasData<OmikenType>(PresetsMoto);
 
     const { OmikenRulesComment, OmikenRulesTimer } = this.filterRulesByType(
       Omiken.rules,
@@ -91,15 +104,16 @@ export class InitDataLoader {
 
     return {
       Omiken,
+      OmikenRulesComment,
+      OmikenRulesTimer,
       OmikenOmikuji: Omiken.omikujis,
       OmikenPlace: Omiken.places,
+      Presets,
+      Charas,
+      Scripts,
       Visits: (this.store as any).get("Visits", {}),
       Games: (this.store as any).get("Games", {}),
       TimeConfig: (this.store as any).get("TimeConfig", {}),
-      OmikenRulesComment,
-      OmikenRulesTimer,
-      Charas,
-      Scripts,
     };
   }
 

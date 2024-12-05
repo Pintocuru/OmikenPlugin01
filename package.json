@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "test:plugin": "jest plugin.test.ts"
+    "test:plugin": "set NODE_ENV=development&& jest plugin.test.ts"
   },
   "keywords": [
     "わんコメ",
