@@ -6,19 +6,32 @@
 
 // Omiken:おみくじ&初見判定ちゃんBOT用型定義
 export interface OmikenType {
+  types: Record<TypesType, string[]>;
   rules: Record<string, RulesType>; // おみくじのルールを管理
-  rulesOrder: string[]; // ルールの順序
   omikujis: Record<string, OmikujiType>; // おみくじ関連のメッセージ
   places: Record<string, PlaceType>; // プレースホルダー
 }
 
 // コンテンツの型マッピング
-export type ListTypeMap = {
-  rule: RulesType;
-  omikuji: OmikujiType;
-  place: PlaceType;
+export type OmikenTypeMap = {
+  types: string[];
+  rules: RulesType;
+  omikujis: OmikujiType;
+  places: PlaceType;
 };
-export type ListItemTypeMap = Omit<OmikenType, "rulesOrder">;
+
+///////////////////////////////////
+// types
+///////////////////////////////////
+
+export type TypesType =
+  | "comment" // コメントでの起動
+  | "timer" // タイマー(定期的な起動)
+  | "meta"
+  | "waitingList"
+  | "setList"
+  | "reactions"
+  | "unused"; // 無効;
 
 ///////////////////////////////////
 // rules/omikuji/place 共通
@@ -38,10 +51,6 @@ export interface BaseType {
 // rules:おみくじルールの型定義
 export interface RulesType extends BaseType {
   color: string; // エディターでの識別用カラー
-  ruleType:
-    | false // 無効
-    | "comment" // コメントでの起動
-    | "timer"; // タイマー(定期的な起動)
   enableIds: string[]; // このrulesで使用する、omikujiリスト
   threshold: ThresholdType[]; //発動条件(2件まで)
   timerConfig?: {
@@ -61,26 +70,27 @@ export interface OmikujiType extends BaseType {
   weight: number; // 出現割合
   threshold: ThresholdType[]; // 発動条件
   status?: string; // ユーザーに対するステータスの付与
-  isDelete: boolean; // コメントを無効にするか
-  isSilent: boolean; // 読み上げを無効にするか
+  isDelete?: boolean; // コメントを無効にするか
+  isSilent?: boolean; // 読み上げを無効にするか
   script?: {
     scriptId: string; // 使用する外部スクリプトのid
     parameter: string; // 外部スクリプトに渡す引数
   };
   placeIds: string[]; // 使用するプレースホルダーのid
-  post: OmikujiPostType[];
+  post: OneCommePostType[];
 }
 
 // メッセージの投稿情報を管理する型
-export interface OmikujiPostType {
+export interface OneCommePostType {
   type:
     | "onecomme" // わんコメへの投稿
     | "party" // WordPartyの投稿
-    | "toast" // トースト投稿
     | "speech"; // わんコメのスピーチ機能
   botKey: string; // ボットキー
   iconKey: string; // アイコンキー
-  party: string; // 発動するWordParty
+  party?: string; // 発動するWordParty
+  isSilent?: boolean; // BOTのメッセージを読み上げない
+  generatorParam?: string; // ジェネレーターに渡す引数
   delaySeconds: number; // メッセージを送信するまでの遅延時間
   content: string; // メッセージ内容
 }
@@ -122,14 +132,14 @@ export type ConditionType =
   | "count"
   | "match";
 
-// 初見・コメント履歴の種別
+// syoken:初見・コメント履歴の種別
 export enum SyokenCondition {
   SYOKEN = 1, // 初見
   AGAIN = 2, // 前回のコメントから7日以上経過
   HI = 3, // その配信枠で1回目のコメント
 }
 
-// ルールの有効/無効 0:OFF/1:だれでも/2:メンバー/3:モデレーター/4:管理者
+// access:ユーザーの役職 0:OFF/1:だれでも/2:メンバー/3:モデレーター/4:管理者
 export enum AccessCondition {
   MEMBER = 2,
   MODERATOR = 3,

@@ -9,6 +9,7 @@ import {
   CharaType,
   StoreType,
   GameType,
+  TypesType,
 } from "../types/index";
 
 export class InitDataLoader {
@@ -20,6 +21,7 @@ export class InitDataLoader {
     this.basePath = basePath;
   }
 
+  // JSONファイルを読む
   private safeLoadJson<T>(filePath: string): T | null {
     try {
       const fullPath = path.join(this.basePath, filePath);
@@ -70,20 +72,6 @@ export class InitDataLoader {
     return dataMap;
   }
 
-  private filterRulesByType(
-    rules: Record<string, RulesType>,
-    rulesOrder: string[]
-  ) {
-    return {
-      OmikenRulesComment: rulesOrder
-        .map((key) => rules[key])
-        .filter((rule) => rule.ruleType === "comment"),
-      OmikenRulesTimer: rulesOrder
-        .map((key) => rules[key])
-        .filter((rule) => rule.ruleType === "timer"),
-    };
-  }
-
   loadPluginData() {
     const OmikenPath = "Omiken/index.json"; // おみくじデータ
     const presetPath = "preset/index.json"; // presetデータ
@@ -97,17 +85,11 @@ export class InitDataLoader {
     const Presets: Record<string, OmikenType> =
       this.loadCharasData<OmikenType>(PresetsMoto);
 
-    const { OmikenRulesComment, OmikenRulesTimer } = this.filterRulesByType(
-      Omiken.rules,
-      Omiken.rulesOrder
-    );
+    const OmikenTypesArray = filterTypes(Omiken.types, Omiken.rules);
 
     return {
       Omiken,
-      OmikenRulesComment,
-      OmikenRulesTimer,
-      OmikenOmikuji: Omiken.omikujis,
-      OmikenPlace: Omiken.places,
+      OmikenTypesArray,
       Presets,
       Charas,
       Scripts,
@@ -139,4 +121,18 @@ export class InitDataLoader {
     (this.store as any).set("TimeConfig", timeConfig);
     return timeConfig;
   }
+}
+
+
+// rulesを配列にする
+export function filterTypes(
+  types: Record<TypesType, string[]>,
+  rules: Record<string, RulesType>
+) {
+  return Object.keys(types).reduce((result, typeKey) => {
+    result[typeKey] = types[typeKey]
+      .map((id: string) => rules[id])
+      .filter((rule) => rule !== undefined);
+    return result;
+  }, {} as Record<TypesType, RulesType[]>);
 }

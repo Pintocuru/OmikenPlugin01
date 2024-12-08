@@ -7,25 +7,21 @@ import { CommentInstance } from "./scripts/CommentInstance";
 import {
   StoreType,
   OmikenType,
-  CharaType,
   VisitType,
   GameType,
   RulesType,
-  OmikujiType,
-  PlaceType,
   TimeConfigType,
 } from "./types";
-import { InitDataLoader } from "./scripts/InitDataLoader";
+import { filterTypes, InitDataLoader } from "./scripts/InitDataLoader";
 import { configs } from "./config";
 import { BackupService } from "./scripts/BackupService";
 const fs = require("fs");
 const path = require("path");
 
-const PLUGIN_UID = "OmikenPlugin01"; // プラグイン固有の一意のID
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
-  uid: PLUGIN_UID, // プラグイン固有の一意のID
+  uid: configs.PLUGIN_UID, // プラグイン固有の一意のID
   version: "0.0.8", // プラグインのバージョン番号
   author: "Pintocuru", // 開発者名
   url: "https://onecomme.com", // サポートページのURL
@@ -68,20 +64,22 @@ const plugin: OnePlugin = {
    */
   async filterComment(comment: Comment): Promise<Comment | false> {
     // 自身のプラグインの投稿は除外
-    if (comment.data.userId === "FirstCounter") return comment;
+    if (comment.data.userId === configs.botUserId) {
+      // isOwner(isSilent) なら読み上げを行わない
+      if (comment.data.isOwner) comment.data.speechText = " ";
+      return comment;
+    }
 
     // 初期化
-    const rulesArray = this.OmikenRulesComment as RulesType[];
-    const omikujis = this.OmikenOmikuji as Record<string, OmikujiType>;
-    const places = this.OmikenPlace as Record<string, PlaceType>;
+    const Omiken = this.Omiken as OmikenType;
+    const rulesArray = this.OmikenTypesArray.comment as RulesType[];
     const userId = comment.data.userId;
     const visit = this.Visits?.[userId] as VisitType; // ユーザーのvisit
     const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
     // undefinedの場合にエラーを投げたい:
+    if (!Omiken) console.error("Omiken is undefined");
     if (!rulesArray) console.error("OmikenRulesComment is undefined");
-    if (!omikujis) console.error("OmikenOmikuji is undefined");
-    if (!places) console.error("OmikenPlace is undefined");
     if (!userId) console.error("User ID is undefined");
     if (!visit) console.error(`Visit data for user ${userId} is undefined`);
     if (!TimeConfig) console.error("TimeConfig is undefined");
@@ -90,7 +88,7 @@ const plugin: OnePlugin = {
     const Instance = new CommentInstance(comment, visit, TimeConfig);
     try {
       // おみくじCHECK
-      const isOmikuji = Instance.omikenSelect(rulesArray, omikujis);
+      const isOmikuji = Instance.omikenSelect(rulesArray, Omiken.omikujis);
       console.log("おみくじ選択結果: ", isOmikuji);
 
       if (!isOmikuji) {
@@ -102,7 +100,7 @@ const plugin: OnePlugin = {
       console.log("おみくじ処理を開始");
       const processResult = await Instance.omikujiProcess(
         this.Games,
-        places,
+        Omiken.places,
         this.Charas,
         this.Scripts
       );
@@ -205,7 +203,7 @@ const plugin: OnePlugin = {
         case "POST":
           // データ書き込みモード
           if (params.mode === "writing") {
-            const data = JSON.parse(body);
+            const data = JSON.parse(body) as OmikenType;
 
             // Node.jsのfs (file system)モジュールを使用してファイル保存
             const fs = require("fs");
@@ -224,6 +222,13 @@ const plugin: OnePlugin = {
             // バックアップ
             const backupService = new BackupService("Omiken");
             backupService.createBackup(data);
+
+            // 現在展開しているOmikenを書き換える
+            const hogeData = {
+              Omiken: data,
+              OmikenTypesArray: filterTypes(data.types, data.rules),
+            };
+            Object.assign(this, hogeData);
 
             return createSuccessResponse("ファイルが正常に保存されました");
           }

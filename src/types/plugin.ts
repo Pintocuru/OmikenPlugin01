@@ -55,12 +55,14 @@ export interface postOneCommeRequestType {
   comment: Pick<
     BaseResponse,
     | "id" // 一意のID
-    | "userId" // 
+    | "userId" //
     | "name" // 表示名
     | "nickname" // ユーザーネームの変更、nameを表示させたいが読み上げさせない時に使う
     | "comment" // コメント
     | "profileImage" // アイコン
     | "badges" // メンバーやモデレーター等の表示用バッジ
+    | "liveId" // 【仕様とは異なる】 ジェネレーターに渡す引数(generatorParam)
+    | "isOwner" // 【仕様とは異なる】 BOTの読み上げを行わない(isSilent)
   >;
 }
 /*

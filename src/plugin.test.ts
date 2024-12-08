@@ -4,6 +4,7 @@ import axios from "axios";
 import ElectronStore from "electron-store";
 import { StoreType } from "./types";
 import { commentMock, MockElectronStore, storeMock } from "./plugin.mockData";
+import { configs } from "./config";
 
 const plugin = require("./plugin");
 
@@ -43,8 +44,7 @@ describe("サンプルプラグインのテスト", () => {
 
 
   test.skip("GET /editor エンドポイントは正常にデータを返す", async () => {
-    const apiBase = "http://localhost:11180/api/plugins/OmikenPlugin01";
-    const endpoint = "/api/plugins/OmikenPlugin01/editor";
+    const apiBase = "http://localhost:11180/api/plugins/" + configs.PLUGIN_UID;
 
     const response = await axios.get(`${apiBase}`);
     console.log("リクエスト結果:", response.data);

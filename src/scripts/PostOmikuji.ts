@@ -1,20 +1,19 @@
 // src/scripts/PostOmikuji.js
 
-import fs from "fs";
-import { Service } from "@onecomme.com/onesdk/types/Service";
 import {
   CharaType,
-  OmikujiPostType,
+  OneCommePostType,
   postOneCommeRequestType,
 } from "../../src/types/index";
 import { configs } from "../config";
+import { Service } from "@onecomme.com/onesdk/types/Service";
 import { RGBColor } from "@onecomme.com/onesdk/types/Color";
 import axios from "axios";
 import path from "path";
-
+import fs from "fs";
 
 interface PostService {
-  postMessage(post: OmikujiPostType, chara: CharaType): Promise<void>;
+  postMessage(post: OneCommePostType, chara: CharaType): Promise<void>;
 }
 
 export class PostMessages implements PostService {
@@ -22,9 +21,8 @@ export class PostMessages implements PostService {
   services: Service[];
 
   constructor(
-    private posts: OmikujiPostType[],
-    private Charas: Record<string, CharaType>
-    // TODO gameのデータを送信し、特定のジェネレーターを更新させたい
+    private posts: OneCommePostType[],
+    private Charas: Record<string, CharaType> 
   ) {
     this.initializePosts();
   }
@@ -34,16 +32,19 @@ export class PostMessages implements PostService {
       // 枠情報の取得
       this.services = await this.getServices();
 
-      for (const post of this.posts) {
-        const chara = this.Charas[post.botKey];
-        await this.postMessage(post, chara);
-      }
+      // 順次処理を保証
+      await Promise.all(
+        this.posts.map(async (post) => {
+          const chara = this.Charas[post.botKey];
+          await this.postMessage(post, chara);
+        })
+      );
     } catch (error) {
       console.error("Failed to initialize posts:", error);
     }
   }
 
-  async postMessage(post: OmikujiPostType, chara: CharaType): Promise<void> {
+  async postMessage(post: OneCommePostType, chara: CharaType): Promise<void> {
     const { type, iconKey, content, delaySeconds } = post;
 
     if (!content?.trim()) return; // 空のメッセージは処理しない
@@ -53,18 +54,17 @@ export class PostMessages implements PostService {
       !this.services.some((s) => s.id === chara.frameId) &&
       configs.isCreateService
     ) {
-      await this.createService(chara, type === "toast");
+      await this.createService(chara);
     }
 
     switch (type) {
-      case "onecomme":
-      case "toast":
+      case "onecomme": // わんコメ
         await this.postOneComme(post, chara);
         break;
-      case "party":
+      case "party": // WordParty
         await this.postWordParty(delaySeconds, content);
         break;
-      case "speech":
+      case "speech": // スピーチ(音声のみ)
         await this.postSpeech(delaySeconds, content);
         break;
     }
@@ -72,10 +72,11 @@ export class PostMessages implements PostService {
 
   // わんコメへ投稿
   private async postOneComme(
-    post: OmikujiPostType,
+    post: OneCommePostType,
     chara: CharaType
   ): Promise<void> {
-    const { iconKey, content, delaySeconds, type } = post;
+    const { iconKey, content, delaySeconds, type, generatorParam, isSilent } =
+      post;
     const charaImage = chara.image[iconKey] || chara.image.Default || "";
     const nickname = chara.nickname;
     // 枠作成がfalseなら、一番上のIDを取得
@@ -84,12 +85,17 @@ export class PostMessages implements PostService {
       : null;
 
     // 画像のファイルパスを確認
-    const profileImagePath = path.join(configs.dataRoot, "preset/Chara/", charaImage);
-    fs.access(profileImagePath, fs.constants.F_OK, (err) => {
+    const profileImage = path.join(
+      configs.dataRoot,
+      "preset/Chara/",
+      charaImage
+    );
+    // テスト:画像が存在しない場合は、エラーを表示
+    fs.access(profileImage, fs.constants.F_OK, (err) => {
       if (err) {
-        console.error("Image does not exist:", profileImagePath);
+        console.error("Image does not exist:", profileImage);
       } else {
-        console.log("Image exists:", profileImagePath);
+        console.log("Image exists:", profileImage);
       }
     });
 
@@ -99,12 +105,15 @@ export class PostMessages implements PostService {
       },
       comment: {
         id: Date.now() + Math.random().toString().slice(2, 12),
-        userId: "FirstCounter",
+        userId: configs.botUserId,
         name: chara.name,
         comment: content,
-        profileImage: configs.dataRoot + charaImage,
+        profileImage,
         badges: [],
         nickname: nickname ? nickname : chara.name,
+        // 仕様とは異なる使い方をしているキー(仕様変更で使えなくなるかも?)
+        liveId: generatorParam || "", // ジェネレーターに渡す引数
+        isOwner: isSilent, // BOTの読み上げを行わない
       },
     };
 
@@ -151,18 +160,17 @@ export class PostMessages implements PostService {
     delaySeconds: number,
     errorMessage: string
   ): Promise<void> {
-    await this.delay(delaySeconds); // 遅延
-
-    try {
-      await axios.post(url, data);
-    } catch (error) {
-      console.error(errorMessage, error);
-    }
-  }
-
-  // 遅延function // TODO 遅延が機能していない
-  private async delay(seconds: number): Promise<void> {
-    return new Promise((r) => setTimeout(r, Math.max(seconds * 1000, 0)));
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          await axios.post(url, data);
+          resolve();
+        } catch (error) {
+          console.error(errorMessage, error);
+          reject(error);
+        }
+      }, (delaySeconds + configs.basicDelaySeconds) * 1000);
+    });
   }
 
   // 枠情報を取得

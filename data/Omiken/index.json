@@ -1,9 +1,13 @@
 {
+  "types": {
+    "comment":["1729669868469-531k4","1730186223570-nxukm"],
+    "timer":[],
+    "unused":[]
+  },
   "rules": {
     "1729669868469-531k4": {
       "id": "1729669868469-531k4",
       "name": "おみくじ",
-      "ruleType": "comment",
       "color": "#ff0000",
       "description": "",
       "enableIds": [
@@ -336,7 +340,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730255480352-f1t5h"],
       "post": [
         {
           "type": "onecomme",
@@ -361,7 +365,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730255471547-50761"],
       "post": [
         {
           "type": "onecomme",
@@ -386,7 +390,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443398960-378mp"],
       "post": [
         {
           "type": "onecomme",
@@ -411,7 +415,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443399238-dxvph"],
       "post": [
         {
           "type": "onecomme",
@@ -436,7 +440,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443399516-tt4l5"],
       "post": [
         {
           "type": "onecomme",
@@ -461,7 +465,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443399688-1usll"],
       "post": [
         {
           "type": "onecomme",
@@ -486,7 +490,7 @@
       "weight": 3,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443399869-nfj9p"],
       "post": [
         {
           "type": "onecomme",
@@ -511,7 +515,7 @@
       "weight": 9,
       "rank": 0,
       "threshold": [],
-      "placeIds": [],
+      "placeIds": ["1730443400093-ajbw1"],
       "post": [
         {
           "type": "onecomme",
@@ -1051,6 +1055,5 @@
         }
       ]
     }
-  },
-  "rulesOrder": ["1729669868469-531k4", "1730186223570-nxukm"]
+  }
 }
