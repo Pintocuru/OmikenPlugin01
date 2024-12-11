@@ -62,6 +62,7 @@ export class CommentInstance {
       this.isFirstVisit = false;
     } else {
       // 1回目のコメントなら、statusを空白にし、drawsを0にする
+      this.visit.lastPluginTime = pluginTime;
       this.isFirstVisit = true;
       this.visit.status = "";
       Object.values(this.visit.visitData).forEach((data) => {
@@ -271,9 +272,17 @@ export class CommentInstance {
   private omikenDraws() {
     this.visitData = {
       ...this.visitData,
-      id: this.selectOmikuji.id,
+      id: this.selectRule.id,
       draws: (this.visitData?.draws || 0) + 1,
       totalDraws: (this.visitData?.totalDraws || 0) + 1,
+    };
+    // 該当するrules.idのvisitDataにデータを入れる
+    this.visit = {
+      ...this.visit,
+      visitData: {
+        ...this.visit.visitData,
+        [this.selectRule.id]: this.visitData,
+      },
     };
     this.game = {
       ...this.game,

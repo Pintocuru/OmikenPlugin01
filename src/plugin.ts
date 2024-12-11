@@ -13,12 +13,9 @@ import {
   TimeConfigType,
   StoreAllType,
 } from "./types";
-import { filterTypes, InitDataLoader } from "./scripts/InitDataLoader";
+import { InitDataLoader } from "./scripts/InitDataLoader";
 import { configs } from "./config";
-import { BackupService } from "./scripts/BackupService";
 import { RequestHandler } from "./scripts/ApiRequest";
-const fs = require("fs");
-const path = require("path");
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -119,21 +116,18 @@ const plugin: OnePlugin = {
           lastUserId: userId,
         });
 
-        // 相違がある時、gameを書き換える
-        const game = this.Games[ruleId] as GameType;
+        // gameを書き換える
         const gameNew = Instance.getDATA("game") as GameType;
-        if (JSON.stringify(game) !== JSON.stringify(gameNew)) {
-          this.store.set(`Games.${ruleId}`, gameNew);
-          console.log("Game 更新: ", { old: game, new: gameNew });
-        }
+        this.store.set(`Games.${ruleId}`, gameNew);
+        this.Games[ruleId] = gameNew;
+        console.warn("Game 更新: ", gameNew);
       }
 
-      // 相違がある時、visitを書き換える
+      // visitを書き換える
       const visitNew = Instance.getDATA("visit") as VisitType;
-      if (JSON.stringify(visit) !== JSON.stringify(visitNew)) {
-        this.store.set(`Visits.${userId}`, visitNew);
-        console.log("Visit 更新: ", { old: visit, new: visitNew });
-      }
+      this.Visits[userId] = visitNew;
+      this.store.set(`Visits.${userId}`, visitNew);
+      console.warn("Visit 更新: ", visitNew);
     }
   },
 
@@ -161,7 +155,6 @@ const plugin: OnePlugin = {
 };
 
 module.exports = plugin;
-
 
 /*
 

@@ -9,7 +9,7 @@ import {
   ThresholdType,
   TimeConfigType,
   VisitType,
-} from "../../src/types/index";
+} from "../types/index";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
 // 条件
