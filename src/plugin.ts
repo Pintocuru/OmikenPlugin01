@@ -11,13 +11,14 @@ import {
   GameType,
   RulesType,
   TimeConfigType,
+  StoreAllType,
 } from "./types";
 import { filterTypes, InitDataLoader } from "./scripts/InitDataLoader";
 import { configs } from "./config";
 import { BackupService } from "./scripts/BackupService";
+import { RequestHandler } from "./scripts/ApiRequest";
 const fs = require("fs");
 const path = require("path");
-
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -34,6 +35,7 @@ const plugin: OnePlugin = {
     Games: {},
     TimeConfig: {
       pluginTime: 0, // プラグインを起動した時刻
+      lc: 0, // プラグインを起動してからカウントしたコメント数
       lastTime: 0, // 最後におみくじ機能が実行された時刻
       lastUserId: "", // 最後におみくじを行ったuserId
     },
@@ -43,11 +45,11 @@ const plugin: OnePlugin = {
     console.log("プラグイン初期化開始");
     this.store = store;
 
+    // JSONからロード
     const loader = new InitDataLoader(store, configs.dataRoot);
-
     const loadedData = loader.loadPluginData();
-    loader.initializeTimeConfig();
     loader.initializeGames();
+    loader.initializeTimeConfig();
 
     Object.assign(this, loadedData);
   },
@@ -62,8 +64,8 @@ const plugin: OnePlugin = {
    * @param  userData - コメント投稿者のユーザーデータ
    * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
    */
-  async filterComment(comment: Comment): Promise<Comment | false> {
-    // 自身のプラグインの投稿は除外
+  async filterComment(comment, service, userData): Promise<Comment | false> {
+    // 自身のプラグインの投稿はおみくじを行わない
     if (comment.data.userId === configs.botUserId) {
       // isOwner(isSilent) なら読み上げを行わない
       if (comment.data.isOwner) comment.data.speechText = " ";
@@ -75,6 +77,7 @@ const plugin: OnePlugin = {
     const rulesArray = this.OmikenTypesArray.comment as RulesType[];
     const userId = comment.data.userId;
     const visit = this.Visits?.[userId] as VisitType; // ユーザーのvisit
+    this.store.set("TimeConfig.lc", ++this.TimeConfig.lc); // TimeConfig.lcをインクリメント
     const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
     // undefinedの場合にエラーを投げたい:
@@ -85,16 +88,12 @@ const plugin: OnePlugin = {
     if (!TimeConfig) console.error("TimeConfig is undefined");
 
     // インスタンスの発行
-    const Instance = new CommentInstance(comment, visit, TimeConfig);
+    const Instance = new CommentInstance(comment, visit, TimeConfig, userData);
     try {
       // おみくじCHECK
       const isOmikuji = Instance.omikenSelect(rulesArray, Omiken.omikujis);
       console.log("おみくじ選択結果: ", isOmikuji);
-
-      if (!isOmikuji) {
-        console.log("おみくじ未選択のため終了: ", comment);
-        return comment;
-      }
+      if (!isOmikuji) return comment;
 
       // おみくじがあるなら、おみくじを実行
       console.log("おみくじ処理を開始");
@@ -138,31 +137,35 @@ const plugin: OnePlugin = {
     }
   },
 
-  /**
-   * called when a request is made to the plugin-specific
-   * @param {
-   *   url: string // request url
-   *   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-   *   params: {[key: string]: string} // querystrings
-   *   body?: any // request body
-   * } req
-   * @returns {
-   *   code: number // status code
-   *   response: Object or Array // response data
-   * }
-   */
+  // called when a request is made to the plugin-specific
   async request(req): Promise<PluginResponse> {
-    const { method, params, body } = req;
-
     // データ型のマッピング
-    const responseMap = {
+    const responseMap: StoreAllType = {
       Omiken: this.Omiken,
       Presets: this.Presets,
       Charas: this.Charas,
       Scripts: this.Scripts,
       Visits: this.Visits,
       Games: this.Games,
+      TimeConfig: this.TimeConfig,
     };
+
+    const handler = new RequestHandler(responseMap);
+    const result = await handler.handleRequest(req);
+    Object.assign(this, result.data);
+
+    // * 将来、Gamesをエディターで編集できるようになったら、
+    // * this.store.set を使いたい
+    return result.response;
+  },
+};
+
+module.exports = plugin;
+
+
+/*
+
+    const { method, params, body } = req;
 
     // エラーレスポンスの共通関数
     const createErrorResponse = (code: number, message: string) => ({
@@ -242,7 +245,5 @@ const plugin: OnePlugin = {
       console.error("リクエスト処理中にエラーが発生:", error);
       return createErrorResponse(500, "データ処理中にエラーが発生しました");
     }
-  },
-};
 
-module.exports = plugin;
+*/

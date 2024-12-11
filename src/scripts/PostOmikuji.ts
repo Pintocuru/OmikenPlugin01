@@ -7,7 +7,6 @@ import {
 } from "../../src/types/index";
 import { configs } from "../config";
 import { Service } from "@onecomme.com/onesdk/types/Service";
-import { RGBColor } from "@onecomme.com/onesdk/types/Color";
 import axios from "axios";
 import path from "path";
 import fs from "fs";
@@ -22,7 +21,7 @@ export class PostMessages implements PostService {
 
   constructor(
     private posts: OneCommePostType[],
-    private Charas: Record<string, CharaType> 
+    private Charas: Record<string, CharaType>
   ) {
     this.initializePosts();
   }
@@ -45,7 +44,7 @@ export class PostMessages implements PostService {
   }
 
   async postMessage(post: OneCommePostType, chara: CharaType): Promise<void> {
-    const { type, iconKey, content, delaySeconds } = post;
+    const { type, content, delaySeconds } = post;
 
     if (!content?.trim()) return; // 空のメッセージは処理しない
 
@@ -66,6 +65,9 @@ export class PostMessages implements PostService {
         break;
       case "speech": // スピーチ(音声のみ)
         await this.postSpeech(delaySeconds, content);
+        break;
+      case "error": // わんコメ(error用)
+        await this.postError(delaySeconds, content);
         break;
     }
   }
@@ -92,11 +94,7 @@ export class PostMessages implements PostService {
     );
     // テスト:画像が存在しない場合は、エラーを表示
     fs.access(profileImage, fs.constants.F_OK, (err) => {
-      if (err) {
-        console.error("Image does not exist:", profileImage);
-      } else {
-        console.log("Image exists:", profileImage);
-      }
+      if (err) console.error("Image does not exist:", profileImage);
     });
 
     const request: postOneCommeRequestType = {
@@ -153,6 +151,36 @@ export class PostMessages implements PostService {
     );
   }
 
+  // わんコメへエラーメッセージを投稿
+  private async postError(
+    delaySeconds: number,
+    content: string
+  ): Promise<void> {
+    const request: postOneCommeRequestType = {
+      service: {
+        id: this.services[0].id,
+      },
+      comment: {
+        id: Date.now() + Math.random().toString().slice(2, 12),
+        userId: configs.botUserId,
+        name: "エラーメッセージ",
+        comment: content,
+        profileImage: "",
+        badges: [],
+        liveId: "",
+        isOwner: false,
+      },
+    };
+
+    // postする
+    await this.delayedApiCall(
+      `${this.API_BASE_URL}/comments`,
+      request,
+      delaySeconds,
+      `エラーメッセージをわんコメへ投稿したかったが、エラー。`
+    );
+  }
+
   // post
   private async delayedApiCall(
     url: string,
@@ -187,25 +215,32 @@ export class PostMessages implements PostService {
   // わんコメの枠を作成
   private async createService(
     chara: CharaType,
-    isSilent: boolean = false
   ): Promise<Service | null> {
     const { name, serviceColor, frameId } = chara;
-    const toastServiceColor: RGBColor = { b: 33, g: 33, r: 33 };
 
     try {
       const response = await axios.post(`${this.API_BASE_URL}/services`, {
-        id: isSilent ? "OmikenToast" : frameId,
-        name: isSilent ? "おみくじBOT:トースト表示" : `おみくじBOT:${name}`,
-        speech: !isSilent,
-        color: isSilent ? toastServiceColor : serviceColor,
+        id:   frameId,
+        name:  `おみくじBOT:${name}`,
+        speech: true,
+        color: serviceColor,
       });
-
       this.services.push(response.data); // 作成した枠をthis.servicesに追加
-
       return response.data;
     } catch (error) {
       console.error("Failed to create service:", error);
       return null;
     }
   }
+}
+
+export function postErrorMessage(content: string): void {
+  const post: OneCommePostType[] = [
+    {
+      type: "error",
+      delaySeconds: -1,
+      content,
+    },
+  ];
+  new PostMessages(post, {});
 }

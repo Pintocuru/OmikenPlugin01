@@ -6,7 +6,7 @@ interface Configs {
   isCreateService: boolean;
   basicDelaySeconds: number;
   botUserId: string;
-  PLUGIN_UID:string;
+  PLUGIN_UID: string;
 }
 
 // 環境変数 NODE_ENV=development を設定していれば開発、そうでないなら本番

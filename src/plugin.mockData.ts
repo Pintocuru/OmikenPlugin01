@@ -60,6 +60,7 @@ export const defaultStateMock: StoreType = {
   },
   TimeConfig: {
     pluginTime: 1733023706798,
+    lc:0,
     lastTime: 0,
     lastUserId: "",
   },

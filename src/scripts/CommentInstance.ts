@@ -1,5 +1,6 @@
 // src/scripts/CommentInstance.ts
 
+import { UserNameData } from "@onecomme.com/onesdk/types/UserData";
 import {
   CharaType,
   GameType,
@@ -27,33 +28,64 @@ export class CommentInstance {
   private visit: VisitType;
   private game: GameType;
   private visitData: visitDataType;
+  private userData: UserNameData;
+  private isFirstVisit: boolean;
   private isTester: boolean;
 
   // 初期化
-  constructor(comment: Comment, visit: VisitType, TimeConfig: TimeConfigType) {
-    this.comment = this.thisComment(comment);
+  constructor(
+    comment: Comment,
+    visit: VisitType,
+    TimeConfig: TimeConfigType,
+    userData: UserNameData
+  ) {
     this.TimeConfig = TimeConfig;
+    this.userData = userData;
     this.visit = visit || {
       name: comment.data.displayName,
       userId: comment.data.userId,
-      status: "syoken",
-      lastPluginTime: TimeConfig.pluginTime,
+      status: "",
+      lastPluginTime: 0,
       visitData: {},
     };
     // ユーザーの枠情報が空白または異なるなら、Visitを初期化
     this.resetVisit();
+    // commentに擬似的なmetaデータを付与
+    this.comment = this.thisComment(comment);
+  }
+
+  // ユーザーの枠情報が空白または異なるなら、Visitを初期化
+  resetVisit() {
+    // pluginTimeが現在の枠と同じなら、2回目以降のコメント
+    const pluginTime = this.TimeConfig.pluginTime;
+    if (this.visit.lastPluginTime === pluginTime) {
+      this.isFirstVisit = false;
+    } else {
+      // 1回目のコメントなら、statusを空白にし、drawsを0にする
+      this.isFirstVisit = true;
+      this.visit.status = "";
+      Object.values(this.visit.visitData).forEach((data) => {
+        data.draws = 0;
+      });
+    }
   }
 
   // コメントの前処理
   private thisComment(comment: Comment): Comment {
-    this.isTester =
-      comment.service === "external" || comment.id === "COMMENT_TESTER";
+    // コメントテスターであればtrue
+    this.isTester = comment.id === "COMMENT_TESTER";
 
-    // コメントテスター用の擬似メタデータ
-    comment.meta =
-      comment.id === "COMMENT_TESTER"
-        ? { interval: 999999, tc: 10, no: 2, lc: 10 }
-        : comment.meta;
+    // 擬似メタデータ
+    // メタデータはプラグインの解決後に生成される仕様です
+    comment.meta = this.isTester
+      ? // コメントテスター用
+        { interval: 999999, tc: 10, no: 2, lc: 2 }
+      : {
+          interval: this.userData.interval || 0,
+          tc: this.userData.tc + 1 || 1, // カウント前なのでインクリメント
+          no: this.isFirstVisit ? 1 : 2, // 初回なら1、そうでないなら2
+          lc: this.TimeConfig.lc, // プラグインが起動してからカウントしたコメント数
+        };
 
     // ギフト価格の通貨変換(えっ、1ドル100円ですか?)
     if (comment.data && "unit" in comment.data) {
@@ -78,18 +110,6 @@ export class CommentInstance {
       visit: () => this.visit,
     };
     return dataMap[data] && dataMap[data]();
-  }
-
-  // ユーザーの枠情報が空白または異なるなら、Visitを初期化
-  resetVisit() {
-    const pluginTime = this.TimeConfig.pluginTime;
-    if (this.visit.lastPluginTime === pluginTime) return;
-
-    // statusを空白にし、drawsを0にする
-    this.visit.status = "";
-    Object.values(this.visit.visitData).forEach((data) => {
-      data.draws = 0;
-    });
   }
 
   // ---
@@ -231,7 +251,6 @@ export class CommentInstance {
       gameTotalDraws: this.game.totalDraws.toString(),
       user: this.comment.data.displayName,
       tc: this.comment.meta.tc.toString(),
-      no: this.comment.meta.no.toString(),
       lc: this.comment.meta.lc.toString(),
     });
 

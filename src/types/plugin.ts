@@ -3,6 +3,8 @@
 import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
 import { Service } from "@onecomme.com/onesdk/types/Service";
 import { BaseResponse } from "@onecomme.com/onesdk/types/BaseResponse";
+import { OmikenType } from "./Omiken";
+import { CharaType, PresetType } from "./preset";
 
 // ---------------------------------------------------
 
@@ -11,6 +13,14 @@ export interface StoreType {
   Visits: Record<string, VisitType>;
   Games: Record<string, GameType>;
   TimeConfig: TimeConfigType;
+}
+
+// プラグイン:AppPlugin で呼び出すすべての型定義
+export interface StoreAllType extends StoreType {
+  Omiken: OmikenType;
+  Presets: Record<string, OmikenType>;
+  Charas: Record<string, CharaType>;
+  Scripts: PresetType[];
 }
 
 // ユーザーデータ(全体)
@@ -42,6 +52,7 @@ export interface GameType extends DrawsBase {
 // TimeConfig
 export interface TimeConfigType {
   pluginTime: number; // プラグインを起動した時刻
+  lc:number; // プラグインを起動してからカウントしたコメント数
   lastTime: number; // 最後におみくじ機能が実行された時刻
   lastUserId: string; // 最後におみくじを行ったuserId
 }

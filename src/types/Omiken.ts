@@ -52,7 +52,7 @@ export interface BaseType {
 export interface RulesType extends BaseType {
   color: string; // エディターでの識別用カラー
   enableIds: string[]; // このrulesで使用する、omikujiリスト
-  threshold: ThresholdType[]; //発動条件(2件まで)
+  threshold: ThresholdType[]; //発動条件
   timerConfig?: {
     // タイマー用設定リスト
     minutes: number;
@@ -85,9 +85,10 @@ export interface OneCommePostType {
   type:
     | "onecomme" // わんコメへの投稿
     | "party" // WordPartyの投稿
-    | "speech"; // わんコメのスピーチ機能
-  botKey: string; // ボットキー
-  iconKey: string; // アイコンキー
+    | "speech" // わんコメのスピーチ機能
+    | "error"; // わんコメへの投稿(プラグインのエラーメッセージ用)
+  botKey?: string; // ボットキー
+  iconKey?: string; // アイコンキー
   party?: string; // 発動するWordParty
   isSilent?: boolean; // BOTのメッセージを読み上げない
   generatorParam?: string; // ジェネレーターに渡す引数
@@ -136,7 +137,8 @@ export type ConditionType =
 export enum SyokenCondition {
   SYOKEN = 1, // 初見
   AGAIN = 2, // 前回のコメントから7日以上経過
-  HI = 3, // その配信枠で1回目のコメント
+  HI = 3, // 上記以外の、その配信枠で1回目のコメント
+  ALL = 4, // 上記すべての、その配信枠で1回目のコメント
 }
 
 // access:ユーザーの役職 0:OFF/1:だれでも/2:メンバー/3:モデレーター/4:管理者
@@ -160,10 +162,8 @@ export interface CountCondition {
     | "gameDraws" // rulesに該当した総回数(個人)
     | "gameTotalDraws" // rulesに該当した総回数(合計)
     | "gift" // ギフトの金額(comment.data.price)
-    | "lc" // 配信枠の全体コメ数(comment.meta.lc)
-    | "no" // 配信枠の個人コメ数(comment.meta.no)
-    | "tc" // 総数の個人コメ数(comment.meta.tc)
-    | "interval"; // そのユーザーの前回のコメントからの経過時間(ミリ秒)(comment.meta.interval)
+    | "tc" // 総数の個人コメ数(userData.tc)
+    | "interval"; // そのユーザーの前回のコメントからの経過時間(ミリ秒)(userData.interval)
   value1: number;
   value2: number;
 }

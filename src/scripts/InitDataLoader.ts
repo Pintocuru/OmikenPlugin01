@@ -11,6 +11,7 @@ import {
   GameType,
   TypesType,
 } from "../types/index";
+import { postErrorMessage } from "./PostOmikuji";
 
 export class InitDataLoader {
   private store: ElectronStore<StoreType>;
@@ -21,14 +22,63 @@ export class InitDataLoader {
     this.basePath = basePath;
   }
 
+  // Omiken/presetデータ読み込み
+  loadPluginData() {
+    const OmikenPath = "Omiken/index.json"; // おみくじデータ
+    const presetPath = "preset/index.json"; // presetデータ
+
+    try {
+      // Omikenデータを読み込み
+      const Omiken = this.loadJson<OmikenType>(OmikenPath);
+      if (!Omiken) {
+        throw new Error(`Omikenデータの読み込みに失敗: ${OmikenPath}`);
+      }
+
+      // 各プリセットデータを読み込み
+      const { PresetsMoto, CharasMoto, Scripts } = this.loadPresets(presetPath);
+      const Charas: Record<string, CharaType> =
+        this.loadCharasData<CharaType>(CharasMoto);
+      const Presets: Record<string, OmikenType> =
+        this.loadCharasData<OmikenType>(PresetsMoto);
+
+      // typesを参照しrulesを配列にする
+      const OmikenTypesArray = filterTypes(Omiken.types, Omiken.rules);
+
+      return {
+        Omiken,
+        OmikenTypesArray,
+        Presets,
+        Charas,
+        Scripts,
+        Visits: (this.store as any).get("Visits", {}),
+        Games: (this.store as any).get("Games", {}),
+        TimeConfig: (this.store as any).get("TimeConfig", {}),
+      };
+    } catch (error) {
+      console.error("プラグインデータの読み込み中にエラーが発生", error);
+      postErrorMessage(error); // エラーメッセージをわんコメへ投稿
+      throw error;
+    }
+  }
+
   // JSONファイルを読む
-  private safeLoadJson<T>(filePath: string): T | null {
+  private loadJson<T>(filePath: string): T | null {
     try {
       const fullPath = path.join(this.basePath, filePath);
+      // ファイルの存在確認
+      if (!fs.existsSync(fullPath)) {
+        console.error(`ファイルが見つかりません: ${fullPath}`);
+        return null;
+      }
+
       const fileContent = fs.readFileSync(fullPath, "utf-8");
       return JSON.parse(fileContent) as T;
     } catch (error) {
-      console.error(`JSONファイルの読み込みに失敗: ${filePath}`, error);
+      if (error instanceof SyntaxError) {
+        console.error(`JSONパースエラー: ${filePath}`, error.message);
+      } else if (error instanceof Error) {
+        console.error(`ファイル読み込みエラー: ${filePath}`, error.message);
+      }
       return null;
     }
   }
@@ -38,7 +88,12 @@ export class InitDataLoader {
     CharasMoto: PresetType[];
     Scripts: PresetType[];
   } {
-    const presets = this.safeLoadJson<PresetType[]>(presetPath) || [];
+    const presets = this.loadJson<PresetType[]>(presetPath) || [];
+
+    if (!presets || presets.length === 0) {
+      console.warn(`プリセットデータが見つかりません: ${presetPath}`);
+      return { PresetsMoto: [], CharasMoto: [], Scripts: [] };
+    }
 
     return presets.reduce(
       (acc, item) => {
@@ -65,40 +120,14 @@ export class InitDataLoader {
         return;
       }
 
-      const data = this.safeLoadJson<T>(`preset/${item.path}`);
+      const data = this.loadJson<T>(`preset/${item.path}`);
       if (data) dataMap[item.id] = data;
     });
 
     return dataMap;
   }
 
-  loadPluginData() {
-    const OmikenPath = "Omiken/index.json"; // おみくじデータ
-    const presetPath = "preset/index.json"; // presetデータ
-
-    const Omiken = this.safeLoadJson<OmikenType>(OmikenPath);
-    if (!Omiken) throw new Error("Omikenデータの読み込みに失敗");
-
-    const { PresetsMoto, CharasMoto, Scripts } = this.loadPresets(presetPath);
-    const Charas: Record<string, CharaType> =
-      this.loadCharasData<CharaType>(CharasMoto);
-    const Presets: Record<string, OmikenType> =
-      this.loadCharasData<OmikenType>(PresetsMoto);
-
-    const OmikenTypesArray = filterTypes(Omiken.types, Omiken.rules);
-
-    return {
-      Omiken,
-      OmikenTypesArray,
-      Presets,
-      Charas,
-      Scripts,
-      Visits: (this.store as any).get("Visits", {}),
-      Games: (this.store as any).get("Games", {}),
-      TimeConfig: (this.store as any).get("TimeConfig", {}),
-    };
-  }
-
+  // Gamesのすべてのdrawsを初期化する
   initializeGames() {
     const Games = (this.store as any).get("Games", {}) as Record<
       string,
@@ -115,6 +144,7 @@ export class InitDataLoader {
   initializeTimeConfig() {
     const timeConfig = {
       pluginTime: Date.now(),
+      lc: 0,
       lastTime: 0,
       lastUserId: "",
     };
@@ -122,7 +152,6 @@ export class InitDataLoader {
     return timeConfig;
   }
 }
-
 
 // rulesを配列にする
 export function filterTypes(

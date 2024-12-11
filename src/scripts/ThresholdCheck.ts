@@ -63,16 +63,15 @@ export class ThresholdChecker {
 
   // 初見・久しぶりのチェック
   private matchIsSyoken(syoken: SyokenCondition): boolean {
-    if (!this.comment) return false; // コメントがない場合はfalse
-
-    // 1回目のコメントでない場合は即座にfalse
-    if (this.comment.meta.no !== 1) return false;
+    // コメントがない、または1回目でない場合はfalse
+    if (!this.comment || this.comment.meta.no !== 1) return false;
 
     const { interval } = this.comment.meta;
-    const conditions = {
-      1: () => interval === 0, // 初見
-      2: () => interval > 7 * 24 * 60 * 60 * 1000, // 久しぶり
-      3: () => true, // こんにちは
+    const conditions: Record<SyokenCondition, () => boolean> = {
+      [SyokenCondition.SYOKEN]: () => interval === 0, // 初見
+      [SyokenCondition.AGAIN]: () => interval > 7 * 24 * 60 * 60 * 1000, // 久しぶり
+      [SyokenCondition.HI]: () => true, // こんにちは
+      [SyokenCondition.ALL]: () => true, // 1回目のコメント全員
     };
 
     return conditions[syoken]?.() ?? false;
@@ -113,13 +112,11 @@ export class ThresholdChecker {
     if (this.comment?.data && "price" in this.comment.data) {
       gift = this.comment.data.price;
     }
-    console.log("matchIsCount gift取得: ", { gift });
 
     const unitMap = {
       draws: this.visit.visitData[this.rule.id].draws || 0,
       gift,
       lc: this.comment.meta?.lc,
-      no: this.comment.meta?.no,
       tc: this.comment.meta?.tc,
       interval: this.comment.meta?.interval,
     };
