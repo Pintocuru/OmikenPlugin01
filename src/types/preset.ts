@@ -1,5 +1,5 @@
 // src/types/preset.ts
-import { BaseType, GameType, visitDataType } from "./index";
+import { BaseType, GameType, OneCommePostType, visitDataType } from "./index";
 import { RGBColor } from "@onecomme.com/onesdk/types/Color";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
@@ -43,20 +43,17 @@ export type ScriptsParamType = (
 // Scriptの返り値
 export type ScriptsReturnType = {
   gameParam?: ScriptParam[]; // ゲームパラメータ
-  partyArray?: partyArrayType;
+  postArray?: OneCommePostType[];
   placeholder: Placeholder; // プレースホルダー
   comment: Comment;
   game: GameType;
-  visit: visitDataType;
+  visitData: visitDataType;
 };
 
 // gameのパラメータ設定用
 export interface ScriptParam extends BaseType {
   value: string; // 入る値
 }
-
-// 複雑なWordParty用(特にGouseiSuika用)
-export type partyArrayType = [string, number][];
 
 type Placeholder = {
   message: string; // 全体のメッセージ

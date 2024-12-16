@@ -1,8 +1,8 @@
 {
   "types": {
-    "comment":["1729669868469-531k4","1730186223570-nxukm"],
-    "timer":[],
-    "unused":[]
+    "comment": ["1729669868469-531k4", "1730186223570-nxukm", "testSuika"],
+    "timer": [],
+    "unused": []
   },
   "rules": {
     "1729669868469-531k4": {
@@ -30,7 +30,6 @@
         }
       ]
     },
-
     "1730186223570-nxukm": {
       "id": "1730186223570-nxukm",
       "name": "フラワーおみくじ",
@@ -57,9 +56,49 @@
           }
         }
       ]
+    },
+    "testSuika": {
+      "id": "testSuika",
+      "name": "suika",
+      "description": "",
+      "ruleType": "comment",
+      "color": "",
+      "enableIds": ["suikaOmikuji"],
+      "threshold": [
+        {
+          "conditionType": "match",
+          "match": {
+            "target": "comment",
+            "case": "starts",
+            "value": ["suika", "すいか", "スイカ"]
+          }
+        }
+      ]
     }
   },
   "omikujis": {
+    "suikaOmikuji": {
+      "id": "suikaOmikuji",
+      "name": "suika",
+      "description": "",
+      "rank": 0,
+      "weight": 1,
+      "threshold": [],
+      "script": {
+        "scriptId": "GamesTest",
+        "parameter": ""
+      },
+      "placeIds": [],
+      "post": [
+        {
+          "type": "onecomme",
+          "botKey": "reimu",
+          "iconKey": "joy02",
+          "delaySeconds": 1,
+          "content": "<<message>>"
+        }
+      ]
+    },
     "1729669848759-a4czl": {
       "id": "1729669848759-a4czl",
       "name": "おみくじ:大吉",

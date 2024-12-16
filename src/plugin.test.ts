@@ -39,7 +39,7 @@ describe("各種関数のテスト", () => {
     plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
   });
 
-  test.skip("filterComment:おみくじができる ", () => {
+  test("filterComment:おみくじができる ", () => {
     const result = plugin.filterComment(commentMock, null, null);
     expect(result).toBe(commentMock);
   });

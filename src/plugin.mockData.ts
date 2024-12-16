@@ -13,7 +13,7 @@ import { Comment } from "@onecomme.com/onesdk/types/Comment";
     url: "",
     color: { r: 0, g: 0, b: 0 },
     data: {
-      comment: "おみくじ",
+      comment: "suika",
       id: "yt-1733023389806",
       liveId: "youtube-test",
       userId: "テストユーザー",

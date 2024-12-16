@@ -21,7 +21,7 @@ export class PostMessages implements PostService {
 
   constructor(
     private posts: OneCommePostType[],
-    private Charas: Record<string, CharaType>
+    private Charas?: Record<string, CharaType>
   ) {
     this.initializePosts();
   }
@@ -34,8 +34,12 @@ export class PostMessages implements PostService {
       // 順次処理を保証
       await Promise.all(
         this.posts.map(async (post) => {
-          const chara = this.Charas[post.botKey];
-          await this.postMessage(post, chara);
+          if (post.type === "onecomme") {
+            const chara = this.Charas[post.botKey];
+            await this.postMessage(post, chara);
+          } else {
+            await this.postMessage(post);
+          }
         })
       );
     } catch (error) {
@@ -43,22 +47,27 @@ export class PostMessages implements PostService {
     }
   }
 
-  async postMessage(post: OneCommePostType, chara: CharaType): Promise<void> {
+  async postMessage(post: OneCommePostType, chara?: CharaType): Promise<void> {
     const { type, content, delaySeconds } = post;
 
     if (!content?.trim()) return; // 空のメッセージは処理しない
 
-    // 枠の中にframeIdがなければ、新規作成
-    if (
-      !this.services.some((s) => s.id === chara.frameId) &&
-      configs.isCreateService
-    ) {
-      await this.createService(chara);
+    // `type` が "onecomme" の場合のみ枠情報をチェック
+    if (type === "onecomme" && chara) {
+      if (
+        !this.services.some((s) => s.id === chara.frameId) &&
+        configs.isCreateService
+      ) {
+        await this.createService(chara);
+      }
     }
 
+    // `type` に応じた処理
     switch (type) {
       case "onecomme": // わんコメ
-        await this.postOneComme(post, chara);
+        if (chara) {
+          await this.postOneComme(post, chara);
+        }
         break;
       case "party": // WordParty
         await this.postWordParty(delaySeconds, content);
@@ -213,15 +222,13 @@ export class PostMessages implements PostService {
   }
 
   // わんコメの枠を作成
-  private async createService(
-    chara: CharaType,
-  ): Promise<Service | null> {
+  private async createService(chara: CharaType): Promise<Service | null> {
     const { name, serviceColor, frameId } = chara;
 
     try {
       const response = await axios.post(`${this.API_BASE_URL}/services`, {
-        id:   frameId,
-        name:  `おみくじBOT:${name}`,
+        id: frameId,
+        name: `おみくじBOT:${name}`,
         speech: true,
         color: serviceColor,
       });
@@ -234,6 +241,7 @@ export class PostMessages implements PostService {
   }
 }
 
+// エラーメッセージを投稿
 export function postErrorMessage(content: string): void {
   const post: OneCommePostType[] = [
     {

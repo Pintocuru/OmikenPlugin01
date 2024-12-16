@@ -1,7 +1,7 @@
 // scriptサンプル
 
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import {  ScriptsReturnType, partyArrayType, visitDataType } from "../types";
+import { OneCommePostType, ScriptsReturnType, visitDataType } from "../types";
 import { GameType } from "../types";
 
 // ---
@@ -23,7 +23,7 @@ type GameConfigItem = {
 export function GamesTest(
   comment: Comment,
   game: GameType,
-  visit: visitDataType,
+  visitData: visitDataType,
   param = "0"
 ): ScriptsReturnType {
   // ゲームモードの設定
@@ -130,9 +130,9 @@ export function GamesTest(
   // 抽選ゲームのロジック
   function playGacha(items: GameConfigs) {
     let totalPoints = 0;
-    const partyArray: partyArrayType = [
-      ["🍒", 1],
-      ["!パパッ", 8.5],
+    const postArray: OneCommePostType[] = [
+      { type: "party", delaySeconds: 1, content: "🍒" },
+      { type: "party", delaySeconds: 8.5, content: "!パパッ" },
     ];
 
     // 小さいアイテムの抽選
@@ -144,7 +144,9 @@ export function GamesTest(
       // 当選数の半分を絵文字として追加
       const halfWins = Math.floor(wins / 2);
       for (let i = 0; i < halfWins; i++) {
-        partyArray.push([item.party, 1]);
+        postArray.push(
+          { type: "party", delaySeconds: 1, content: item.party },
+        );
       }
     });
 
@@ -159,18 +161,22 @@ export function GamesTest(
       if (selectedItem) {
         totalPoints += selectedItem.points;
         life -= selectedItem.damage;
-        partyArray.push([selectedItem.party, 1]);
+        postArray.push(
+          { type: "party", delaySeconds: 1, content: selectedItem.party },
+        );
       }
 
       // 追加のランダムなアイテム落下
       bigItems.forEach((item) => {
         if (item.damage && 3 - item.damage > Math.random() * 6) {
-          partyArray.push([item.party, 1]);
+          postArray.push(
+            { type: "party", delaySeconds: 1, content: item.party },
+          );
         }
       });
     }
 
-    return { points: totalPoints, partyArray };
+    return { points: totalPoints, postArray };
   }
 
   // 単一アイテムの抽選
@@ -189,7 +195,7 @@ export function GamesTest(
   }
 
   // ゲームの実行
-  const { points, partyArray } = playGacha(GAME_CONFIGS);
+  const { points, postArray } = playGacha(GAME_CONFIGS);
   // 0.7倍～1.3倍にし、最終的なスコアを返す
   const finalPoints = Math.ceil(points * (0.7 + Math.random() * 0.6));
 
@@ -199,7 +205,8 @@ export function GamesTest(
     : `${user}の得点は${finalPoints}!`;
 
   // fruitを降らせるか(0でなければ降らせる)
-  const partyArrayHandle = game.gameData.isFruit !== "0" ? partyArray : [];
+  const postArrayHandle =
+    (game.gameData?.isFruit ?? true) !== "0" ? postArray : [];
 
   return {
     // エディターで設定できるパラメータ
@@ -215,7 +222,7 @@ export function GamesTest(
       },
     ],
     // 複雑なWordParty用
-    partyArray: partyArrayHandle,
+    postArray: postArrayHandle,
     // 各種プレースホルダー
     placeholder: {
       message, // 全体のメッセージ
@@ -224,6 +231,6 @@ export function GamesTest(
     // scriptで変更したものを渡せるようにする
     comment,
     game,
-    visit,
+    visitData,
   };
 }

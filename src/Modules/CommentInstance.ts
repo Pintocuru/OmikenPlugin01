@@ -15,7 +15,7 @@ import {
   VisitType,
 } from "../../src/types/index";
 import { PlaceProcess } from "./PlaceProcess";
-import { PostMessages } from "./PostOmikuji";
+import { postErrorMessage, PostMessages } from "./PostOmikuji";
 import { ThresholdChecker } from "./ThresholdCheck";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
@@ -248,13 +248,18 @@ export class CommentInstance {
         this.visitData,
         parameter
       );
-
-      // placeholderの値を追加
-      placeClass.updatePlace(result.placeholder);
-      // comment,game,visit を更新
-      this.comment = result.comment;
-      this.game = result.game;
-      this.visitData = result.visit;
+      if (result) {
+        // placeholderの値を追加
+        placeClass.updatePlace(result.placeholder);
+        // comment,game,visit を更新
+        this.comment = result.comment;
+        this.game = result.game;
+        this.visitData = result.visitData;
+      }
+      if (result.postArray?.length > 0) {
+        // わんコメに投稿
+        new PostMessages(result.postArray, Charas);
+      }
     }
     // placeIds があるなら、該当する内容をplacesから取得
     if (this.selectOmikuji.placeIds) placeClass.placeDataHandle(places);
@@ -323,6 +328,7 @@ export function scriptsCall(
   if (typeof func === 'function') {
     return func(comment, game, visit, param);
   } else {
+    postErrorMessage(`Function ${funcName} is not registered.`);
     console.error(`Function ${funcName} is not registered.`);
     return undefined;
   }
