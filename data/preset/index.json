@@ -4,23 +4,23 @@
     "name": "ゆっくり霊夢",
     "description": "アイコンの配布先とか書いておきたいね",
     "type": "Chara",
-    "path": "/Chara/reimu.json",
-    "banner": "/images/preset-3-banner.jpg"
+    "path": "/Chara/reimu/reimu.json",
+    "banner": "/Chara/reimu/banner.jpg"
   },
   {
     "id": "marisa",
     "name": "ゆっくり魔理沙",
     "description": "アイコンの配布先とか書いておきたいね",
     "type": "Chara",
-    "path": "/Chara/marisa.json",
-    "banner": "/images/preset-3-banner.jpg"
+    "path": "/Chara/marisa/marisa.json",
+    "banner": "/Chara/marisa/banner.jpg"
   },
   {
     "id": "preset-1",
     "name": "おみくじ",
     "description": "霊夢のおみくじ・魔理沙のフラワーおみくじセット",
     "type": "Omiken",
-    "path": "/preset-1.json",
+    "path": "/Omiken/preset-1.json",
     "banner": "/images/preset-1-banner.jpg"
   },
   {
@@ -28,7 +28,7 @@
     "name": "初見判定ちゃん",
     "description": "初見判定ちゃんセット",
     "type": "Omiken",
-    "path": "/preset-checkCount.json",
+    "path": "/Omiken/preset-checkCount.json",
     "banner": "/images/preset-1-banner.jpg"
   },
   {
@@ -36,7 +36,14 @@
     "name": "リセット",
     "description": "null",
     "type": "Omiken",
-    "path": "/preset-0.json",
+    "path": "/Omiken/preset-0.json",
+    "banner": "/images/preset-1-banner.jpg"
+  },
+  {
+    "id": "Test",
+    "name": "テストスクリプト",
+    "description": "null",
+    "type": "Script",
     "banner": "/images/preset-1-banner.jpg"
   }
 ]

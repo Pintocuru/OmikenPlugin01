@@ -6,7 +6,7 @@ import { StoreAllType, StoreType } from "./types";
 import { commentMock, MockElectronStore, storeMock } from "./plugin.mockData";
 import { configs } from "./config";
 import { PluginRequest } from "@onecomme.com/onesdk/types/Plugin";
-import { RequestHandler } from "./scripts/ApiRequest";
+import { RequestHandler } from "./Modules/ApiRequest";
 
 const plugin = require("./plugin");
 

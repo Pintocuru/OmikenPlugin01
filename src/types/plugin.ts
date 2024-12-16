@@ -4,7 +4,7 @@ import { OnePlugin } from "@onecomme.com/onesdk/types/Plugin";
 import { Service } from "@onecomme.com/onesdk/types/Service";
 import { BaseResponse } from "@onecomme.com/onesdk/types/BaseResponse";
 import { OmikenType } from "./Omiken";
-import { CharaType, PresetType } from "./preset";
+import { CharaType, PresetType, ScriptsParamType } from "./preset";
 
 // ---------------------------------------------------
 
@@ -20,7 +20,7 @@ export interface StoreAllType extends StoreType {
   Omiken: OmikenType;
   Presets: Record<string, OmikenType>;
   Charas: Record<string, CharaType>;
-  Scripts: PresetType[];
+  Scripts: Record<string, ScriptsParamType>;
 }
 
 // ユーザーデータ(全体)
@@ -46,7 +46,7 @@ export interface visitDataType extends DrawsBase {
 }
 // おみくじデータ
 export interface GameType extends DrawsBase {
-  gameData: any; // scriptで自由に使えるObject
+  gameData: Record<string, unknown>; // scriptで自由に使えるObject
 }
 
 // TimeConfig

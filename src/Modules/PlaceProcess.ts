@@ -24,7 +24,7 @@ export class PlaceProcess {
   }
 
   // スクリプトを読み込み、返り値を取得
-  // TODO visitData,gameを忘れてませんか!!
+  // ! 不要
   async loadScript(path: string): Promise<void> {
     const { parameter } = this.selectOmikuji.script;
     console.log("loadScript - path:", path, "parameter:", parameter);
@@ -73,7 +73,10 @@ export class PlaceProcess {
       );
 
       if (selectedValue) {
-        result[place.name] = this.resolvePlaceholder(selectedValue.value, places);
+        result[place.name] = this.resolvePlaceholder(
+          selectedValue.value,
+          places
+        );
       }
     }
 
@@ -139,15 +142,15 @@ export class PlaceProcess {
   replacementPlace(): OmikujiType {
     console.log("replacementPlace - initial placeholders:", this.placeholders);
 
-  const replacer = (template: string | undefined): string =>
-    template
-      ? template.replace(/<<(.*?)>>/g, (_, key) => {
-          const replacement =
-            key in this.placeholders ? this.placeholders[key] : `<<${key}>>`;
-          console.log(`replacementPlace - replacing ${key}: ${replacement}`);
-          return replacement;
-        })
-      : '';
+    const replacer = (template: string | undefined): string =>
+      template
+        ? template.replace(/<<(.*?)>>/g, (_, key) => {
+            const replacement =
+              key in this.placeholders ? this.placeholders[key] : `<<${key}>>`;
+            console.log(`replacementPlace - replacing ${key}: ${replacement}`);
+            return replacement;
+          })
+        : "";
 
     this.selectOmikuji.post = this.selectOmikuji.post.map((post) => ({
       ...post,

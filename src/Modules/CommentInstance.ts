@@ -8,6 +8,8 @@ import {
   PlaceType,
   PresetType,
   RulesType,
+  ScriptsParamType,
+  ScriptsReturnType,
   TimeConfigType,
   visitDataType,
   VisitType,
@@ -223,7 +225,7 @@ export class CommentInstance {
     Games: Record<string, GameType>,
     places: Record<string, PlaceType>,
     Charas: Record<string, CharaType>,
-    Scripts: Record<string, PresetType>
+    Scripts: Record<string, ScriptsParamType>
   ): Promise<Comment | false> {
     this.visitData = this.visit.visitData[this.selectRule.id]; // visitDataを取得
     this.game = Games[this.selectRule.id]; // Gameをthisに入れる
@@ -236,10 +238,23 @@ export class CommentInstance {
     const placeClass = new PlaceProcess(this.selectOmikuji);
 
     // scriptがあるなら、外部スクリプトを実行、返り値を取得する
-    // TODO visitData,gameを忘れてませんか!!
     if (this.selectOmikuji.script) {
-      const { scriptId } = this.selectOmikuji.script;
-      await placeClass.loadScript(Scripts[scriptId].path);
+      const { scriptId, parameter } = this.selectOmikuji.script;
+      const result = scriptsCall(
+        Scripts,
+        scriptId,
+        this.comment,
+        this.game,
+        this.visitData,
+        parameter
+      );
+
+      // placeholderの値を追加
+      placeClass.updatePlace(result.placeholder);
+      // comment,game,visit を更新
+      this.comment = result.comment;
+      this.game = result.game;
+      this.visitData = result.visit;
     }
     // placeIds があるなら、該当する内容をplacesから取得
     if (this.selectOmikuji.placeIds) placeClass.placeDataHandle(places);
@@ -290,5 +305,25 @@ export class CommentInstance {
       draws: (this.game?.draws || 0) + 1,
       totalDraws: (this.game?.totalDraws || 0) + 1,
     };
+  }
+}
+
+
+// 関数を動的に呼び出す
+// TODO これ、どこに置けばいい?
+export function scriptsCall(
+  Scripts:Record<string, ScriptsParamType> ,
+  funcName: string,
+  comment: Comment,
+  game: GameType,
+  visit: visitDataType,
+  param = "0"
+): ScriptsReturnType | undefined {
+  const func = Scripts[funcName];
+  if (typeof func === 'function') {
+    return func(comment, game, visit, param);
+  } else {
+    console.error(`Function ${funcName} is not registered.`);
+    return undefined;
   }
 }

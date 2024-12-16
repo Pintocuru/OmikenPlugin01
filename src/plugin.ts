@@ -3,7 +3,7 @@
 import { OnePlugin, PluginResponse } from "@onecomme.com/onesdk/types/Plugin";
 import { Comment } from "@onecomme.com/onesdk/types/Comment";
 import ElectronStore from "electron-store";
-import { CommentInstance } from "./scripts/CommentInstance";
+import { CommentInstance } from "./Modules/CommentInstance";
 import {
   StoreType,
   OmikenType,
@@ -13,9 +13,9 @@ import {
   TimeConfigType,
   StoreAllType,
 } from "./types";
-import { InitDataLoader } from "./scripts/InitDataLoader";
+import { InitDataLoader } from "./Modules/InitDataLoader";
 import { configs } from "./config";
-import { RequestHandler } from "./scripts/ApiRequest";
+import { RequestHandler } from "./Modules/ApiRequest";
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -43,10 +43,10 @@ const plugin: OnePlugin = {
     this.store = store;
 
     // JSONからロード
-    const loader = new InitDataLoader(store, configs.dataRoot);
+    const loader = new InitDataLoader(store);
     const loadedData = loader.loadPluginData();
-    loader.initializeGames();
-    loader.initializeTimeConfig();
+    loader.initializeGames(); // Gamesにあるdrawsの初期化
+    loader.initializeTimeConfig(); // TimeConfigの初期化
 
     Object.assign(this, loadedData);
   },

@@ -1,11 +1,12 @@
 // src/types/preset.ts
-import { BaseType } from "./index";
+import { BaseType, GameType, visitDataType } from "./index";
 import { RGBColor } from "@onecomme.com/onesdk/types/Color";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
 
 // presetデータ
 export interface PresetType extends BaseType {
   type: "Omiken" | "Chara" | "Script";
-  path: string;
+  path?: string; // データのパス(Presetsをルートとする)
   banner?: string;
   mode?: "overwrite" | "append"; // 追加方法(上書き/追加)
 }
@@ -28,3 +29,36 @@ export interface CharaType extends BaseType {
   };
   party: string[]; // キャラクター表示時、WordPartyを発動させるキー群
 }
+
+// ---
+
+// Script全体の型定義
+export type ScriptsParamType = (
+  comment: Comment,
+  game: GameType,
+  visit: visitDataType,
+  param?: string
+) => ScriptsReturnType;
+
+// Scriptの返り値
+export type ScriptsReturnType = {
+  gameParam?: ScriptParam[]; // ゲームパラメータ
+  partyArray?: partyArrayType;
+  placeholder: Placeholder; // プレースホルダー
+  comment: Comment;
+  game: GameType;
+  visit: visitDataType;
+};
+
+// gameのパラメータ設定用
+export interface ScriptParam extends BaseType {
+  value: string; // 入る値
+}
+
+// 複雑なWordParty用(特にGouseiSuika用)
+export type partyArrayType = [string, number][];
+
+type Placeholder = {
+  message: string; // 全体のメッセージ
+  [key: string]: string; // 任意のプレースホルダー（動的キー）
+};

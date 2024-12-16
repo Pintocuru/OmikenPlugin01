@@ -10,16 +10,16 @@ import {
   StoreType,
   GameType,
   TypesType,
+  ScriptsParamType,
 } from "../types/index";
 import { postErrorMessage } from "./PostOmikuji";
+import { configs } from "../config";
 
 export class InitDataLoader {
   private store: ElectronStore<StoreType>;
-  private basePath: string;
 
-  constructor(store: ElectronStore<StoreType>, basePath: string) {
+  constructor(store: ElectronStore<StoreType>) {
     this.store = store;
-    this.basePath = basePath;
   }
 
   // Omiken/presetデータ読み込み
@@ -34,12 +34,14 @@ export class InitDataLoader {
         throw new Error(`Omikenデータの読み込みに失敗: ${OmikenPath}`);
       }
 
-      // 各プリセットデータを読み込み
-      const { PresetsMoto, CharasMoto, Scripts } = this.loadPresets(presetPath);
+      // Omiken/Charasのプリセットデータを読み込み
+      const { PresetsMoto, CharasMoto } = this.loadPresets(presetPath);
       const Charas: Record<string, CharaType> =
         this.loadCharasData<CharaType>(CharasMoto);
       const Presets: Record<string, OmikenType> =
         this.loadCharasData<OmikenType>(PresetsMoto);
+
+      const Scripts = this.initializeScripts();
 
       // typesを参照しrulesを配列にする
       const OmikenTypesArray = filterTypes(Omiken.types, Omiken.rules);
@@ -61,10 +63,10 @@ export class InitDataLoader {
     }
   }
 
-  // JSONファイルを読む
+  // dataからJSONファイルを読む
   private loadJson<T>(filePath: string): T | null {
     try {
-      const fullPath = path.join(this.basePath, filePath);
+      const fullPath = path.join(configs.dataRoot, filePath);
       // ファイルの存在確認
       if (!fs.existsSync(fullPath)) {
         console.error(`ファイルが見つかりません: ${fullPath}`);
@@ -83,6 +85,7 @@ export class InitDataLoader {
     }
   }
 
+  // preset/index.json を読み込み
   private loadPresets(presetPath: string): {
     PresetsMoto: PresetType[];
     CharasMoto: PresetType[];
@@ -127,6 +130,45 @@ export class InitDataLoader {
     return dataMap;
   }
 
+  // Scriptsにある関数を読み込み
+  private initializeScripts() {
+    const Scripts: Record<string, ScriptsParamType> = {};
+    const ScriptsDir = configs.ScriptsRoot; // ./Scripts フォルダのパス
+
+    try {
+      // ディレクトリ内のファイル一覧を取得
+      const files = fs.readdirSync(ScriptsDir);
+
+      files.forEach((file) => {
+        // .js ファイルのみ対象
+        if (file.endsWith(".js")) {
+          const functionName = file.replace(/\.js$/, ""); // 拡張子を除去
+          const modulePath = path.join(ScriptsDir, file);
+
+          try {
+            // モジュールを動的に読み込み
+            const module = require(modulePath);
+
+            // モジュール内の関数が存在するか確認
+            if (typeof module[functionName] === "function") {
+              Scripts[functionName] = module[functionName];
+            } else {
+              console.warn(
+                `No valid function "${functionName}" found in file: ${file}`
+              );
+            }
+          } catch (err) {
+            console.error(`Failed to load module: ${modulePath}`, err);
+          }
+        }
+      });
+    } catch (err) {
+      console.error(`Failed to read directory: ${ScriptsDir}`, err);
+    }
+
+    return Scripts;
+  }
+
   // Gamesのすべてのdrawsを初期化する
   initializeGames() {
     const Games = (this.store as any).get("Games", {}) as Record<
@@ -141,6 +183,7 @@ export class InitDataLoader {
     return GamesNew;
   }
 
+  // TimeConfig の初期化
   initializeTimeConfig() {
     const timeConfig = {
       pluginTime: Date.now(),
@@ -165,3 +208,4 @@ export function filterTypes(
     return result;
   }, {} as Record<TypesType, RulesType[]>);
 }
+
