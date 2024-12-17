@@ -121,14 +121,14 @@ export class CommentInstance {
     rulesArray: RulesType[],
     omikujis: Record<string, OmikujiType>
   ): boolean {
-    console.log("omikenSelect 開始: ", { rulesArray, omikujis });
+    console.log("omikenSelect 開始: ");
 
     // 各ルールに対して処理を実行し、ruleも一緒に返す
     const result = rulesArray
       .map((rule) => {
-        console.log("ruleProcess 呼び出し: ", { rule });
+        console.log("ruleProcess 呼び出し: ");
         const omikuji = this.ruleProcess(rule, omikujis);
-        console.log("ruleProcess 結果: ", { rule, omikuji });
+        console.log("ruleProcess 結果: ");
         return { rule, omikuji };
       })
       .find(({ omikuji }) => omikuji !== null);
@@ -136,10 +136,7 @@ export class CommentInstance {
     if (result) {
       this.selectRule = result.rule; // ヒットしたruleを設定
       this.selectOmikuji = result.omikuji; // ヒットしたomikujiを設定
-      console.log("omikenSelect ヒット: ", {
-        selectRule: this.selectRule,
-        selectOmikuji: this.selectOmikuji,
-      });
+      console.log("omikenSelect ヒット: ");
       return true;
     }
 
@@ -152,7 +149,7 @@ export class CommentInstance {
     rule: RulesType,
     omikujis: Record<string, OmikujiType>
   ): OmikujiType | null {
-    console.log("ruleProcess 開始: ", { rule });
+    console.log("ruleProcess 開始: ");
 
     // thresholdチェック(New)
     const checker = new ThresholdChecker(
@@ -163,7 +160,7 @@ export class CommentInstance {
     );
     const isValid = rule.threshold.every((threshold) => {
       const result = checker.check(threshold);
-      console.log("Threshold チェック: ", { threshold, result });
+      console.log("Threshold チェック: ");
       return result;
     });
     if (!isValid) {
@@ -178,7 +175,7 @@ export class CommentInstance {
         const isValidOmikuji = omikuji.threshold.every((threshold) =>
           checker.check(threshold)
         );
-        console.log("Omikuji チェック: ", { omikuji, isValidOmikuji });
+        console.log("Omikuji チェック: ");
         return isValidOmikuji;
       });
 
@@ -256,7 +253,7 @@ export class CommentInstance {
         this.game = result.game;
         this.visitData = result.visitData;
       }
-      if (result.postArray?.length > 0) {
+      if (result?.postArray?.length > 0) {
         // わんコメに投稿
         new PostMessages(result.postArray, Charas);
       }

@@ -96,11 +96,7 @@ export class PostMessages implements PostService {
       : null;
 
     // 画像のファイルパスを確認
-    const profileImage = path.join(
-      configs.dataRoot,
-      "preset/Chara/",
-      charaImage
-    );
+    const profileImage = path.join(configs.dataRoot, "Charas/", charaImage);
     // テスト:画像が存在しない場合は、エラーを表示
     fs.access(profileImage, fs.constants.F_OK, (err) => {
       if (err) console.error("Image does not exist:", profileImage);

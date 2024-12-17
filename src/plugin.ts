@@ -1,9 +1,5 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { OnePlugin, PluginResponse } from "@onecomme.com/onesdk/types/Plugin";
-import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import ElectronStore from "electron-store";
-import { CommentInstance } from "./Modules/CommentInstance";
 import {
   StoreType,
   OmikenType,
@@ -13,9 +9,13 @@ import {
   TimeConfigType,
   StoreAllType,
 } from "./types";
-import { InitDataLoader } from "./Modules/InitDataLoader";
 import { configs } from "./config";
+import { CommentInstance } from "./Modules/CommentInstance";
+import { InitDataLoader } from "./Modules/InitDataLoader";
 import { RequestHandler } from "./Modules/ApiRequest";
+import { OnePlugin, PluginResponse } from "@onecomme.com/onesdk/types/Plugin";
+import { Comment } from "@onecomme.com/onesdk/types/Comment";
+import ElectronStore from "electron-store";
 
 const plugin: OnePlugin = {
   name: "おみくじBOTプラグイン", // プラグイン名
@@ -44,23 +44,13 @@ const plugin: OnePlugin = {
 
     // JSONからロード
     const loader = new InitDataLoader(store);
-    const loadedData = loader.loadPluginData();
-    loader.initializeGames(); // Gamesにあるdrawsの初期化
-    loader.initializeTimeConfig(); // TimeConfigの初期化
-
-    Object.assign(this, loadedData);
+    // 初期化してthisに上書き
+    Object.assign(this, loader.loadPluginData());
+    // 初期化したGamesをstoreに格納
+    this.store.set("Games", this.Games);
   },
 
-  /**
-   * コメントフィルタ関数
-   * コメント受信時に実行され、コメントを加工・変更できます
-   * 'filter.comment' 権限が必要
-   *
-   * @param  comment - 受信したコメントデータ
-   * @param  service - コメントが投稿されたサービス情報
-   * @param  userData - コメント投稿者のユーザーデータ
-   * @returns Promise<Comment | false> - コメント。falseでコメントを無効化
-   */
+  // filterComment:コメントを加工・変更する
   async filterComment(comment, service, userData): Promise<Comment | false> {
     // 自身のプラグインの投稿はおみくじを行わない
     if (comment.data.userId === configs.botUserId) {
@@ -77,7 +67,7 @@ const plugin: OnePlugin = {
     this.store.set("TimeConfig.lc", ++this.TimeConfig.lc); // TimeConfig.lcをインクリメント
     const TimeConfig = this.TimeConfig as TimeConfigType; // 前回データ
 
-    // undefinedの場合にエラーを投げたい:
+    // TODO:test:undefinedの場合にエラーを投げる:
     if (!Omiken) console.error("Omiken is undefined");
     if (!rulesArray) console.error("OmikenRulesComment is undefined");
     if (!userId) console.error("User ID is undefined");
@@ -155,88 +145,3 @@ const plugin: OnePlugin = {
 };
 
 module.exports = plugin;
-
-/*
-
-    const { method, params, body } = req;
-
-    // エラーレスポンスの共通関数
-    const createErrorResponse = (code: number, message: string) => ({
-      code,
-      response: message,
-    });
-
-    // 成功レスポンスの共通関数
-    const createSuccessResponse = (data: string, code: number = 200) => ({
-      code,
-      response: data,
-    });
-
-    try {
-      switch (method) {
-        case "GET":
-          // データ取得モード
-          if (params.mode === "data") {
-            if (!params.type) {
-              return createErrorResponse(400, "タイプパラメータが必要です");
-            }
-
-            const response = responseMap[params.type];
-
-            return response
-              ? createSuccessResponse(response)
-              : createErrorResponse(400, "無効なタイプ");
-          }
-
-          // バックアップモード
-          if (params.mode === "backup") {
-            // TODO: バックアップの取得実装
-            return createErrorResponse(501, "バックアップの取得は未実装");
-          }
-
-          return createErrorResponse(400, "無効なリクエストモード");
-
-        case "POST":
-          // データ書き込みモード
-          if (params.mode === "writing") {
-            const data = JSON.parse(body) as OmikenType;
-
-            // Node.jsのfs (file system)モジュールを使用してファイル保存
-            const fs = require("fs");
-            const horuda = path.join(configs.dataRoot, "Omiken");
-            const filePath = path.join(horuda, "index.json");
-
-            // Omiken フォルダが存在しない場合は作成
-            if (!fs.existsSync(horuda)) {
-              fs.mkdirSync(horuda, { recursive: true });
-            }
-
-            // JSON データをファイルに書き込み
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-            console.log(`File saved at ${filePath}`);
-
-            // バックアップ
-            const backupService = new BackupService("Omiken");
-            backupService.createBackup(data);
-
-            // 現在展開しているOmikenを書き換える
-            const hogeData = {
-              Omiken: data,
-              OmikenTypesArray: filterTypes(data.types, data.rules),
-            };
-            Object.assign(this, hogeData);
-
-            return createSuccessResponse("ファイルが正常に保存されました");
-          }
-
-          return createErrorResponse(400, "無効なタイプパラメータ");
-
-        default:
-          return createErrorResponse(404, "サポートされていないメソッド");
-      }
-    } catch (error) {
-      console.error("リクエスト処理中にエラーが発生:", error);
-      return createErrorResponse(500, "データ処理中にエラーが発生しました");
-    }
-
-*/

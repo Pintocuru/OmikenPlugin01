@@ -1,36 +1,30 @@
 {
-  "name": "omiken-plugin",
-  "version": "0.0.1",
-  "description": "",
-  "main": "public/plugin.js",
-  "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "test:plugin": "set NODE_ENV=development&& jest plugin.test.ts"
-  },
-  "keywords": [
-    "わんコメ",
-    "onecomme"
-  ],
-  "author": "astie",
-  "type": "commonjs",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/jest": "^29.5.13",
-    "@types/node": "^20.12.7",
-    "copy-webpack-plugin": "^12.0.2",
-    "jest": "^29.7.0",
-    "jest-mock-axios": "^4.8.0",
-    "terser-webpack-plugin": "^5.3.10",
-    "ts-jest": "^29.2.5",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4",
-    "zip-webpack-plugin": "^4.0.1"
-  },
-  "dependencies": {
-    "@onecomme.com/onesdk": "^5.2.3",
-    "electron-store": "^10.0.0"
-  }
+ "name": "omiken-plugin",
+ "version": "0.0.1",
+ "description": "",
+ "main": "public/plugin.js",
+ "scripts": {
+  "build": "tsc",
+  "test:plugin": "set NODE_ENV=development&& jest plugin.test.ts"
+ },
+ "keywords": [
+  "わんコメ",
+  "onecomme"
+ ],
+ "dependencies": {
+  "@onecomme.com/onesdk": "^5.2.3",
+  "electron-store": "^10.0.0"
+ },
+ "author": "astie",
+ "type": "commonjs",
+ "license": "ISC",
+ "devDependencies": {
+  "@types/jest": "^29.5.13",
+  "@types/node": "^20.12.7",
+  "jest": "^29.7.0",
+  "jest-mock-axios": "^4.8.0",
+  "ts-jest": "^29.2.5",
+  "ts-loader": "^9.5.1",
+  "typescript": "^5.4.5"
+ }
 }

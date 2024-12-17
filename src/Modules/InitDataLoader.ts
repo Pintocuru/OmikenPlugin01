@@ -1,6 +1,6 @@
 // src/scripts/InitDataLoader.js
 import ElectronStore from "electron-store";
-import fs from "fs";
+import fs from "fs"; // 同期的なfsに戻す
 import path from "path";
 import {
   PresetType,
@@ -15,8 +15,12 @@ import {
 import { postErrorMessage } from "./PostOmikuji";
 import { configs } from "../config";
 
+const OmikenPath = "Omiken/index.json"; // おみくじデータ
+const presetPath = "preset/index.json"; // presetデータ
+
 export class InitDataLoader {
   private store: ElectronStore<StoreType>;
+  private Games: Record<string, GameType>;
 
   constructor(store: ElectronStore<StoreType>) {
     this.store = store;
@@ -24,175 +28,123 @@ export class InitDataLoader {
 
   // Omiken/presetデータ読み込み
   loadPluginData() {
-    const OmikenPath = "Omiken/index.json"; // おみくじデータ
-    const presetPath = "preset/index.json"; // presetデータ
-
     try {
-      // Omikenデータを読み込み
       const Omiken = this.loadJson<OmikenType>(OmikenPath);
-      if (!Omiken) {
-        throw new Error(`Omikenデータの読み込みに失敗: ${OmikenPath}`);
-      }
+      //const { PresetsMoto, CharasMoto } = this.loadPresets(presetPath);
 
-      // Omiken/Charasのプリセットデータを読み込み
-      const { PresetsMoto, CharasMoto } = this.loadPresets(presetPath);
-      const Charas: Record<string, CharaType> =
-        this.loadCharasData<CharaType>(CharasMoto);
-      const Presets: Record<string, OmikenType> =
-        this.loadCharasData<OmikenType>(PresetsMoto);
-
-      const Scripts = this.initializeScripts();
-
-      // typesを参照しrulesを配列にする
-      const OmikenTypesArray = filterTypes(Omiken.types, Omiken.rules);
+      // 
+      const Presets = this.fileReadObject(
+        path.join(configs.dataRoot, "Presets"),
+        "json"
+      );
+      const Charas = this.fileReadObject(
+        path.join(configs.dataRoot, "Charas"),
+        "json"
+      );
+      const Scripts = this.fileReadObject(configs.ScriptsRoot, "js");
+      console.warn("testtest", Scripts);
 
       return {
         Omiken,
-        OmikenTypesArray,
+        OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
         Presets,
         Charas,
         Scripts,
         Visits: (this.store as any).get("Visits", {}),
-        Games: (this.store as any).get("Games", {}),
-        TimeConfig: (this.store as any).get("TimeConfig", {}),
+        Games: this.initializeGames(),
+        TimeConfig: {
+          pluginTime: Date.now(),
+          lc: 0,
+          lastTime: 0,
+          lastUserId: "",
+        },
       };
     } catch (error) {
-      console.error("プラグインデータの読み込み中にエラーが発生", error);
-      postErrorMessage(error); // エラーメッセージをわんコメへ投稿
+      this.errorMethod("プラグインデータの読み込み中にエラーが発生", error);
       throw error;
     }
   }
 
-  // dataからJSONファイルを読む
+  // JSONファイルを読む
   private loadJson<T>(filePath: string): T | null {
     try {
       const fullPath = path.join(configs.dataRoot, filePath);
+
       // ファイルの存在確認
       if (!fs.existsSync(fullPath)) {
-        console.error(`ファイルが見つかりません: ${fullPath}`);
+        this.errorMethod(`ファイルが見つかりません: ${fullPath}`);
         return null;
       }
 
       const fileContent = fs.readFileSync(fullPath, "utf-8");
-      return JSON.parse(fileContent) as T;
-    } catch (error) {
-      if (error instanceof SyntaxError) {
-        console.error(`JSONパースエラー: ${filePath}`, error.message);
-      } else if (error instanceof Error) {
-        console.error(`ファイル読み込みエラー: ${filePath}`, error.message);
+      const parsedData = JSON.parse(fileContent) as T;
+
+      // データのundefinedチェック
+      if (!parsedData) {
+        this.errorMethod(`無効なデータ: ${filePath}`);
+        return null;
       }
+
+      return parsedData;
+    } catch (error) {
+      this.errorMethod(`ファイル読み込みエラー: ${filePath}`, error);
       return null;
     }
   }
 
-  // preset/index.json を読み込み
-  private loadPresets(presetPath: string): {
-    PresetsMoto: PresetType[];
-    CharasMoto: PresetType[];
-    Scripts: PresetType[];
-  } {
-    const presets = this.loadJson<PresetType[]>(presetPath) || [];
-
-    if (!presets || presets.length === 0) {
-      console.warn(`プリセットデータが見つかりません: ${presetPath}`);
-      return { PresetsMoto: [], CharasMoto: [], Scripts: [] };
-    }
-
-    return presets.reduce(
-      (acc, item) => {
-        if (item.type === "Omiken") {
-          acc.PresetsMoto.push(item);
-        } else if (item.type === "Chara") {
-          acc.CharasMoto.push(item);
-        } else if (item.type === "Script") {
-          acc.Scripts.push(item);
-        }
-        return acc;
-      },
-      { PresetsMoto: [], CharasMoto: [], Scripts: [] }
-    );
-  }
-
-  // presetのpathを読んでデータを返す
-  private loadCharasData<T>(items: PresetType[]): Record<string, T> {
-    const dataMap: Record<string, T> = {};
-
-    items.forEach((item) => {
-      if (!item.path) {
-        console.warn(`キャラクターのパスが不明: ${item.id}`);
-        return;
-      }
-
-      const data = this.loadJson<T>(`preset/${item.path}`);
-      if (data) dataMap[item.id] = data;
-    });
-
-    return dataMap;
-  }
-
   // Scriptsにある関数を読み込み
-  private initializeScripts() {
-    const Scripts: Record<string, ScriptsParamType> = {};
-    const ScriptsDir = configs.ScriptsRoot; // ./Scripts フォルダのパス
-
+  private fileReadObject(
+    dir: string,
+    extension: "json" | "js"
+  ): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
     try {
       // ディレクトリ内のファイル一覧を取得
-      const files = fs.readdirSync(ScriptsDir);
-
+      const files = fs.readdirSync(dir);
       files.forEach((file) => {
-        // .js ファイルのみ対象
-        if (file.endsWith(".js")) {
-          const functionName = file.replace(/\.js$/, ""); // 拡張子を除去
-          const modulePath = path.join(ScriptsDir, file);
-
+        // 指定された拡張子のみ対象
+        if (file.endsWith(`.${extension}`)) {
+          const key = file.replace(new RegExp(`\\.${extension}$`), "");
+          const filePath = path.join(dir, file);
           try {
-            // モジュールを動的に読み込み
-            const module = require(modulePath);
-
-            // モジュール内の関数が存在するか確認
-            if (typeof module[functionName] === "function") {
-              Scripts[functionName] = module[functionName];
+            if (extension === "json") {
+              // JSONファイルを読み込み
+              const fileContent = fs.readFileSync(filePath, "utf-8");
+              result[key] = JSON.parse(fileContent);
+            } else if (extension === "js") {
+              // JSファイルをrequireで読み込み
+              const module = require(filePath);
+              result[key] = module[key];
             } else {
-              console.warn(
-                `No valid function "${functionName}" found in file: ${file}`
-              );
+              // サポートされていない拡張子
+              this.errorMethod(`ファイルを読み込めません.${extension}`);
             }
           } catch (err) {
-            console.error(`Failed to load module: ${modulePath}`, err);
+            this.errorMethod(`ファイルの読み込みに失敗: ${filePath}`, err);
           }
         }
       });
     } catch (err) {
-      console.error(`Failed to read directory: ${ScriptsDir}`, err);
+      this.errorMethod(`ディレクトリの読み取りに失敗: ${dir}`, err);
     }
-
-    return Scripts;
+    return result;
   }
 
   // Gamesのすべてのdrawsを初期化する
-  initializeGames() {
+  private initializeGames(): Record<string, GameType> {
     const Games = (this.store as any).get("Games", {}) as Record<
       string,
       GameType
     >;
-    const GamesNew = Object.fromEntries(
+    return Object.fromEntries(
       Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
     );
-
-    (this.store as any).set("Games", GamesNew);
-    return GamesNew;
   }
 
-  // TimeConfig の初期化
-  initializeTimeConfig() {
-    const timeConfig = {
-      pluginTime: Date.now(),
-      lc: 0,
-      lastTime: 0,
-      lastUserId: "",
-    };
-    (this.store as any).set("TimeConfig", timeConfig);
-    return timeConfig;
+  // エラー用メゾット(コンソールログとわんコメへの投稿)
+  private errorMethod(message: string, error?: unknown): void {
+    console.error(message, error);
+    postErrorMessage(message);
   }
 }
 
@@ -208,4 +160,3 @@ export function filterTypes(
     return result;
   }, {} as Record<TypesType, RulesType[]>);
 }
-

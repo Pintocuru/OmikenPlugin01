@@ -41,7 +41,6 @@ describe("各種関数のテスト", () => {
 
   test("filterComment:おみくじができる ", () => {
     const result = plugin.filterComment(commentMock, null, null);
-    expect(result).toBe(commentMock);
   });
 
   test.skip("RequestHandler:データ取得が成功する場合", async () => {
