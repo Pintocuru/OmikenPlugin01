@@ -3,7 +3,7 @@
 import { OnePlugin } from '@onecomme.com/onesdk/types/Plugin';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
-import { OmikenType } from './Omiken';
+import { OmikenType, RulesType, TypesType } from './Omiken';
 import { CharaType, PresetType, ScriptsParamType } from './preset';
 
 // ---------------------------------------------------
@@ -17,7 +17,9 @@ export interface StoreType {
 
 // プラグイン:AppPlugin で呼び出すすべての型定義
 export interface StoreAllType extends StoreType {
+ store?: any; // ElectronStore不具合のためanyにしています。 ElectronStore<StoreType>
  Omiken: OmikenType;
+ OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsParamType>;
@@ -99,13 +101,6 @@ meta
 
 // ---------------------------------------------------
 
-// 既存のOnePluginに追加する拡張型
-export interface OnePluginOmiken extends OnePlugin {
- defaultState: Partial<StoreType>;
-
- // プラグイン固有の追加メソッドや属性も必要に応じて定義可能
- initLoadData?(): void;
-}
 
 // ---
 

@@ -8,7 +8,7 @@ import fs from 'fs/promises';
 export class RequestHandler {
  private responseMap: StoreAllType;
 
- constructor(private services: StoreAllType) {
+ constructor(services: StoreAllType) {
   this.responseMap = services;
  }
 

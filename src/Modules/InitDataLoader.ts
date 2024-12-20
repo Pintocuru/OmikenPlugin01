@@ -1,162 +1,151 @@
 // src/scripts/InitDataLoader.js
-import ElectronStore from "electron-store";
-import fs from "fs"; // 同期的なfsに戻す
-import path from "path";
+import ElectronStore from 'electron-store';
+import fs from 'fs'; // 同期的なfsに戻す
+import path from 'path';
 import {
-  PresetType,
-  OmikenType,
-  RulesType,
-  CharaType,
-  StoreType,
-  GameType,
-  TypesType,
-  ScriptsParamType,
-} from "../types/index";
-import { postErrorMessage } from "./PostOmikuji";
-import { configs } from "../config";
+ PresetType,
+ OmikenType,
+ RulesType,
+ CharaType,
+ StoreType,
+ GameType,
+ TypesType,
+ ScriptsParamType,
+ VisitType,
+ StoreAllType,
+ TimeConfigType
+} from '../types/index';
+import { postErrorMessage } from './PostOmikuji';
+import { configs } from '../config';
 
-const OmikenPath = "Omiken/index.json"; // おみくじデータ
-const presetPath = "preset/index.json"; // presetデータ
+const OmikenPath = 'Omiken/index.json'; // おみくじデータ
 
 export class InitDataLoader {
-  private store: ElectronStore<StoreType>;
-  private Games: Record<string, GameType>;
+ private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
+ private errorHandler: ErrorHandler;
+ private jsonReader: JsonFileReader;
 
-  constructor(store: ElectronStore<StoreType>) {
-    this.store = store;
+ constructor(store: ElectronStore<StoreType>) {
+  this.store = store;
+  this.errorHandler = new ErrorHandler();
+  this.jsonReader = new JsonFileReader(this.errorHandler);
+ }
+
+ // Omiken/presetデータ読み込み
+ loadPluginData(): StoreAllType {
+  try {
+   const Omiken = this.jsonReader.read<OmikenType>(path.join(configs.dataRoot, OmikenPath));
+
+   return {
+    Omiken,
+    OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
+    Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
+    Charas: this.loadDirectoryContents<CharaType>('Charas', 'json'),
+    Scripts: this.loadDirectoryContents<ScriptsParamType>(configs.ScriptsRoot, 'js'),
+    Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
+    Games: this.initializeGames(),
+    TimeConfig: this.initializeTimeConfig()
+   };
+  } catch (error) {
+   this.errorHandler.handle('プラグインデータの読み込み中にエラーが発生', error);
   }
+ }
 
-  // Omiken/presetデータ読み込み
-  loadPluginData() {
+ // Scriptsにある関数を読み込み
+ private loadDirectoryContents<T>(dirPath: string, extension: 'json' | 'js'): Record<string, T> {
+  const result: Record<string, T> = {};
+  const fullPath = extension === 'js' ? dirPath : path.join(configs.dataRoot, dirPath);
+
+  try {
+   const files = fs.readdirSync(fullPath);
+
+   for (const file of files) {
+    // 指定された拡張子のみ対象
+    if (!file.endsWith(`.${extension}`)) continue;
+    const key = file.replace(new RegExp(`\\.${extension}$`), '');
+    const filePath = path.join(fullPath, file);
+
     try {
-      const Omiken = this.loadJson<OmikenType>(OmikenPath);
-      //const { PresetsMoto, CharasMoto } = this.loadPresets(presetPath);
-
-      // 
-      const Presets = this.fileReadObject(
-        path.join(configs.dataRoot, "Presets"),
-        "json"
-      );
-      const Charas = this.fileReadObject(
-        path.join(configs.dataRoot, "Charas"),
-        "json"
-      );
-      const Scripts = this.fileReadObject(configs.ScriptsRoot, "js");
-      console.warn("testtest", Scripts);
-
-      return {
-        Omiken,
-        OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
-        Presets,
-        Charas,
-        Scripts,
-        Visits: (this.store as any).get("Visits", {}),
-        Games: this.initializeGames(),
-        TimeConfig: {
-          pluginTime: Date.now(),
-          lc: 0,
-          lastTime: 0,
-          lastUserId: "",
-        },
-      };
-    } catch (error) {
-      this.errorMethod("プラグインデータの読み込み中にエラーが発生", error);
-      throw error;
-    }
-  }
-
-  // JSONファイルを読む
-  private loadJson<T>(filePath: string): T | null {
-    try {
-      const fullPath = path.join(configs.dataRoot, filePath);
-
-      // ファイルの存在確認
-      if (!fs.existsSync(fullPath)) {
-        this.errorMethod(`ファイルが見つかりません: ${fullPath}`);
-        return null;
-      }
-
-      const fileContent = fs.readFileSync(fullPath, "utf-8");
-      const parsedData = JSON.parse(fileContent) as T;
-
-      // データのundefinedチェック
-      if (!parsedData) {
-        this.errorMethod(`無効なデータ: ${filePath}`);
-        return null;
-      }
-
-      return parsedData;
-    } catch (error) {
-      this.errorMethod(`ファイル読み込みエラー: ${filePath}`, error);
-      return null;
-    }
-  }
-
-  // Scriptsにある関数を読み込み
-  private fileReadObject(
-    dir: string,
-    extension: "json" | "js"
-  ): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
-    try {
-      // ディレクトリ内のファイル一覧を取得
-      const files = fs.readdirSync(dir);
-      files.forEach((file) => {
-        // 指定された拡張子のみ対象
-        if (file.endsWith(`.${extension}`)) {
-          const key = file.replace(new RegExp(`\\.${extension}$`), "");
-          const filePath = path.join(dir, file);
-          try {
-            if (extension === "json") {
-              // JSONファイルを読み込み
-              const fileContent = fs.readFileSync(filePath, "utf-8");
-              result[key] = JSON.parse(fileContent);
-            } else if (extension === "js") {
-              // JSファイルをrequireで読み込み
-              const module = require(filePath);
-              result[key] = module[key];
-            } else {
-              // サポートされていない拡張子
-              this.errorMethod(`ファイルを読み込めません.${extension}`);
-            }
-          } catch (err) {
-            this.errorMethod(`ファイルの読み込みに失敗: ${filePath}`, err);
-          }
-        }
-      });
+     if (extension === 'json') {
+      const data = this.jsonReader.read<T>(filePath);
+      if (data) result[key] = data;
+     } else if (extension === 'js') {
+      const module = require(filePath);
+      if (module?.[key]) result[key] = module[key];
+     }
     } catch (err) {
-      this.errorMethod(`ディレクトリの読み取りに失敗: ${dir}`, err);
+     this.errorHandler.handle(`ファイルの読み込みに失敗: ${filePath}`, err);
     }
-    return result;
+   }
+  } catch (err) {
+   this.errorHandler.handle(`ディレクトリの読み取りに失敗: ${fullPath}`, err);
   }
 
-  // Gamesのすべてのdrawsを初期化する
-  private initializeGames(): Record<string, GameType> {
-    const Games = (this.store as any).get("Games", {}) as Record<
-      string,
-      GameType
-    >;
-    return Object.fromEntries(
-      Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }])
-    );
-  }
+  return result;
+ }
 
-  // エラー用メゾット(コンソールログとわんコメへの投稿)
-  private errorMethod(message: string, error?: unknown): void {
-    console.error(message, error);
-    postErrorMessage(message);
+ // Gamesのすべてのdrawsを初期化する
+ private initializeGames(): Record<string, GameType> {
+  const Games = this.store.get('Games', {}) as Record<string, GameType>;
+  return Object.fromEntries(Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }]));
+ }
+
+ // TimeConfigを初期化する
+ private initializeTimeConfig(): TimeConfigType {
+  return {
+   pluginTime: Date.now(),
+   lc: 0,
+   lastTime: 0,
+   lastUserId: ''
+  };
+ }
+}
+
+interface FileReader<T> {
+ read(filePath: string): T | null;
+}
+
+// JSONファイルを読む
+class JsonFileReader implements FileReader<unknown> {
+ constructor(private errorHandler: ErrorHandler) {}
+
+ read<T>(filePath: string): T | null {
+  try {
+   if (!fs.existsSync(filePath)) {
+    this.errorHandler.handle(`ファイルが見つかりません: ${filePath}`);
+    return null;
+   }
+
+   const fileContent = fs.readFileSync(filePath, 'utf-8');
+   const parsedData = JSON.parse(fileContent) as T;
+
+   if (!parsedData) {
+    this.errorHandler.handle(`無効なデータ: ${filePath}`);
+    return null;
+   }
+
+   return parsedData;
+  } catch (error) {
+   this.errorHandler.handle(`ファイル読み込みエラー: ${filePath}`, error);
+   return null;
   }
+ }
+}
+
+// エラー用メゾット(コンソールログとわんコメへの投稿)
+class ErrorHandler {
+ handle(message: string, error?: unknown): never {
+  const errorMessage = `${message}${error ? `: ${String(error)}` : ''}`;
+  console.error(errorMessage);
+  postErrorMessage(message);
+  throw new Error(errorMessage);
+ }
 }
 
 // rulesを配列にする
-export function filterTypes(
-  types: Record<TypesType, string[]>,
-  rules: Record<string, RulesType>
-) {
-  return Object.keys(types).reduce((result, typeKey) => {
-    result[typeKey] = types[typeKey]
-      .map((id: string) => rules[id])
-      .filter((rule) => rule !== undefined);
-    return result;
-  }, {} as Record<TypesType, RulesType[]>);
+export function filterTypes(types: Record<TypesType, string[]>, rules: Record<string, RulesType>) {
+ return Object.keys(types).reduce((result, typeKey) => {
+  result[typeKey] = types[typeKey].map((id: string) => rules[id]).filter((rule) => rule !== undefined);
+  return result;
+ }, {} as Record<TypesType, RulesType[]>);
 }
