@@ -2,23 +2,11 @@
 
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import {
- CharaType,
- GameType,
- OmikujiType,
- PlaceType,
- PresetType,
- RulesType,
- ScriptsParamType,
- ScriptsReturnType,
  StoreAllType,
  StoreType,
  TimeConfigType,
- visitDataType,
  VisitType
 } from '../../src/types/index';
-import { PlaceProcess } from './PlaceProcess';
-import { postErrorMessage, PostMessages } from './PostOmikuji';
-import { ThresholdChecker } from './ThresholdCheck';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { OmikujiSelectorFactory } from './TaskOmikujiSelect';
 import { OmikujiProcessor } from './TaskOmikujiProcess';

@@ -2,7 +2,6 @@
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { StoreType, VisitType, GameType, StoreAllType } from './types';
 import { configs } from './config';
-import { CommentInstance } from './Modules/CommentInstance';
 import { InitDataLoader } from './Modules/InitDataLoader';
 import { RequestHandler } from './Modules/ApiRequest';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
@@ -37,12 +36,7 @@ const plugin: OnePlugin = {
 
   // Timerインスタンスを生成
   const timerSelector = OmikujiSelectorFactory.create('timer');
-  const omikujiSelect = timerSelector.selectOmikuji(
-   this.OmikenTypesArray.timer,
-   this.Omiken.omikujis
-  );
-  // TODO:途中です
-
+  timerSelector.selectOmikuji(this.OmikenTypesArray.timer, this.Omiken.omikujis);
  },
 
  // filterComment:コメントを加工・変更する
@@ -54,18 +48,13 @@ const plugin: OnePlugin = {
    return comment;
   }
 
-  // 初期化
-  const Omiken = this.Omiken;
-  const rulesArray = this.OmikenTypesArray.comment;
-  const userId = comment.data.userId;
-
   // TimeConfig.lcをインクリメント
   this.TimeConfig.lc++;
 
   // インスタンスの発行
   const Instance = new TaskCommentInstance(this, comment, userData);
   // ユーザー情報の更新
-  this.Visits[userId] = Instance.returnVisit();
+  this.Visits[comment.data.userId] = Instance.returnVisit();
 
   // おみくじの処理
   const result = await Instance.process();

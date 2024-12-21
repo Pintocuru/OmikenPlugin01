@@ -63,18 +63,18 @@ export class ThresholdChecker {
 
   // 初見・久しぶりのチェック
   private matchIsSyoken(syoken: SyokenCondition): boolean {
-    // コメントがない、または1回目でない場合はfalse
-    if (!this.comment || this.comment.meta.no !== 1) return false;
+   // コメントがない、または1回目でない場合はfalse(meta.freeは1回目判定で使用してます)
+   if (!this.comment || !this.comment.meta.free) return false;
 
-    const { interval } = this.comment.meta;
-    const conditions: Record<SyokenCondition, () => boolean> = {
-      [SyokenCondition.SYOKEN]: () => interval === 0, // 初見
-      [SyokenCondition.AGAIN]: () => interval > 7 * 24 * 60 * 60 * 1000, // 久しぶり
-      [SyokenCondition.HI]: () => true, // こんにちは
-      [SyokenCondition.ALL]: () => true, // 1回目のコメント全員
-    };
+   const { interval } = this.comment.meta;
+   const conditions: Record<SyokenCondition, () => boolean> = {
+    [SyokenCondition.SYOKEN]: () => interval === 0, // 初見
+    [SyokenCondition.AGAIN]: () => interval > 7 * 24 * 60 * 60 * 1000, // 久しぶり
+    [SyokenCondition.HI]: () => true, // こんにちは
+    [SyokenCondition.ALL]: () => true // 1回目のコメント全員
+   };
 
-    return conditions[syoken]?.() ?? false;
+   return conditions[syoken]?.() ?? false;
   }
 
   // ユーザーの役職

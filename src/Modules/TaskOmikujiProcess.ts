@@ -134,7 +134,8 @@ export class OmikujiProcessor {
      totalDraws: visitData?.totalDraws?.toString() ?? '0',
      user: commentData.displayName,
      tc: commentMeta.tc.toString(),
-     lc: commentMeta.lc.toString()
+     lc: commentMeta.lc.toString(),
+     round: commentMeta.no.toString()
     })
   };
   // プレースホルダー更新
