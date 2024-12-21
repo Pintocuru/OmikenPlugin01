@@ -119,6 +119,7 @@ export class TaskCommentInstance {
   return this.visit;
  }
 
+ // おみくじの処理
  async process(): Promise<Partial<StoreType>> {
   // コメントモードでの使用
   const commentSelector = OmikujiSelectorFactory.create('comment', {

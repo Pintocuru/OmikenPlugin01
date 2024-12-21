@@ -56,7 +56,7 @@ describe.skip('PlaceProcess Class Tests', () => {
   threshold: [],
   script: {
    scriptId: 'GamesTest',
-   parameter: ''
+   params: [{}]
   },
   placeIds: [],
   post: [

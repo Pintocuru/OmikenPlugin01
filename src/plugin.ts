@@ -9,6 +9,7 @@ import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';
 import { TaskCommentInstance } from './Modules/TaskCommentInstance';
+import { OmikujiSelectorFactory } from './Modules/TaskOmikujiSelect';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -33,6 +34,15 @@ const plugin: OnePlugin = {
   const loader = new InitDataLoader(store);
   // 初期化してthisに上書き
   Object.assign(this, loader.loadPluginData());
+
+  // Timerインスタンスを生成
+  const timerSelector = OmikujiSelectorFactory.create('timer');
+  const omikujiSelect = timerSelector.selectOmikuji(
+   this.OmikenTypesArray.timer,
+   this.Omiken.omikujis
+  );
+  // TODO:途中です
+
  },
 
  // filterComment:コメントを加工・変更する
