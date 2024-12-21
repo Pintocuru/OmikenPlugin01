@@ -20,14 +20,9 @@ const plugin: OnePlugin = {
 
  // プラグインの初期状態
  defaultState: {
+  Omiken:{},
   Visits: {},
   Games: {},
-  TimeConfig: {
-   pluginTime: 0, // プラグインを起動した時刻
-   lc: 0, // プラグインを起動してからカウントしたコメント数
-   lastTime: 0, // 最後におみくじ機能が実行された時刻
-   lastUserId: '' // 最後におみくじを行ったuserId
-  }
  },
  // プラグインの初期化
  init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
@@ -37,8 +32,6 @@ const plugin: OnePlugin = {
   const loader = new InitDataLoader(store);
   // 初期化してthisに上書き
   Object.assign(this, loader.loadPluginData());
-  // 初期化したGamesをstoreに格納
-  this.store.set('Games', this.Games);
  },
 
  // filterComment:コメントを加工・変更する
@@ -102,8 +95,7 @@ const plugin: OnePlugin = {
    Charas: this.Charas,
    Scripts: this.Scripts,
    Visits: this.Visits,
-   Games: this.Games,
-   TimeConfig: this.TimeConfig
+   Games: this.Games
   };
 
   const handler = new RequestHandler(responseMap);

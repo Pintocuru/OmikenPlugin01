@@ -1,6 +1,5 @@
 // src/types/plugin.ts
 
-import { OnePlugin } from '@onecomme.com/onesdk/types/Plugin';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { OmikenType, RulesType, TypesType } from './Omiken';
@@ -10,19 +9,19 @@ import { CharaType, PresetType, ScriptsParamType } from './preset';
 
 // プラグイン:AppPlugin の型定義
 export interface StoreType {
+ Omiken: OmikenType;
  Visits: Record<string, VisitType>;
  Games: Record<string, GameType>;
- TimeConfig: TimeConfigType;
 }
 
 // プラグイン:AppPlugin で呼び出すすべての型定義
 export interface StoreAllType extends StoreType {
  store?: any; // ElectronStore不具合のためanyにしています。 ElectronStore<StoreType>
- Omiken: OmikenType;
  OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsParamType>;
+ TimeConfig?: TimeConfigType;
 }
 
 // ユーザーデータ(全体)
@@ -98,9 +97,6 @@ originalProfileImage
 meta
 
 */
-
-// ---------------------------------------------------
-
 
 // ---
 

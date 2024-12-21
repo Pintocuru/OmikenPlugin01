@@ -1,6 +1,6 @@
 // src/scripts/InitDataLoader.js
 import ElectronStore from 'electron-store';
-import fs from 'fs'; // 同期的なfsに戻す
+import fs from 'fs'; 
 import path from 'path';
 import {
  PresetType,
@@ -34,7 +34,8 @@ export class InitDataLoader {
  // Omiken/presetデータ読み込み
  loadPluginData(): StoreAllType {
   try {
-   const Omiken = this.jsonReader.read<OmikenType>(path.join(configs.dataRoot, OmikenPath));
+   // TODO 後でdefault値を入れたいかも
+   const Omiken = this.store.get('Omiken', {}) as OmikenType;
 
    return {
     Omiken,
@@ -87,7 +88,11 @@ export class InitDataLoader {
  // Gamesのすべてのdrawsを初期化する
  private initializeGames(): Record<string, GameType> {
   const Games = this.store.get('Games', {}) as Record<string, GameType>;
-  return Object.fromEntries(Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }]));
+  // 初期化
+  const newGames = Object.fromEntries(Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }]));
+  // storeに格納
+  this.store.set('Games', newGames);
+  return newGames;
  }
 
  // TimeConfigを初期化する
