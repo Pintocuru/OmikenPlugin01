@@ -8,6 +8,7 @@ import { RequestHandler } from './Modules/ApiRequest';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';
+import { TaskCommentInstance } from './Modules/TaskCommentInstance';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -20,9 +21,9 @@ const plugin: OnePlugin = {
 
  // プラグインの初期状態
  defaultState: {
-  Omiken:{},
+  Omiken: {},
   Visits: {},
-  Games: {},
+  Games: {}
  },
  // プラグインの初期化
  init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
@@ -49,41 +50,18 @@ const plugin: OnePlugin = {
   const userId = comment.data.userId;
 
   // TimeConfig.lcをインクリメント
-  this.store.set('TimeConfig.lc', ++this.TimeConfig.lc);
+  this.TimeConfig.lc++;
 
   // インスタンスの発行
-  const Instance = new CommentInstance(comment, this.Visits?.[userId], this.TimeConfig, userData);
-  try {
-   // おみくじCHECK
-   const isOmikuji = Instance.omikenSelect(rulesArray, Omiken.omikujis);
-   if (!isOmikuji) return comment;
+  const Instance = new TaskCommentInstance(this, comment, userData);
+  // ユーザー情報の更新
+  this.Visits[userId] = Instance.returnVisit();
 
-   // おみくじがあるなら、おみくじを実行
-   const processResult = await Instance.omikujiProcess(this.Games, Omiken.places, this.Charas, this.Scripts);
-   return processResult;
-  } finally {
-   const ruleId = Instance.getDATA('ruleId') as string;
-   console.log('ルールID: ', ruleId);
-
-   // おみくじを実行した場合
-   if (ruleId) {
-    // lastTime と lastUserId を更新
-    this.store.set('TimeConfig.lastTime', Date.now());
-    this.store.set('TimeConfig.lastUserId', userId);
-
-    // gameを書き換える
-    const gameNew = Instance.getDATA('game') as GameType;
-    this.store.set(`Games.${ruleId}`, gameNew);
-    this.Games[ruleId] = gameNew;
-    console.warn('Game 更新: ', gameNew);
-   }
-
-   // visitを書き換える
-   const visitNew = Instance.getDATA('visit') as VisitType;
-   this.Visits[userId] = visitNew;
-   this.store.set(`Visits.${userId}`, visitNew);
-   console.warn('Visit 更新: ', visitNew);
-  }
+  // おみくじの処理
+  const result = await Instance.process();
+  if (result.Games) this.Games = result.Games;
+  if (result.Visits) this.Visits = result.Visits;
+  if (result.TimeConfig) this.TimeConfig = result.TimeConfig;
  },
 
  // called when a request is made to the plugin-specific

@@ -1,4 +1,4 @@
-// src/scripts/PostOmikuji.js
+// src/Modules/PostOmikuji.js
 
 import {
   CharaType,

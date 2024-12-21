@@ -1,5 +1,7 @@
 // src/types/Omiken.ts
 
+import { ScriptParam } from "./";
+
 ///////////////////////////////////
 // Omiken
 ///////////////////////////////////
@@ -66,18 +68,18 @@ export interface RulesType extends BaseType {
 
 // おみくじメッセージの型定義
 export interface OmikujiType extends BaseType {
-  rank: number; // 優先度
-  weight: number; // 出現割合
-  threshold: ThresholdType[]; // 発動条件
-  status?: string; // ユーザーに対するステータスの付与
-  isDelete?: boolean; // コメントを無効にするか
-  isSilent?: boolean; // 読み上げを無効にするか
-  script?: {
-    scriptId: string; // 使用する外部スクリプトのid
-    parameter: string; // 外部スクリプトに渡す引数
-  };
-  placeIds: string[]; // 使用するプレースホルダーのid
-  post: OneCommePostType[];
+ rank: number; // 優先度
+ weight: number; // 出現割合
+ threshold: ThresholdType[]; // 発動条件
+ status?: string; // ユーザーに対するステータスの付与
+ isDelete?: boolean; // コメントを無効にするか // TODO 削除。元コメントは一切編集しない
+ isSilent?: boolean; // BOTの読み上げを無効にするか
+ script?: {
+  scriptId: string; // 使用する外部スクリプトのid
+  params: ScriptParam[]; // 外部スクリプトに渡す引数(Scriptから取得する)
+ };
+ placeIds: string[]; // 使用するプレースホルダーのid
+ post: OneCommePostType[];
 }
 
 // メッセージの投稿情報を管理する型

@@ -36,10 +36,10 @@ export interface CharaType extends BaseType {
 
 // Script全体の型定義
 export type ScriptsParamType = (
- comment: Comment,
- game: GameType,
  visit: visitDataType,
- param?: string
+ game: GameType,
+ comment?: Comment,
+ params?: ScriptParam[]
 ) => ScriptsReturnType;
 
 // Scriptの返り値
@@ -47,7 +47,6 @@ export type ScriptsReturnType = {
  gameParam?: ScriptParam[]; // ゲームパラメータ
  postArray?: OneCommePostType[];
  placeholder: Placeholder; // プレースホルダー
- comment: Comment;
  game: GameType;
  visitData: visitDataType;
 };

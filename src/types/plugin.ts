@@ -2,7 +2,7 @@
 
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
-import { OmikenType, RulesType, TypesType } from './Omiken';
+import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
 import { CharaType, PresetType, ScriptsParamType } from './preset';
 
 // ---------------------------------------------------
@@ -12,6 +12,7 @@ export interface StoreType {
  Omiken: OmikenType;
  Visits: Record<string, VisitType>;
  Games: Record<string, GameType>;
+ TimeConfig?: TimeConfigType;
 }
 
 // プラグイン:AppPlugin で呼び出すすべての型定義
@@ -21,7 +22,6 @@ export interface StoreAllType extends StoreType {
  Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsParamType>;
- TimeConfig?: TimeConfigType;
 }
 
 // ユーザーデータ(全体)
@@ -30,6 +30,7 @@ export interface VisitType {
  userId: string; // ユーザーID
  status: string; // ステータス
  lastPluginTime: number; // 前回コメントした配信枠のactiveTime
+ round: number; // コメントした配信枠の数
  visitData: Record<string, visitDataType>;
 }
 
@@ -48,6 +49,11 @@ export interface visitDataType extends DrawsBase {
 // おみくじデータ
 export interface GameType extends DrawsBase {
  gameData: Record<string, unknown>; // scriptで自由に使えるObject
+}
+
+// 選択したおみくじ
+export interface OmikujiSelectType extends OmikujiType {
+ selectRuleId: string; // 選択されたルールのid
 }
 
 // TimeConfig
