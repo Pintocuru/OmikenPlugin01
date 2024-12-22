@@ -2,7 +2,7 @@
 
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import {
- StoreAllType,
+ StoreMainType,
  StoreType,
  TimeConfigType,
  VisitType
@@ -15,7 +15,7 @@ import { OmikujiProcessor } from './TaskOmikujiProcess';
 // コメントのインスタンス化
 //////////////////////////////////
 export class TaskCommentInstance {
- private storeAll: StoreAllType;
+ private storeAll: StoreMainType;
  private comment: Comment;
  private TimeConfig: TimeConfigType;
  private visit: VisitType;
@@ -24,7 +24,7 @@ export class TaskCommentInstance {
  private isTester: boolean;
 
  // 初期化
- constructor(storeAll: StoreAllType, comment: Comment, userData: UserNameData) {
+ constructor(storeAll: StoreMainType, comment: Comment, userData: UserNameData) {
   this.storeAll = storeAll;
   this.comment = comment;
   this.TimeConfig = storeAll.TimeConfig;

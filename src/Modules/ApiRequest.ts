@@ -1,21 +1,21 @@
 import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { ParamsType, StoreAllType } from '../types/';
+import { ParamsType, StoreApiType } from '../types/';
 import { configs } from '../config';
 import { filterTypes } from './InitDataLoader';
 import path from 'path';
 import fs from 'fs/promises';
 
 export class RequestHandler {
- private responseMap: StoreAllType;
+ private responseMap: StoreApiType;
 
- constructor(services: StoreAllType) {
+ constructor(services: StoreApiType) {
   this.responseMap = services;
  }
 
  // リクエストの実行
  async handleRequest(req: PluginRequest): Promise<{
   response: PluginResponse;
-  data?: StoreAllType;
+  data?: StoreApiType;
  }> {
   const { method, params, body } = req;
 
@@ -61,7 +61,7 @@ export class RequestHandler {
   body: string
  ): Promise<{
   response: PluginResponse;
-  data?: StoreAllType;
+  data?: StoreApiType;
  }> {
   if (params.mode === 'writing') {
    try {

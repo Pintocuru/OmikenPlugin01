@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import ElectronStore from 'electron-store';
-import { OmikujiType, PlaceType, StoreAllType, StoreType } from './types';
+import { OmikujiType, PlaceType, StoreMainType, StoreType } from './types';
 import { commentMock, MockElectronStore, storeMock } from './plugin.mockData';
 import { configs } from './config';
 import { PluginRequest } from '@onecomme.com/onesdk/types/Plugin';

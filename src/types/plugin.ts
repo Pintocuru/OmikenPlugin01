@@ -3,28 +3,48 @@
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
-import { CharaType, PresetType, ScriptsParamType } from './preset';
+import { CharaType, ScriptsParamType } from './preset';
 import { TimerBasedSelector } from '@/Modules/TaskOmikujiSelect';
 
 // ---------------------------------------------------
 
-// プラグイン:AppPlugin の型定義
+// ElectronStore用の型
 export interface StoreType {
- Omiken: OmikenType;
- Visits: Record<string, VisitType>;
- Games: Record<string, GameType>;
+  Omiken: OmikenType;
+  Visits: Record<string, VisitType>;
+  Games: Record<string, GameType>;
+}
+
+// おみくじBOT用の型
+export interface StoreMainType extends StoreType {
+  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
+  OmikenTypesArray?: Record<TypesType, RulesType[]>;
+  Charas: Record<string, CharaType>;
+  Scripts: Record<string, ScriptsParamType>;
+  TimeConfig: TimeConfigType;
+}
+
+// API用の型
+export interface StoreApiType extends StoreType {
+  Presets: Readonly<Record<string, OmikenType>>;
+  Charas: Record<string, CharaType>;
+  Scripts: Record<string, ScriptsParamType>;
+}
+
+// 全体設定用の型
+export interface StoreAllType extends StoreMainType {
+  Presets: Record<string, OmikenType>;
+  timerSelector: TimerBasedSelector;
+}
+
+// プラグインのデータを更新するreturn用の型
+export interface PluginUpdateData {
+ Games?: Record<string, GameType>;
+ Visits?: Record<string, VisitType>;
  TimeConfig?: TimeConfigType;
 }
 
-// プラグイン:AppPlugin で呼び出すすべての型定義
-export interface StoreAllType extends StoreType {
- store?: any; // ElectronStore不具合のためanyにしています。 ElectronStore<StoreType>
- OmikenTypesArray?: Record<TypesType, RulesType[]>;
- Presets: Record<string, OmikenType>;
- Charas: Record<string, CharaType>;
- Scripts: Record<string, ScriptsParamType>;
- timerSelector?: TimerBasedSelector;
-}
+// ---
 
 // ユーザーデータ(全体)
 export interface VisitType {

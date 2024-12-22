@@ -3,9 +3,11 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import {
  GameType,
  OmikujiSelectType,
+ PluginUpdateData,
  ScriptsReturnType,
- StoreAllType,
+ StoreMainType,
  StoreType,
+ TimeConfigType,
  visitDataType,
  VisitType
 } from '@/types';
@@ -24,7 +26,7 @@ export class OmikujiProcessor {
  private placeProcessor?: PlaceProcess;
 
  constructor(
-  private readonly storeAll: StoreAllType,
+  private readonly storeAll: StoreMainType,
   private readonly omikuji: OmikujiSelectType,
   private readonly comment?: Comment
  ) {
@@ -154,8 +156,8 @@ export class OmikujiProcessor {
  }
 
  //  Games / Visits / TimeConfig をプラグインに返す
- private pluginsUpdate(): Partial<StoreType> | PromiseLike<Partial<StoreType>> {
-  const result: Partial<StoreType> = {
+ private pluginsUpdate(): PluginUpdateData | PromiseLike<Partial<StoreType>> {
+  const result: PluginUpdateData = {
    Games: {
     ...this.storeAll.Games,
     [this.omikuji.selectRuleId]: this.context.game

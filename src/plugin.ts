@@ -1,15 +1,13 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, VisitType, GameType, StoreAllType } from './types';
+import { StoreType, VisitType, GameType, StoreAllType, StoreApiType, PluginUpdateData } from './types';
 import { configs } from './config';
-import { InitDataLoader } from './Modules/InitDataLoader';
+import { InitDataLoader, timerSetup } from './Modules/InitDataLoader';
 import { RequestHandler } from './Modules/ApiRequest';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';
 import { TaskCommentInstance } from './Modules/TaskCommentInstance';
-import { OmikujiSelectorFactory, TimerBasedSelector } from './Modules/TaskOmikujiSelect';
-import { OmikujiProcessor } from './Modules/TaskOmikujiProcess';
 import { postErrorMessage } from './Modules/PostOmikuji';
 
 const plugin: OnePlugin = {
@@ -29,22 +27,16 @@ const plugin: OnePlugin = {
  },
  // プラグインの初期化
  async init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
-  this.store = store;
-
-  // JSONからロード
-  const loader = new InitDataLoader(store);
   // 初期化してthisに上書き
+  const loader = new InitDataLoader(store);
   Object.assign(this, loader.loadPluginData());
 
-  // Timerインスタンスを生成
   // わんコメがセットアップ終了前に起動するとバグるので5秒待機
   // コメントは枠生成する機能があるので、それでバグるみたいです
   await new Promise((resolve) => setTimeout(resolve, 5000));
-  this.timerSelector = OmikujiSelectorFactory.create('timer') as TimerBasedSelector;
-  this.timerSelector.setupTimers(this.OmikenTypesArray.timer, this.Omiken.omikujis, async (result) => {
-   const processor = new OmikujiProcessor(this, result);
-   await processor.process();
-  });
+
+  // timerのセットアップ
+  timerSetup(this);
   postErrorMessage('おみくじBOTプラグインが起動しました', 'info');
  },
 
@@ -66,7 +58,7 @@ const plugin: OnePlugin = {
   this.Visits[comment.data.userId] = Instance.returnVisit();
 
   // おみくじの処理
-  const result = await Instance.process();
+  const result: PluginUpdateData = await Instance.process();
   if (result.Games) this.Games = result.Games;
   if (result.Visits) this.Visits = result.Visits;
   if (result.TimeConfig) this.TimeConfig = result.TimeConfig;
@@ -84,7 +76,7 @@ const plugin: OnePlugin = {
  // called when a request is made to the plugin-specific
  async request(this: StoreAllType, req): Promise<PluginResponse> {
   // データ型のマッピング
-  const responseMap: StoreAllType = {
+  const responseMap: StoreApiType = {
    Omiken: this.Omiken,
    Presets: this.Presets,
    Charas: this.Charas,
@@ -96,9 +88,6 @@ const plugin: OnePlugin = {
   const handler = new RequestHandler(responseMap);
   const result = await handler.handleRequest(req);
   Object.assign(this, result.data);
-
-  // * 将来、Gamesをエディターで編集できるようになったら、
-  // * this.store.set を使いたい
   return result.response;
  }
 };

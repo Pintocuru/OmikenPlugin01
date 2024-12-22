@@ -1,6 +1,6 @@
 // src/scripts/InitDataLoader.js
 import ElectronStore from 'electron-store';
-import fs from 'fs'; 
+import fs from 'fs';
 import path from 'path';
 import {
  PresetType,
@@ -12,18 +12,21 @@ import {
  TypesType,
  ScriptsParamType,
  VisitType,
- StoreAllType,
- TimeConfigType
+ StoreMainType,
+ TimeConfigType,
+ OmikujiSelectType,
+ StoreAllType
 } from '../types/index';
 import { postErrorMessage } from './PostOmikuji';
 import { configs } from '../config';
-
-const OmikenPath = 'Omiken/index.json'; // おみくじデータ
+import { OmikujiSelectorFactory, TimerBasedSelector } from './TaskOmikujiSelect';
+import { OmikujiProcessor } from './TaskOmikujiProcess';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
  private errorHandler: ErrorHandler;
  private jsonReader: JsonFileReader;
+ private timerSelector: TimerBasedSelector;
 
  constructor(store: ElectronStore<StoreType>) {
   this.store = store;
@@ -38,6 +41,7 @@ export class InitDataLoader {
    const Omiken = this.store.get('Omiken', {}) as OmikenType;
 
    return {
+    store: this.store,
     Omiken,
     OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
     Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
@@ -45,7 +49,8 @@ export class InitDataLoader {
     Scripts: this.loadDirectoryContents<ScriptsParamType>(configs.ScriptsRoot, 'js'),
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
-    TimeConfig: this.initializeTimeConfig()
+    TimeConfig: this.initializeTimeConfig(),
+    timerSelector: OmikujiSelectorFactory.create('timer') as TimerBasedSelector
    };
   } catch (error) {
    this.errorHandler.handle('プラグインデータの読み込み中にエラーが発生', error);
@@ -118,7 +123,6 @@ class JsonFileReader implements FileReader<unknown> {
   try {
    if (!fs.existsSync(filePath)) {
     this.errorHandler.handle(`ファイルが見つかりません: ${filePath}`);
-    return null;
    }
 
    const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -126,13 +130,11 @@ class JsonFileReader implements FileReader<unknown> {
 
    if (!parsedData) {
     this.errorHandler.handle(`無効なデータ: ${filePath}`);
-    return null;
    }
 
    return parsedData;
   } catch (error) {
    this.errorHandler.handle(`ファイル読み込みエラー: ${filePath}`, error);
-   return null;
   }
  }
 }
@@ -153,4 +155,16 @@ export function filterTypes(types: Record<TypesType, string[]>, rules: Record<st
   result[typeKey] = types[typeKey].map((id: string) => rules[id]).filter((rule) => rule !== undefined);
   return result;
  }, {} as Record<TypesType, RulesType[]>);
+}
+
+// timerのセットアップ
+export function timerSetup(StoreAll: StoreMainType) {
+ this.timerSelector.setupTimers(
+  StoreAll.OmikenTypesArray.timer,
+  StoreAll.Omiken.omikujis,
+  async (result: OmikujiSelectType) => {
+   const processor = new OmikujiProcessor(StoreAll, result);
+   await processor.process();
+  }
+ );
 }
