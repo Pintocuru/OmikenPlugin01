@@ -8,7 +8,9 @@ import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';
 import { TaskCommentInstance } from './Modules/TaskCommentInstance';
-import { OmikujiSelectorFactory } from './Modules/TaskOmikujiSelect';
+import { OmikujiSelectorFactory, TimerBasedSelector } from './Modules/TaskOmikujiSelect';
+import { OmikujiProcessor } from './Modules/TaskOmikujiProcess';
+import { postErrorMessage } from './Modules/PostOmikuji';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -26,7 +28,7 @@ const plugin: OnePlugin = {
   Games: {}
  },
  // プラグインの初期化
- init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
+ async init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
   this.store = store;
 
   // JSONからロード
@@ -35,8 +37,15 @@ const plugin: OnePlugin = {
   Object.assign(this, loader.loadPluginData());
 
   // Timerインスタンスを生成
-  const timerSelector = OmikujiSelectorFactory.create('timer');
-  timerSelector.selectOmikuji(this.OmikenTypesArray.timer, this.Omiken.omikujis);
+  // わんコメがセットアップ終了前に起動するとバグるので5秒待機
+  // コメントは枠生成する機能があるので、それでバグるみたいです
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  this.timerSelector = OmikujiSelectorFactory.create('timer') as TimerBasedSelector;
+  this.timerSelector.setupTimers(this.OmikenTypesArray.timer, this.Omiken.omikujis, async (result) => {
+   const processor = new OmikujiProcessor(this, result);
+   await processor.process();
+  });
+  postErrorMessage('おみくじBOTプラグインが起動しました', 'info');
  },
 
  // filterComment:コメントを加工・変更する
@@ -61,6 +70,15 @@ const plugin: OnePlugin = {
   if (result.Games) this.Games = result.Games;
   if (result.Visits) this.Visits = result.Visits;
   if (result.TimeConfig) this.TimeConfig = result.TimeConfig;
+ },
+
+ // 終了時の処理
+ destroy(this: StoreAllType): void {
+  // タイマーが存在する場合のみ破棄
+  if (this.timerSelector) {
+   this.timerSelector.destroy();
+   this.timerSelector = undefined;
+  }
  },
 
  // called when a request is made to the plugin-specific

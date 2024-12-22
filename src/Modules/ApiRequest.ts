@@ -115,6 +115,6 @@ class BackupService {
  constructor(private type: string) {}
 
  createBackup(data: any) {
-  console.log(`Backup created for type: ${this.type}`, data);
+  console.info(`Backup created for type: ${this.type}`, data);
  }
 }

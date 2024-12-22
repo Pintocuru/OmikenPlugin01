@@ -55,19 +55,21 @@ export class OmikujiProcessor {
   const { visitData, game } = this.context;
   const selectRuleId = this.omikuji.selectRuleId;
 
+  // gameがundefinedの場合に備えたデフォルト値を設定
   this.context.game = {
    ...game,
    id: selectRuleId,
-   draws: (game.draws || 0) + 1,
-   totalDraws: (game.totalDraws || 0) + 1
+   draws: (game?.draws ?? 0) + 1,
+   totalDraws: (game?.totalDraws ?? 0) + 1
   };
 
   if (this.comment && visitData) {
+   // visitDataがundefinedの場合に備えたデフォルト値を設定
    this.context.visitData = {
     ...visitData,
     id: selectRuleId,
-    draws: (visitData.draws || 0) + 1,
-    totalDraws: (visitData.totalDraws || 0) + 1,
+    draws: (visitData?.draws ?? 0) + 1,
+    totalDraws: (visitData?.totalDraws ?? 0) + 1,
     // statusの付与・更新
     ...(this.omikuji.status && { status: this.omikuji.status })
    };
@@ -159,12 +161,13 @@ export class OmikujiProcessor {
     [this.omikuji.selectRuleId]: this.context.game
    }
   };
-  result.TimeConfig = {
-   ...this.storeAll.TimeConfig,
-   lastTime: Date.now(),
-   lastUserId: this.comment.data.userId
-  };
   if (this.comment && this.context.visit) {
+   // TimeConfigの更新はcommentがある場合のみ(将来、setList/reactionsでも使うかも)
+   result.TimeConfig = {
+    ...this.storeAll.TimeConfig,
+    lastTime: Date.now(),
+    lastUserId: this.comment.data.userId
+   };
    result.Visits = {
     ...this.storeAll.Visits,
     [this.comment.data.userId]: { ...this.context.visit }

@@ -67,21 +67,18 @@ export class CommentBasedSelector extends BaseOmikujiSelector {
  }
 
  private processRule(rule: RulesType, omikujis: Record<string, OmikujiType>): OmikujiType | null {
-  // ルールのthresholdチェック
-  const checker = new ThresholdChecker(rule, this.options.comment, this.options.visit, this.options.timeConfig);
-  const isValid = rule.threshold.every((threshold) => checker.check(threshold));
-  if (!isValid) return null;
+  const { timeConfig, comment, visit } = this.options;
+  const checker = new ThresholdChecker(rule, timeConfig, comment, visit);
 
-  // 有効なおみくじの取得
+  // ルールが有効でない場合は null を返す
+  if (!checker.checkAll(rule.threshold)) return null;
+
+  // 有効なおみくじをフィルタリング
   const validOmikujis = rule.enableIds
    .map((id) => omikujis[id])
-   .filter((omikuji) => {
-    return omikuji.threshold.every((threshold) => checker.check(threshold));
-   });
+   .filter((omikuji) => checker.checkAll(omikuji.threshold));
 
-  if (validOmikujis.length === 0) return null;
-
-  return this.selectByWeight(validOmikujis);
+  return validOmikujis.length > 0 ? this.selectByWeight(validOmikujis) : null;
  }
 }
 
@@ -104,6 +101,7 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
  selectOmikuji(rules: RulesType[], omikujis: Record<string, OmikujiType>): OmikujiSelectType | null {
   for (const rule of rules) {
    const result = this.selectOmikujiForRule(rule, omikujis);
+   console.log(result);
    if (result) return result;
   }
   return null;
@@ -125,7 +123,9 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
    nextTime = new Date(now.getTime() + minutes * 60000);
   }
 
-  return nextTime.getTime() - now.getTime();
+  const delay = nextTime.getTime() - now.getTime();
+  console.log(`Calculated next interval: ${delay}ms (BaseZero: ${isBaseZero})`);
+  return delay;
  }
 
  // タイマーを設定して定期実行を開始（複数ルール対応）
@@ -140,15 +140,23 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
    const { minutes, isBaseZero } = rule.timerConfig;
    if (minutes < 1 || minutes > 60) return;
 
+   // 即時実行を追加
+   const immediateResult = this.selectOmikujiForRule(rule, omikujis);
+   // テストswitch(本番は0にすること)
+   if (0 && immediateResult) callback(immediateResult);
+
    // 最初の実行までの待機時間を計算
    const initialDelay = this.calculateNextInterval(minutes, isBaseZero);
+   console.log(`Setting up timer for rule ${rule.id}: initial delay ${initialDelay}ms, interval ${minutes} minutes`);
 
    // 最初の実行のタイマーをセット
    setTimeout(() => {
-    // 定期実行を開始
+    console.log(`Initial execution for rule ${rule.id}`);
     const timer = setInterval(() => {
+     console.log(`Executing periodic check for rule ${rule.id}`);
      const result = this.selectOmikujiForRule(rule, omikujis);
      if (result) {
+      console.log(`Omikuji selected for rule ${rule.id}:`, result);
       callback(result);
      }
     }, minutes * 60000);
@@ -158,6 +166,7 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
     // 初回実行
     const result = this.selectOmikujiForRule(rule, omikujis);
     if (result) {
+     console.log(`Omikuji selected (initial) for rule ${rule.id}:`, result);
      callback(result);
     }
    }, initialDelay);
@@ -167,14 +176,14 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
  // 単一ルールに対するおみくじ選択
  private selectOmikujiForRule(rule: RulesType, omikujis: Record<string, OmikujiType>): OmikujiSelectType | null {
   const validOmikujis = rule.enableIds.map((id) => omikujis[id]).filter(Boolean);
-  const selectedOmikuji = this.selectByWeight(validOmikujis);
+  const selectedOmikji = this.selectByWeight(validOmikujis);
 
-  if (selectedOmikuji) {
-   return {
-    ...selectedOmikuji,
-    selectRuleId: rule.id
-   };
+  if (selectedOmikji) {
+   console.log(`Omikuji selected for rule ${rule.id}:`, selectedOmikji);
+   return { ...selectedOmikji, selectRuleId: rule.id };
   }
+
+  console.log(`No valid omikuji found for rule ${rule.id}`);
   return null;
  }
 

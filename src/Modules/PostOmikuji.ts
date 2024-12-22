@@ -64,20 +64,20 @@ export class PostMessages implements PostService {
 
     // `type` に応じた処理
     switch (type) {
-      case "onecomme": // わんコメ
-        if (chara) {
-          await this.postOneComme(post, chara);
-        }
-        break;
-      case "party": // WordParty
-        await this.postWordParty(delaySeconds, content);
-        break;
-      case "speech": // スピーチ(音声のみ)
-        await this.postSpeech(delaySeconds, content);
-        break;
-      case "error": // わんコメ(error用)
-        await this.postError(delaySeconds, content);
-        break;
+     case 'onecomme': // わんコメ
+      if (chara) {
+       await this.postOneComme(post, chara);
+      }
+      break;
+     case 'party': // WordParty
+      await this.postWordParty(delaySeconds, content);
+      break;
+     case 'speech': // スピーチ(音声のみ)
+      await this.postSpeech(delaySeconds, content);
+      break;
+     case 'error': // わんコメ(error用、post.generatorParamは名前)
+      await this.postError(delaySeconds, content, post.generatorParam);
+      break;
     }
   }
 
@@ -159,7 +159,8 @@ export class PostMessages implements PostService {
   // わんコメへエラーメッセージを投稿
   private async postError(
     delaySeconds: number,
-    content: string
+    content: string,
+    name: string = 'エラーメッセージ'
   ): Promise<void> {
     const request: postOneCommeRequestType = {
       service: {
@@ -168,7 +169,7 @@ export class PostMessages implements PostService {
       comment: {
         id: Date.now() + Math.random().toString().slice(2, 12),
         userId: configs.botUserId,
-        name: "エラーメッセージ",
+        name,
         comment: content,
         profileImage: "",
         badges: [],
@@ -238,13 +239,14 @@ export class PostMessages implements PostService {
 }
 
 // エラーメッセージを投稿
-export function postErrorMessage(content: string): void {
-  const post: OneCommePostType[] = [
-    {
-      type: "error",
-      delaySeconds: -1,
-      content,
-    },
-  ];
-  new PostMessages(post, {});
+export function postErrorMessage(content: string, name?: string): void {
+ const post: OneCommePostType[] = [
+  {
+   generatorParam: name, // 名前で使用
+   type: 'error',
+   delaySeconds: -1,
+   content
+  }
+ ];
+ new PostMessages(post, {});
 }

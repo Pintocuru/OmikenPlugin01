@@ -4,6 +4,7 @@ import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
 import { CharaType, PresetType, ScriptsParamType } from './preset';
+import { TimerBasedSelector } from '@/Modules/TaskOmikujiSelect';
 
 // ---------------------------------------------------
 
@@ -22,6 +23,7 @@ export interface StoreAllType extends StoreType {
  Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsParamType>;
+ timerSelector?: TimerBasedSelector;
 }
 
 // ユーザーデータ(全体)
