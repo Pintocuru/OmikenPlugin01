@@ -1,8 +1,8 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, VisitType, GameType, StoreAllType, StoreApiType, PluginUpdateData } from './types';
+import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from './types';
 import { configs } from './config';
-import { InitDataLoader, timerSetup } from './Modules/InitDataLoader';
+import { InitDataLoader, startReadyCheck, timerSetup } from './Modules/InitDataLoader';
 import { RequestHandler } from './Modules/ApiRequest';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -13,7 +13,7 @@ import { postErrorMessage } from './Modules/PostOmikuji';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: configs.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.0.8', // プラグインのバージョン番号
+ version: '0.0.9', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://onecomme.com', // サポートページのURL
  // services:枠情報,filter.comment:コメント
@@ -27,17 +27,21 @@ const plugin: OnePlugin = {
  },
  // プラグインの初期化
  async init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
-  // 初期化してthisに上書き
-  const loader = new InitDataLoader(store);
-  Object.assign(this, loader.loadPluginData());
+  try {
+   // わんコメの枠データが取得できる(=セットアップ完了)まで待つ
+   await startReadyCheck();
 
-  // わんコメがセットアップ終了前に起動するとバグるので5秒待機
-  // コメントは枠生成する機能があるので、それでバグるみたいです
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+   // 初期化してthisに上書き
+   const loader = new InitDataLoader(store);
+   Object.assign(this, loader.loadPluginData());
+   await timerSetup(this); // timerのセットアップ
 
-  // timerのセットアップ
-  timerSetup(this);
-  postErrorMessage('おみくじBOTプラグインが起動しました', 'info');
+   // プラグインの起動メッセージ
+   postErrorMessage('おみくじBOTプラグインが起動したよ', 'info');
+  } catch (error) {
+   console.error('Failed to initialize due to timeout or API error:', error);
+   return;
+  }
  },
 
  // filterComment:コメントを加工・変更する
@@ -59,9 +63,9 @@ const plugin: OnePlugin = {
 
   // おみくじの処理
   const result: PluginUpdateData = await Instance.process();
-  if (result.Games) this.Games = result.Games;
-  if (result.Visits) this.Visits = result.Visits;
-  if (result.TimeConfig) this.TimeConfig = result.TimeConfig;
+  Object.entries(result).forEach(([key, value]) => {
+   if (value && this[key]) this[key] = value;
+  });
  },
 
  // 終了時の処理

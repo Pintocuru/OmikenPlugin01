@@ -17,7 +17,7 @@ import {
  OmikujiSelectType,
  StoreAllType
 } from '../types/index';
-import { postErrorMessage } from './PostOmikuji';
+import { getServices, postErrorMessage } from './PostOmikuji';
 import { configs } from '../config';
 import { OmikujiSelectorFactory, TimerBasedSelector } from './TaskOmikujiSelect';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
@@ -158,8 +158,12 @@ export function filterTypes(types: Record<TypesType, string[]>, rules: Record<st
 }
 
 // timerのセットアップ
-export function timerSetup(StoreAll: StoreMainType) {
- this.timerSelector.setupTimers(
+export async function timerSetup(StoreAll: StoreAllType) {
+ // timerが空の場合、処理を終了
+ if (StoreAll.OmikenTypesArray?.timer.length === 0) return;
+
+ // timerのセットアップ
+ StoreAll.timerSelector.setupTimers(
   StoreAll.OmikenTypesArray.timer,
   StoreAll.Omiken.omikujis,
   async (result: OmikujiSelectType) => {
@@ -167,4 +171,33 @@ export function timerSetup(StoreAll: StoreMainType) {
    await processor.process();
   }
  );
+}
+
+// データが取得できるまで待つ関数
+export async function startReadyCheck() {
+  const checkInterval = 1000; // 最初の1秒間隔
+  const extendedInterval = 15000; // 15秒間隔
+  const startTime = Date.now();
+
+  while (true) {
+    try {
+      // APIエンドポイントをチェック
+      const dataArray = await getServices('http://localhost:11180/api');
+
+      if (dataArray && dataArray.length > 0) {
+        // データが取得できたらループを抜ける
+        console.log('Data is ready.');
+        break;
+      }
+    } catch (error) {
+      console.log('API not ready yet:', error);
+    }
+
+    // 10秒間は1秒間隔で再チェック
+    const elapsedTime = Date.now() - startTime;
+    const interval = elapsedTime >= 10000 ? extendedInterval : checkInterval;
+
+    // 指定された間隔で再チェック
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
 }
