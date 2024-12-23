@@ -5,6 +5,8 @@ import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
 import { CharaType, ScriptsParamType } from './preset';
 import { TimerBasedSelector } from '@/Modules/TaskOmikujiSelect';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
+import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 
 // ---------------------------------------------------
 
@@ -33,8 +35,9 @@ export interface StoreApiType extends StoreType {
 
 // 全体設定用の型
 export interface StoreAllType extends StoreMainType {
-  Presets: Record<string, OmikenType>;
-  timerSelector: TimerBasedSelector;
+ Presets: Record<string, OmikenType>;
+ filterCommentProcess(comment: Comment, userData: UserNameData): void;
+ timerSelector: TimerBasedSelector;
 }
 
 // プラグインのデータを更新するreturn用の型

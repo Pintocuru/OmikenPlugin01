@@ -9,6 +9,7 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';
 import { TaskCommentInstance } from './Modules/TaskCommentInstance';
 import { postErrorMessage } from './Modules/PostOmikuji';
+import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -50,22 +51,32 @@ const plugin: OnePlugin = {
   if (comment.data.userId === configs.botUserId) {
    // isOwner(isSilent) なら読み上げを行わない
    if (comment.data.isOwner) comment.data.speechText = ' ';
-   return comment;
+  } else {
+   // 残りの処理を非同期で実行
+   this.filterCommentProcess(comment, userData);
   }
+  return comment;
+ },
 
-  // TimeConfig.lcをインクリメント
-  this.TimeConfig.lc++;
+ // filterCommentProcess:BOT処理
+ async filterCommentProcess(this: StoreAllType, comment: Comment, userData: UserNameData) {
+  try {
+   this.TimeConfig.lc++; // TimeConfig.lcをインクリメント
 
-  // インスタンスの発行
-  const Instance = new TaskCommentInstance(this, comment, userData);
-  // ユーザー情報の更新
-  this.Visits[comment.data.userId] = Instance.returnVisit();
+   // インスタンスの発行
+   const Instance = new TaskCommentInstance(this, comment, userData);
+   // ユーザー情報の更新
+   this.Visits[comment.data.userId] = Instance.returnVisit();
 
-  // おみくじの処理
-  const result: PluginUpdateData = await Instance.process();
-  Object.entries(result).forEach(([key, value]) => {
-   if (value && this[key]) this[key] = value;
-  });
+   // おみくじの処理
+   const result: PluginUpdateData = await Instance.process();
+   Object.entries(result).forEach(([key, value]) => {
+    if (value && this[key]) this[key] = value;
+   });
+  } catch (error) {
+   console.error('Error in background processing:', error);
+   postErrorMessage('処理にエラーが起きたみたい。');
+  }
  },
 
  // 終了時の処理

@@ -1,4 +1,4 @@
-// src/scripts/TaskCommentInstance.ts
+// src/Modules/TaskCommentInstance.ts
 
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import {

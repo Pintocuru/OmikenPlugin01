@@ -1,4 +1,4 @@
-// src/scripts/PlaceProcess.ts
+// src/Modules/PlaceProcess.ts
 
 import { PlaceType, PlaceValueType, OmikujiType } from "../../src/types";
 

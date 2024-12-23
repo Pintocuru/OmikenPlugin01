@@ -80,7 +80,7 @@ export class PostMessages implements PostService {
   const DefaultFrameId = !configs.isCreateService ? this.services[0].id : null;
 
   // 画像のファイルパスを確認
-  const profileImage = path.join(configs.dataRoot, 'Charas/', charaImage);
+  const profileImage = path.join(configs.imgRoot, charaImage);
   // テスト:画像が存在しない場合は、エラーを表示
   fs.access(profileImage, fs.constants.F_OK, (err) => {
    if (err) console.error('Image does not exist:', profileImage);

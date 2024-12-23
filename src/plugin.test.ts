@@ -35,13 +35,13 @@ describe.skip('plugin.init:初期化テスト', () => {
 });
 
 describe('各種関数のテスト', () => {
- beforeEach(() => {
+ beforeEach(async () => {
   // 初期化を実行
-  plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
+ await plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
  });
 
- test('filterComment:おみくじができる ', () => {
-  const result = plugin.filterComment(commentMock, null, null);
+ test('filterComment:おみくじができる ', async () => {
+   await plugin.filterCommentProcess(commentMock, null, null);
  });
 
 });

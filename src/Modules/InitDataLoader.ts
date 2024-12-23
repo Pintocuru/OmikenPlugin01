@@ -1,9 +1,8 @@
-// src/scripts/InitDataLoader.js
+// src/Modules/InitDataLoader.js
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 import {
- PresetType,
  OmikenType,
  RulesType,
  CharaType,
@@ -12,7 +11,6 @@ import {
  TypesType,
  ScriptsParamType,
  VisitType,
- StoreMainType,
  TimeConfigType,
  OmikujiSelectType,
  StoreAllType
@@ -35,7 +33,7 @@ export class InitDataLoader {
  }
 
  // Omiken/presetデータ読み込み
- loadPluginData(): StoreAllType {
+ loadPluginData(): Omit<StoreAllType, 'filterCommentProcess'> {
   try {
    // TODO 後でdefault値を入れたいかも
    const Omiken = this.store.get('Omiken', {}) as OmikenType;
