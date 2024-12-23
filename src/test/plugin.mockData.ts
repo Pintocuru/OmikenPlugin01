@@ -1,10 +1,11 @@
 // src/plugin.mockData.ts
 
 import ElectronStore from 'electron-store';
-import { StoreType } from './types';
+import { StoreType } from '../types';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import fs from 'fs';
 import path from 'path';
+import { configs } from '../config';
 
 // テストコメント
 export const commentMock: Comment = {
@@ -34,7 +35,7 @@ export const commentMock: Comment = {
 
 
 // プラグインデータモック
-const mockFilePath = 'C:/Users/curuu/AppData/Roaming/onecomme/plugins/OmiKenPlugin/state.json';
+const mockFilePath = `C:/Users/curuu/AppData/Roaming/onecomme/plugins/${configs.PLUGIN_UID}/state.json`;
 export const stateMock: StoreType = JSON.parse(fs.readFileSync(mockFilePath, 'utf-8'));
 
 // ElectronStoreモックの作成

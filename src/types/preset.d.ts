@@ -1,4 +1,4 @@
-// src/types/preset.ts
+// src/types/preset.d.ts
 import { BaseType, GameType, OneCommePostType, visitDataType } from './index';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';

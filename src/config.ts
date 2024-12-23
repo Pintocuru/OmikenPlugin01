@@ -1,5 +1,19 @@
 // src/config.ts
 
+// プラグインID
+// フォルダ名とこの名前は、必ず合わせてください
+const PLUGIN_UID = 'OmikenPlugin01';
+
+// わんコメに自動で枠を作成してもいいか
+// falseにした場合、新しく枠が作成されなくなります。
+const isCreateService = true;
+
+// わんコメに投稿する際の基本遅延(秒)
+const basicDelaySeconds = 1;
+
+// 設定ここまで
+//----------------------------------------------------------------
+
 interface Configs {
  imgRoot: string;
  dataRoot: string;
@@ -14,8 +28,6 @@ interface Configs {
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 const isProduction = process.env.NODE_ENV === 'development';
 
-const PLUGIN_UID = 'OmikenPlugin01';
-
 // 設定オブジェクト
 export const configs: Configs = {
  imgRoot: isProduction // dataのディレクトリ
@@ -27,8 +39,8 @@ export const configs: Configs = {
  ScriptsRoot: isProduction // gameのディレクトリ
   ? __dirname + '../../dist/Scripts' // 開発環境用
   : __dirname + '/Scripts', // 本番環境用
- isCreateService: true, // わんコメに自動で枠を作成してもいいか
- basicDelaySeconds: 1, // わんコメに投稿する際の基本遅延
+ isCreateService, // わんコメに自動で枠を作成してもいいか
+ basicDelaySeconds, // わんコメに投稿する際の基本遅延
  botUserId: 'FirstCounter', // このプラグインが投稿するuserId
  PLUGIN_UID // プラグイン固有の一意のID
 };

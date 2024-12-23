@@ -5,7 +5,7 @@
  "main": "public/plugin.js",
  "scripts": {
   "build": "tsc",
-  "test:plugin": "set NODE_ENV=development&& jest plugin.test.ts"
+  "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts"
  },
  "keywords": [
   "わんコメ",

@@ -1,4 +1,4 @@
-// src/types/editor.ts
+// src/types/editor.d.ts
 import {
   OmikenTypeMap,
   OmikenType,

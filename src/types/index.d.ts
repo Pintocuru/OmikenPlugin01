@@ -1,4 +1,4 @@
-// src/types/index.ts
+// src/types/index.d.ts
 // 型定義総合
 
 // エディターとプラグインの両方で共有される型定義

@@ -1,15 +1,11 @@
 // src/plugin.test.ts
 
-import axios from 'axios';
 import ElectronStore from 'electron-store';
-import { OmikujiType, PlaceType, StoreMainType, StoreType } from './types';
+import { OmikujiType, PlaceType, StoreMainType, StoreType } from '../types';
 import { commentMock, MockElectronStore, storeMock } from './plugin.mockData';
-import { configs } from './config';
-import { PluginRequest } from '@onecomme.com/onesdk/types/Plugin';
-import { RequestHandler } from './Modules/ApiRequest';
-import { PlaceProcess } from './Modules/PlaceProcess';
+import { PlaceProcess } from '../Modules/PlaceProcess';
 
-const plugin = require('./plugin');
+const plugin = require('../plugin');
 
 jest.mock('electron-store', () => {
  return jest.fn(() => new MockElectronStore());

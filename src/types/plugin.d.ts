@@ -1,4 +1,4 @@
-// src/types/plugin.ts
+// src/types/plugin.d.ts
 
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';

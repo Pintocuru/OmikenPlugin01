@@ -19,12 +19,10 @@
   },
   // コンパイル対象ファイル
   "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.vue"
+    "src/**/*"
   ],
   // 除外するディレクトリ
   "exclude": [
-    "node_modules"
+    "node_modules","src/test/*",
   ]
 }
