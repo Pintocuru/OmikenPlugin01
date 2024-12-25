@@ -1,6 +1,6 @@
 // src/types/Omiken.d.ts
 
-import { ScriptParam } from "./";
+import { ScriptParam } from "./preset";
 
 ///////////////////////////////////
 // Omiken
@@ -118,7 +118,7 @@ export type PlaceValueType = {
 export interface ThresholdType {
   conditionType: ConditionType;
   target?: null; // 前回のコメントと今回のコメントが同一人物なら適用
-  coolDown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
+  CoolDown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
   syoken?: SyokenCondition; // 初見・久しぶり
   access?: AccessCondition; // ユーザーの役職
   count?: CountCondition; // 数値を参照する
@@ -128,7 +128,7 @@ export interface ThresholdType {
 // condition選択用
 export type ConditionType =
   | "target"
-  | "coolDown"
+  | "CoolDown"
   | "syoken"
   | "access"
   | "count"

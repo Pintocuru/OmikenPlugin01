@@ -1,10 +1,10 @@
 // src/types/plugin.d.ts
 
-import { Service } from '@onecomme.com/onesdk/types/Service';
-import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
 import { CharaType, ScriptsParamType } from './preset';
 import { TimerBasedSelector } from '@/Modules/TaskOmikujiSelect';
+import { Service } from '@onecomme.com/onesdk/types/Service';
+import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 
@@ -12,25 +12,25 @@ import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 
 // ElectronStore用の型
 export interface StoreType {
-  Omiken: OmikenType;
-  Visits: Record<string, VisitType>;
-  Games: Record<string, GameType>;
+ Omiken: OmikenType;
+ Visits: Record<string, VisitType>;
+ Games: Record<string, GameType>;
 }
 
 // おみくじBOT用の型
 export interface StoreMainType extends StoreType {
-  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
-  OmikenTypesArray?: Record<TypesType, RulesType[]>;
-  Charas: Record<string, CharaType>;
-  Scripts: Record<string, ScriptsParamType>;
-  TimeConfig: TimeConfigType;
+ store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
+ OmikenTypesArray?: Record<TypesType, RulesType[]>;
+ Charas: Record<string, CharaType>;
+ Scripts: Record<string, ScriptsParamType>;
+ TimeConfig: TimeConfigType;
 }
 
 // API用の型
 export interface StoreApiType extends StoreType {
-  Presets: Readonly<Record<string, OmikenType>>;
-  Charas: Record<string, CharaType>;
-  Scripts: Record<string, ScriptsParamType>;
+ Presets: Readonly<Record<string, OmikenType>>;
+ Charas: Record<string, CharaType>;
+ Scripts: Record<string, ScriptsParamType>;
 }
 
 // 全体設定用の型
@@ -138,30 +138,29 @@ export type ParamsType = DataModeParams | BackupModeParams;
 
 // データ取得用型定義
 interface DataModeParams {
-  mode: Mode.Data;
-  type: DataType.Omiken | DataType.Presets | DataType.Charas | DataType.Scripts | DataType.Visits | DataType.Games;
+ mode: Mode.Data;
+ type: DataType.Omiken | DataType.Presets | DataType.Charas | DataType.Scripts | DataType.Visits | DataType.Games;
 }
 
 // バックアップ用型定義
 interface BackupModeParams {
-  mode: Mode.Backup;
-  type: DataType.Omiken | DataType.Presets | DataType.TimeConfig;
+ mode: Mode.Backup;
+ type: DataType.Omiken | DataType.Presets | DataType.TimeConfig;
 }
-
 
 // モードを定義
 export enum Mode {
-  Data = 'data', // データ取得
-  Backup = 'backup', // バックアップ(エディター用)
+ Data = 'data', // データ取得
+ Backup = 'backup' // バックアップ(エディター用)
 }
 
 // データの種類を定義
 export enum DataType {
-  Omiken = 'Omiken', // おみくじデータ
-  Presets = 'Presets', // preset(おみくじデータ)
-  Charas = 'Charas', // キャラデータ
-  Scripts = 'Scripts', // スクリプト
-  Visits = 'Visits', // 個人データ
-  Games = 'Games', // スクリプトデータ
-  TimeConfig = 'TimeConfig', // 設定(未使用かも)
+ Omiken = 'Omiken', // おみくじデータ
+ Presets = 'Presets', // preset(おみくじデータ)
+ Charas = 'Charas', // キャラデータ
+ Scripts = 'Scripts', // スクリプト
+ Visits = 'Visits', // 個人データ
+ Games = 'Games', // スクリプトデータ
+ TimeConfig = 'TimeConfig' // 設定(未使用かも)
 }

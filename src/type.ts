@@ -1,11 +1,11 @@
-// src/types/index.d.ts
+// src/type.ts
 // 型定義総合
 
 // エディターとプラグインの両方で共有される型定義
-export * from "./Omiken";
+export * from '@/types/Omiken';
 // エディター機能で使用する型定義
-export * from "./editor";
+export * from '@/types/editor';
 // プラグイン機能で使用する型定義
-export * from "./plugin";
+export * from '@/types/plugin';
 // presetに関する型定義
-export * from "./preset";
+export * from '@/types/preset';

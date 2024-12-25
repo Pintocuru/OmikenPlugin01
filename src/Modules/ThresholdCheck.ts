@@ -9,7 +9,7 @@ import {
  ThresholdType,
  TimeConfigType,
  VisitType
-} from '../types/index';
+} from '@/type';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // 条件
@@ -30,7 +30,7 @@ export class ThresholdChecker {
  check(threshold: ThresholdType): boolean {
   const conditionMap = {
    target: () => this.matchIsTarget(),
-   coolDown: () => this.matchIsCooldown(threshold.coolDown),
+   CoolDown: () => this.matchIsCoolDown(threshold.CoolDown),
    syoken: () => this.matchIsSyoken(threshold.syoken),
    access: () => this.matchIsAccess(threshold.access),
    count: () => this.matchIsCount(threshold.count),
@@ -46,8 +46,8 @@ export class ThresholdChecker {
  }
 
  // クールダウンのチェック
- private matchIsCooldown(coolDown: number): boolean {
-  return this.TimeConfig.lastTime > Date.now() + coolDown * 1000;
+ private matchIsCoolDown(CoolDown: number): boolean {
+  return this.TimeConfig.lastTime > Date.now() + CoolDown * 1000;
  }
 
  // 初見・久しぶりのチェック

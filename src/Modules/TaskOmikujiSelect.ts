@@ -1,5 +1,5 @@
 // src/Modules/TaskOmikujiSelect.js
-import { OmikujiSelectType, OmikujiType, RulesType, TimeConfigType, TypesType, VisitType } from '@/types';
+import { OmikujiSelectType, OmikujiType, RulesType, TimeConfigType, TypesType, VisitType } from '@/type';
 import { ThresholdChecker } from './ThresholdCheck';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 

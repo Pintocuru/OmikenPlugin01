@@ -1,7 +1,4 @@
 // src/Modules/InitDataLoader.js
-import ElectronStore from 'electron-store';
-import fs from 'fs';
-import path from 'path';
 import {
  OmikenType,
  RulesType,
@@ -14,11 +11,14 @@ import {
  TimeConfigType,
  OmikujiSelectType,
  StoreAllType
-} from '../types/index';
+} from '@/type';
+import { configs } from '@/config';
 import { getServices, postErrorMessage } from './PostOmikuji';
-import { configs } from '../config';
 import { OmikujiSelectorFactory, TimerBasedSelector } from './TaskOmikujiSelect';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
+import ElectronStore from 'electron-store';
+import fs from 'fs';
+import path from 'path';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。

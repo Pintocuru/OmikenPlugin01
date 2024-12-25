@@ -1,5 +1,6 @@
-// src/types/preset.d.ts
-import { BaseType, GameType, OneCommePostType, visitDataType } from './index';
+// src/types/preset.d.ts 
+import { BaseType, GameType, OneCommePostType } from './Omiken';
+import { visitDataType } from './plugin';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 

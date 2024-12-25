@@ -1,15 +1,15 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from './types';
-import { configs } from './config';
-import { InitDataLoader, startReadyCheck, timerSetup } from './Modules/InitDataLoader';
-import { RequestHandler } from './Modules/ApiRequest';
-import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
+import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from '@/type';
+import { configs } from '@/config';
+import { InitDataLoader, startReadyCheck, timerSetup } from '@/Modules/InitDataLoader';
+import { RequestHandler } from '@/Modules/ApiRequest';
+import { TaskCommentInstance } from '@/Modules/TaskCommentInstance';
+import { postErrorMessage } from '@/Modules/PostOmikuji';
 import ElectronStore from 'electron-store';
-import { TaskCommentInstance } from './Modules/TaskCommentInstance';
-import { postErrorMessage } from './Modules/PostOmikuji';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
+import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名

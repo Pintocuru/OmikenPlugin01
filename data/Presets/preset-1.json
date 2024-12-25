@@ -1040,7 +1040,7 @@
   "rulesOrder": ["1729669868469-531k4", "1730186223570-nxukm"],
   "preferences": {
     "basicDelay": 1,
-    "omikujiCooldown": 2,
+    "omikujiCoolDown": 2,
     "commentDuration": 5,
     "BotUserIDname": "FirstCounter"
   }

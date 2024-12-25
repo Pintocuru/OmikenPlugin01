@@ -1,7 +1,7 @@
 // src/Modules/BackupService.ts
+import { configs } from '@/config';
 import fs from "fs";
 import path from "path";
-import { configs } from "../config";
 
 export class BackupService {
   private backupDir: string;

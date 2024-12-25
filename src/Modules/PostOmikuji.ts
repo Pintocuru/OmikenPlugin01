@@ -1,7 +1,7 @@
 // src/Modules/PostOmikuji.js
 
-import { CharaType, OneCommePostType, postOneCommeRequestType } from '../../src/types/index';
-import { configs } from '../config';
+import { CharaType, OneCommePostType, postOneCommeRequestType } from '@/type';
+import { configs } from '@/config';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import axios from 'axios';
 import path from 'path';

@@ -1,15 +1,10 @@
 // src/Modules/TaskCommentInstance.ts
 
-import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
-import {
- StoreMainType,
- StoreType,
- TimeConfigType,
- VisitType
-} from '../../src/types/index';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
+import { StoreMainType, StoreType, TimeConfigType, VisitType } from '@/type';
 import { OmikujiSelectorFactory } from './TaskOmikujiSelect';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
+import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 //////////////////////////////////
 // コメントのインスタンス化

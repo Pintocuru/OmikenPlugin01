@@ -1,5 +1,4 @@
 // src/Modules/TaskOmikujiProcess.js
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import {
  GameType,
  OmikujiSelectType,
@@ -7,12 +6,12 @@ import {
  ScriptsReturnType,
  StoreMainType,
  StoreType,
- TimeConfigType,
  visitDataType,
  VisitType
-} from '@/types';
+} from '@/type';
 import { postErrorMessage, PostMessages } from './PostOmikuji';
 import { PlaceProcess } from './PlaceProcess';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 type OmikujiContext = {
  game: GameType;
