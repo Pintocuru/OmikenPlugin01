@@ -176,11 +176,11 @@ export class TimerBasedSelector extends BaseOmikujiSelector {
  // 単一ルールに対するおみくじ選択
  private selectOmikujiForRule(rule: RulesType, omikujis: Record<string, OmikujiType>): OmikujiSelectType | null {
   const validOmikujis = rule.enableIds.map((id) => omikujis[id]).filter(Boolean);
-  const selectedOmikji = this.selectByWeight(validOmikujis);
+  const selectedOmikuji = this.selectByWeight(validOmikujis);
 
-  if (selectedOmikji) {
-   console.log(`Omikuji selected for rule ${rule.id}:`, selectedOmikji);
-   return { ...selectedOmikji, selectRuleId: rule.id };
+  if (selectedOmikuji) {
+   console.log(`Omikuji selected for rule ${rule.id}:`, selectedOmikuji);
+   return { ...selectedOmikuji, selectRuleId: rule.id };
   }
 
   console.log(`No valid omikuji found for rule ${rule.id}`);

@@ -9,7 +9,7 @@ import {
 
 // エディター用型定義
 
-// AppEditer
+// AppEditor
 export interface AppEditerType {
   Omiken: OmikenType;
   Presets: Record<string, OmikenType>; // preset:Omiken

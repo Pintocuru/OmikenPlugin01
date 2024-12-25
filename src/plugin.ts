@@ -14,7 +14,7 @@ import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: configs.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.0.9', // プラグインのバージョン番号
+ version: '0.0.10', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://onecomme.com', // サポートページのURL
  // services:枠情報,filter.comment:コメント

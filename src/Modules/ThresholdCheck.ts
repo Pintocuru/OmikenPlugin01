@@ -30,7 +30,7 @@ export class ThresholdChecker {
  check(threshold: ThresholdType): boolean {
   const conditionMap = {
    target: () => this.matchIsTarget(),
-   cooldown: () => this.matchIsCooldown(threshold.cooldown),
+   coolDown: () => this.matchIsCooldown(threshold.coolDown),
    syoken: () => this.matchIsSyoken(threshold.syoken),
    access: () => this.matchIsAccess(threshold.access),
    count: () => this.matchIsCount(threshold.count),
@@ -46,8 +46,8 @@ export class ThresholdChecker {
  }
 
  // クールダウンのチェック
- private matchIsCooldown(cooldown: number): boolean {
-  return this.TimeConfig.lastTime > Date.now() + cooldown * 1000;
+ private matchIsCooldown(coolDown: number): boolean {
+  return this.TimeConfig.lastTime > Date.now() + coolDown * 1000;
  }
 
  // 初見・久しぶりのチェック

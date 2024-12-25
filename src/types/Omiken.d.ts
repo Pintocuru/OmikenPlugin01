@@ -72,7 +72,6 @@ export interface OmikujiType extends BaseType {
  weight: number; // 出現割合
  threshold: ThresholdType[]; // 発動条件
  status?: string; // ユーザーに対するステータスの付与
- isDelete?: boolean; // コメントを無効にするか // TODO 削除。元コメントは一切編集しない
  isSilent?: boolean; // BOTの読み上げを無効にするか
  script?: {
   scriptId: string; // 使用する外部スクリプトのid
@@ -119,7 +118,7 @@ export type PlaceValueType = {
 export interface ThresholdType {
   conditionType: ConditionType;
   target?: null; // 前回のコメントと今回のコメントが同一人物なら適用
-  cooldown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
+  coolDown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
   syoken?: SyokenCondition; // 初見・久しぶり
   access?: AccessCondition; // ユーザーの役職
   count?: CountCondition; // 数値を参照する
@@ -129,7 +128,7 @@ export interface ThresholdType {
 // condition選択用
 export type ConditionType =
   | "target"
-  | "cooldown"
+  | "coolDown"
   | "syoken"
   | "access"
   | "count"
