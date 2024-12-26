@@ -23,6 +23,7 @@
   ],
   // 除外するディレクトリ
   "exclude": [
-    "node_modules","src/test/*","src/types/*",
+    "node_modules",
+    "src/test/*",
   ]
 }

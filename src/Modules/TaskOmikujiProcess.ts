@@ -105,7 +105,7 @@ export class OmikujiProcessor {
    if (typeof func !== 'function') {
     throw new Error(`Function ${script.scriptId} is not registered`);
    }
-
+console.log(this.comment, script.params);
    return func(this.context.visitData, this.context.game, this.comment, script.params);
   } catch (error) {
    const errorMessage = `Script execution failed: ${error.message}`;

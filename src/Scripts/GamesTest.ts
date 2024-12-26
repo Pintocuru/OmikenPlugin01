@@ -1,32 +1,36 @@
 // scriptサンプル
 
-import { Comment } from "@onecomme.com/onesdk/types/Comment";
-import { OneCommePostType, ScriptParam, ScriptsReturnType, visitDataType } from "../types";
-import { GameType } from "../types";
+import { OneCommePostType, ScriptParam, ScriptsReturnType, visitDataType, GameType } from '@/type';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // ---
 
 // GouseiSuika専用の型定義
 type GameConfigs = {
-  small: GameConfigItem[][];
-  big: GameConfigItem[][];
+ small: GameConfigItem[][];
+ big: GameConfigItem[][];
 };
 
 type GameConfigItem = {
-  chance: number;
-  times?: number;
-  points: number;
-  damage?: number;
-  party: string;
+ chance: number;
+ times?: number;
+ points: number;
+ damage?: number;
+ party: string;
 };
 
-export function GamesTest(visitData: visitDataType, game: GameType, comment?: Comment, params:ScriptParam[] = []): ScriptsReturnType {
+export function GamesTest(
+ visitData: visitDataType,
+ game: GameType,
+ comment?: Comment,
+ params: ScriptParam[] = []
+): ScriptsReturnType {
  // ゲームモードの設定
  let currentMode = 0;
- const param = params[0]?.value;
- if (param === 'カボチャ') currentMode = 1;
- if (param === 'クジラ') currentMode = 2;
- const isWelcome = param === 'welcome';
+ const mode = params[0]?.value;
+ if (mode === '1') currentMode = 1; // カボチャゲーム
+ if (mode === '2') currentMode = 2; // クジラゲーム
+ const isWelcome = mode === 'welcome';
  const user = comment.data.displayName;
 
  // ゲームの設定データ

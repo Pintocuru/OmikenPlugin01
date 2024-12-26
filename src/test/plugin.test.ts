@@ -1,7 +1,8 @@
 // src/plugin.test.ts
 
 import ElectronStore from 'electron-store';
-import { OmikujiType, PlaceType, StoreMainType, StoreType } from '../types';
+import { OmikujiType, PlaceType } from '../types/Omiken';
+import { StoreType } from '../types/plugin';
 import { commentMock, MockElectronStore, storeMock } from './plugin.mockData';
 import { PlaceProcess } from '../Modules/PlaceProcess';
 
@@ -33,13 +34,12 @@ describe.skip('plugin.init:初期化テスト', () => {
 describe('各種関数のテスト', () => {
  beforeEach(async () => {
   // 初期化を実行
- await plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
+  await plugin.init({ store: storeMock }, { store: ElectronStore<StoreType> });
  });
 
  test('filterComment:おみくじができる ', async () => {
-   await plugin.filterCommentProcess(commentMock, null, null);
+  await plugin.filterCommentProcess(commentMock, null, null);
  });
-
 });
 
 describe.skip('PlaceProcess Class Tests', () => {
@@ -52,7 +52,14 @@ describe.skip('PlaceProcess Class Tests', () => {
   threshold: [],
   script: {
    scriptId: 'GamesTest',
-   params: [{}]
+   params: [
+    {
+     id: 'mode',
+     name: 'モード',
+     description: '0スイカ/1カボチャ/2クジラ',
+     value: '2'
+    }
+   ]
   },
   placeIds: [],
   post: [

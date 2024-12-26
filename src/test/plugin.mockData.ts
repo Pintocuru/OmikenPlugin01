@@ -1,11 +1,10 @@
 // src/plugin.mockData.ts
 
-import ElectronStore from 'electron-store';
-import { StoreType } from '../types';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
-import fs from 'fs';
-import path from 'path';
+import { StoreType } from '../types/plugin';
 import { configs } from '../config';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
+import ElectronStore from 'electron-store';
+import fs from 'fs';
 
 // テストコメント
 export const commentMock: Comment = {
@@ -32,7 +31,6 @@ export const commentMock: Comment = {
  },
  meta: { interval: 999999, tc: 10, no: 2, lc: 10 }
 };
-
 
 // プラグインデータモック
 const mockFilePath = `C:/Users/curuu/AppData/Roaming/onecomme/plugins/${configs.PLUGIN_UID}/state.json`;
