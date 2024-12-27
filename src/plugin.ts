@@ -1,6 +1,6 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from '@/type';
+import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from '@type';
 import { configs } from '@/config';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@/Modules/InitDataLoader';
 import { RequestHandler } from '@/Modules/ApiRequest';
@@ -68,14 +68,19 @@ const plugin: OnePlugin = {
    // ユーザー情報の更新
    this.Visits[comment.data.userId] = Instance.returnVisit();
 
+   // 5秒以上経過したコメントはおみくじの対象外
+   const isRecent = Date.now() < new Date(comment.data.timestamp).getTime() + 5000;
+   if (!isRecent) return
+
    // おみくじの処理
    const result: PluginUpdateData = await Instance.process();
    Object.entries(result).forEach(([key, value]) => {
     if (value && this[key]) this[key] = value;
    });
   } catch (error) {
-   console.error('Error in background processing:', error);
-   postErrorMessage('処理にエラーが起きたみたい。');
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error('Error in background processing:', errorMessage);
+  postErrorMessage('処理にエラーが起きたみたい。' + errorMessage);
   }
  },
 

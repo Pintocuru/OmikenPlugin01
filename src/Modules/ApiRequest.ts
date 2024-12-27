@@ -1,5 +1,5 @@
 import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { ParamsType, StoreApiType } from '@/type';
+import { ParamsType, StoreApiType } from '@type';
 import { configs } from '@/config';
 import { filterTypes } from './InitDataLoader';
 import path from 'path';

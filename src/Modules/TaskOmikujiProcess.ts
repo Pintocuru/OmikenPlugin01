@@ -8,7 +8,7 @@ import {
  StoreType,
  visitDataType,
  VisitType
-} from '@/type';
+} from '@type';
 import { postErrorMessage, PostMessages } from './PostOmikuji';
 import { PlaceProcess } from './PlaceProcess';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -105,7 +105,7 @@ export class OmikujiProcessor {
    if (typeof func !== 'function') {
     throw new Error(`Function ${script.scriptId} is not registered`);
    }
-console.log(this.comment, script.params);
+   console.log(this.comment, script.params);
    return func(this.context.visitData, this.context.game, this.comment, script.params);
   } catch (error) {
    const errorMessage = `Script execution failed: ${error.message}`;

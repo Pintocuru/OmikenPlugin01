@@ -2,9 +2,10 @@
   "compilerOptions": {
     "module": "commonjs", // モジュールシステム
     "target": "ES2020", // 出力するJavaScriptのバージョン
-    "noEmit": false, // 出力を無効にするか
+    "noEmit": false, // エラー時、出力を無効にするか
     "moduleResolution": "node", // モジュール解決方法
     "esModuleInterop": true, // ESモジュールとCommonJSのインポート互換
+    "removeComments": true, // コメントを削除するか
     "strict": false, // 厳格な型チェック
     "skipLibCheck": true, // ライブラリファイルの型チェック
     "forceConsistentCasingInFileNames": true, // 大文字と小文字を区別するか
@@ -14,6 +15,9 @@
       // エイリアス設定
       "@/*": [
         "src/*"
+      ],
+      "@type": [
+        "src/Modules/type.ts"
       ]
     }
   },

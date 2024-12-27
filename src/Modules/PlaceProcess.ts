@@ -1,5 +1,5 @@
 // src/Modules/PlaceProcess.ts
-import { PlaceType, PlaceValueType, OmikujiType } from "@/type";
+import { PlaceType, PlaceValueType, OmikujiType } from '@type';
 
 export class PlaceProcess {
  private placeholders: Record<string, string> = {};

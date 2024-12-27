@@ -1,6 +1,6 @@
 // src/Modules/TaskCommentInstance.ts
 
-import { StoreMainType, StoreType, TimeConfigType, VisitType } from '@/type';
+import { PluginUpdateData, StoreMainType, TimeConfigType, VisitType } from '@type';
 import { OmikujiSelectorFactory } from './TaskOmikujiSelect';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
@@ -28,28 +28,29 @@ export class TaskCommentInstance {
 
   // ユーザーの枠情報が空白または異なるなら、Visitを初期化
   this.resetVisit();
+  // 初期化したVisitを即座にstoreAllに反映
+  this.storeAll.Visits[this.comment.data.userId] = this.visit;
+
   // commentに擬似的なmetaデータを付与
   this.thisComment();
 
-  // 更新したVisitとTimeConfigをstoreAllに保存
-  this.storeAll.Visits[this.comment.data.userId] = this.visit;
+  // 更新したTimeConfigをstoreAllに保存
   this.storeAll.TimeConfig = this.TimeConfig;
  }
 
  // ユーザーの枠情報が空白または異なるなら、Visitを初期化
  private resetVisit() {
   // ユーザーのvisit初期化・更新
-  const visit = this.storeAll.Visits[this.comment.data.userId];
+  const visit = this.storeAll.Visits[this.comment.data.userId] || {} as VisitType;
   const { userId, name } = this.comment.data;
   // visit初期化・更新
   this.visit = {
-   ...visit,
-   status: visit.status || '',
-   lastPluginTime: visit.lastPluginTime || 0,
-   round: visit.round || 0,
-   visitData: visit.visitData || {},
-   name,
-   userId
+   status: visit?.status || '',
+   lastPluginTime: visit?.lastPluginTime || 0,
+   round: visit?.round || 0,
+   visitData: visit?.visitData || {},
+   name: this.comment.data.name,
+   userId: this.comment.data.userId
   };
 
   // pluginTimeが現在の枠と同じなら、2回目以降のコメント
@@ -103,7 +104,7 @@ export class TaskCommentInstance {
  }
 
  // おみくじの処理
- async process(): Promise<Partial<StoreType>> {
+ async process(): Promise<Partial<PluginUpdateData>> {
   // コメントモードでの使用
   const commentSelector = OmikujiSelectorFactory.create('comment', {
    comment: this.comment,
@@ -116,6 +117,15 @@ export class TaskCommentInstance {
    this.storeAll.OmikenTypesArray.comment,
    this.storeAll.Omiken.omikujis
   );
+
+  // おみくじがない場合はvisitだけ返す
+  if (!omikujiSelect) {
+   return {
+    Visits: this.storeAll.Visits,
+    Games: this.storeAll.Games,
+    TimeConfig: this.TimeConfig
+   };
+  }
 
   // Omikujiの処理
   const processor = new OmikujiProcessor(this.storeAll, omikujiSelect, this.comment);

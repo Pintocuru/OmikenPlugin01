@@ -1,6 +1,6 @@
 // src/plugin.mockData.ts
 
-import { StoreType } from '../types/plugin';
+import { StoreType } from '../Modules/type';
 import { configs } from '../config';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import ElectronStore from 'electron-store';

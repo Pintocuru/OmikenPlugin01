@@ -1,4 +1,4 @@
-// src/types/editor.d.ts
+// src/types/editor.ts
 import { OmikenTypeMap, OmikenType, TypesType } from './Omiken';
 import { CharaType, PresetType } from './preset';
 

@@ -1,4 +1,4 @@
-// src/types/Omiken.d.ts
+// src/types/Omiken.ts
 
 import { ScriptParam } from "./preset";
 

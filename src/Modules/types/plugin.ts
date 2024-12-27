@@ -1,8 +1,7 @@
-// src/types/plugin.d.ts
+// src/types/plugin.ts
 
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
 import { CharaType, ScriptsParamType } from './preset';
-import { TimerBasedSelector } from '@/Modules/TaskOmikujiSelect';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -37,7 +36,7 @@ export interface StoreApiType extends StoreType {
 export interface StoreAllType extends StoreMainType {
  Presets: Record<string, OmikenType>;
  filterCommentProcess(comment: Comment, userData: UserNameData): void;
- timerSelector: TimerBasedSelector;
+ timerSelector: any;
 }
 
 // プラグインのデータを更新するreturn用の型

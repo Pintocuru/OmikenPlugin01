@@ -1,6 +1,6 @@
-// src/types/preset.d.ts 
-import { BaseType, GameType, OneCommePostType } from './Omiken';
-import { visitDataType } from './plugin';
+// src/types/preset.ts
+import { BaseType, OneCommePostType } from './Omiken';
+import { visitDataType, GameType } from './plugin';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
@@ -45,7 +45,7 @@ export type ScriptsParamType = (
 
 // Scriptの返り値
 export type ScriptsReturnType = {
- gameParam?: ScriptParam[]; // ゲームパラメータ
+ scriptParam?: ScriptParam[]; // ゲームパラメータ
  postArray?: OneCommePostType[];
  placeholder: Placeholder; // プレースホルダー
  game: GameType;

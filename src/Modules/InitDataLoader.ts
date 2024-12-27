@@ -11,7 +11,7 @@ import {
  TimeConfigType,
  OmikujiSelectType,
  StoreAllType
-} from '@/type';
+} from '@type';;
 import { configs } from '@/config';
 import { getServices, postErrorMessage } from './PostOmikuji';
 import { OmikujiSelectorFactory, TimerBasedSelector } from './TaskOmikujiSelect';

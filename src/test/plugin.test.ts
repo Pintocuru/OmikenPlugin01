@@ -1,8 +1,7 @@
 // src/plugin.test.ts
 
 import ElectronStore from 'electron-store';
-import { OmikujiType, PlaceType } from '../types/Omiken';
-import { StoreType } from '../types/plugin';
+import { OmikujiType, PlaceType, StoreType } from '../Modules/type';
 import { commentMock, MockElectronStore, storeMock } from './plugin.mockData';
 import { PlaceProcess } from '../Modules/PlaceProcess';
 

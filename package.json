@@ -4,7 +4,7 @@
  "description": "",
  "main": "public/plugin.js",
  "scripts": {
-  "build": "tsc",
+  "build": "tsc && tsc-alias",
   "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts"
  },
  "keywords": [
@@ -27,6 +27,7 @@
   "jest-module-name-mapper": "^0.1.5",
   "ts-jest": "^29.2.5",
   "ts-loader": "^9.5.1",
+  "tsc-alias": "^1.8.10",
   "typescript": "^5.4.5"
  }
 }

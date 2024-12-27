@@ -1,5 +1,5 @@
 // src/Modules/TaskOmikujiSelect.js
-import { OmikujiSelectType, OmikujiType, RulesType, TimeConfigType, TypesType, VisitType } from '@/type';
+import { OmikujiSelectType, OmikujiType, RulesType, TimeConfigType, TypesType, VisitType } from '@type';
 import { ThresholdChecker } from './ThresholdCheck';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
@@ -60,7 +60,7 @@ export class CommentBasedSelector extends BaseOmikujiSelector {
    const omikuji = this.processRule(rule, omikujis);
    if (omikuji) {
     const selectRuleId = rule.id;
-    return { ...omikuji, selectRuleId: selectRuleId };
+    return { ...omikuji, selectRuleId };
    }
   }
   return null;

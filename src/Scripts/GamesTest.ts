@@ -1,23 +1,47 @@
 // scriptサンプル
 
-import { OneCommePostType, ScriptParam, ScriptsReturnType, visitDataType, GameType } from '@/type';
+import { OneCommePostType, ScriptParam, ScriptsReturnType, visitDataType, GameType } from '@type';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
+
+// ---
+
+// エディターで設定できるパラメータ
+const scriptParam = [
+ {
+  id: 'mode', // キー名
+  name: 'モード', // ルール名
+  description: '0:スイカゲーム/1:カボチャゲーム/2:クジラゲーム', // 説明文
+  value: '0' // デフォルト値
+ },
+ {
+  id: 'isFruit', // キー名
+  name: 'フルーツをWordPartyで降らせるか', // ルール名
+  description: 'フルーツを降らせるか(1:ON/0:OFF) 別途専用WordPartyが必要です', // 説明文
+  value: '1' // デフォルト値
+ }
+];
 
 // ---
 
 // GouseiSuika専用の型定義
 type GameConfigs = {
- small: GameConfigItem[][];
- big: GameConfigItem[][];
+ [key: string]: GameConfigDetails; // 各ゲーム（例: suika）がキー
+};
+
+type GameConfigDetails = {
+ small: GameConfigItem[]; // small ゲーム設定の配列
+ big: GameConfigItem[]; // big ゲーム設定の配列
 };
 
 type GameConfigItem = {
- chance: number;
- times?: number;
- points: number;
- damage?: number;
- party: string;
+ chance: number; // 確率
+ times?: number; // オプショナル: 繰り返し回数
+ points: number; // ポイント
+ damage?: number; // オプショナル: ダメージ
+ party: string; // キャラクターやアイテムの名前
 };
+
+// ---
 
 export function GamesTest(
  visitData: visitDataType,
@@ -26,18 +50,18 @@ export function GamesTest(
  params: ScriptParam[] = []
 ): ScriptsReturnType {
  // ゲームモードの設定
- let currentMode = 0;
+ let currentMode = 'suika';
  const mode = params[0]?.value;
- if (mode === '1') currentMode = 1; // カボチャゲーム
- if (mode === '2') currentMode = 2; // クジラゲーム
+ if (mode === '1') currentMode = 'kabo'; // カボチャゲーム
+ if (mode === '2') currentMode = 'kujira'; // クジラゲーム
  const isWelcome = mode === 'welcome';
  const user = comment.data.displayName;
 
  // ゲームの設定データ
  const GAME_CONFIGS: GameConfigs = {
-  small: [
-   // スイカゲーム
-   [
+  // スイカゲーム
+  suika: {
+   small: [
     // 🍓いちご：1点(2/3:15回)
     { chance: 67, times: 15, points: 1, party: '🍓' },
     // 🍇ぶどう：3点(1/2:15回)
@@ -49,36 +73,7 @@ export function GamesTest(
     // 🍎りんご：50点(2/3:5回)
     { chance: 67, times: 5, points: 50, party: '🍎' }
    ],
-   // カボチャゲーム
-   [
-    // 🍓いちご：1点(2/3:15回)
-    { chance: 67, times: 15, points: 1, party: '🍓' },
-    // 🍇ぶどう：3点(1/2:15回)
-    { chance: 50, times: 15, points: 3, party: '🍇' },
-    // 🍊デコポン：10点(1/2:10回)
-    { chance: 50, times: 10, points: 10, party: '🍊' },
-    // 🦪かき：20点(1/3:8回)
-    { chance: 50, times: 8, points: 20, party: '🦪' },
-    // 🍎りんご：50点(2/3:5回)
-    { chance: 67, times: 5, points: 50, party: '🍎' }
-   ],
-   // クジラゲーム
-   [
-    // クマノミ：11点(1/2:5回)
-    { chance: 50, times: 5, points: 11, party: '!クマノミ' },
-    // クラゲ：22点(1/2:5回)
-    { chance: 50, times: 5, points: 22, party: '!クラゲ' },
-    // フグ：33点(1/2:5回)
-    { chance: 50, times: 5, points: 33, party: '!フグ' },
-    // カニ：44点(1/2:5回)
-    { chance: 50, times: 5, points: 44, party: '!カニ' },
-    // マグロ：55点(1/2:5回)
-    { chance: 50, times: 5, points: 55, party: '!マグロ、ご期待ください' }
-   ]
-  ],
-  big: [
-   // スイカゲーム
-   [
+   big: [
     // 🍐なし
     { chance: 25, points: 300, damage: 1, party: '🍐' },
     // 🍍パイナップル
@@ -91,9 +86,23 @@ export function GamesTest(
     { chance: 50, points: 1000, damage: 3, party: '🍉' },
     // 🍉🍉ダブル
     { chance: 100, points: 1000, damage: 0, party: '🍉' }
+   ]
+  },
+  // カボチャゲーム
+  kabo: {
+   small: [
+    // 🍓いちご：1点(2/3:15回)
+    { chance: 67, times: 15, points: 1, party: '🍓' },
+    // 🍇ぶどう：3点(1/2:15回)
+    { chance: 50, times: 15, points: 3, party: '🍇' },
+    // 🍊デコポン：10点(1/2:10回)
+    { chance: 50, times: 10, points: 10, party: '🍊' },
+    // 🦪かき：20点(1/3:8回)
+    { chance: 50, times: 8, points: 20, party: '🦪' },
+    // 🍎りんご：50点(2/3:5回)
+    { chance: 67, times: 5, points: 50, party: '🍎' }
    ],
-   // カボチャゲーム
-   [
+   big: [
     // 🍬キャンディー
     { chance: 25, points: 150, damage: 0, party: '🍬' },
     // 🍐なし
@@ -110,9 +119,23 @@ export function GamesTest(
     { chance: 50, points: 1000, damage: 0, party: '🍉' },
     // 🎃カボチャ
     { chance: 100, points: 1200, damage: 0, party: '🎃' }
+   ]
+  },
+  // クジラゲーム
+  kujira: {
+   small: [
+    // クマノミ：11点(1/2:5回)
+    { chance: 50, times: 5, points: 11, party: '!クマノミ' },
+    // クラゲ：22点(1/2:5回)
+    { chance: 50, times: 5, points: 22, party: '!クラゲ' },
+    // フグ：33点(1/2:5回)
+    { chance: 50, times: 5, points: 33, party: '!フグ' },
+    // カニ：44点(1/2:5回)
+    { chance: 50, times: 5, points: 44, party: '!カニ' },
+    // マグロ：55点(1/2:5回)
+    { chance: 50, times: 5, points: 55, party: '!マグロ、ご期待ください' }
    ],
-   // クジラゲーム
-   [
+   big: [
     // ウミガメ
     { chance: 33, points: 300, damage: 1, party: '!ウミガメ' },
     // マンボウ
@@ -124,7 +147,7 @@ export function GamesTest(
     // クジラ
     { chance: 100, points: 500, damage: 0, party: '!クジラ' }
    ]
-  ]
+  }
  };
 
  // 抽選ゲームのロジック
@@ -136,7 +159,7 @@ export function GamesTest(
   ];
 
   // 小さいアイテムの抽選
-  const smallItems = items.small[currentMode];
+  const smallItems = items[currentMode].small;
   smallItems.forEach((item) => {
    const { pointsEarned, wins } = runItemLottery(item);
    totalPoints += pointsEarned;
@@ -150,7 +173,7 @@ export function GamesTest(
 
   // 大きいアイテムの抽選
   let life = 3;
-  const bigItems = items.big[currentMode];
+  const bigItems = items[currentMode].big;
   while (life > 0) {
    const selectedItem = bigItems.find((item) => item.chance > Math.random() * 100);
 
@@ -200,29 +223,12 @@ export function GamesTest(
  const postArrayHandle = (game.gameData?.isFruit ?? true) !== '0' ? postArray : [];
 
  return {
-  // エディターで設定できるパラメータ
-  // ここで設定したものは、game.gameDataの引数に入ります
-  // (idをhogeにした場合、game.gameData.hogeにvalueが入ります)
-  gameParam: [
-   {
-    id: 'mode', // キー名
-    name: 'モード', // ルール名
-    description: '0:スイカゲーム/1:カボチャゲーム/2:クジラゲーム', // 説明文
-    value: '0' // デフォルト値
-   },
-   {
-    id: 'isFruit', // キー名
-    name: 'フルーツをWordPartyで降らせるか', // ルール名
-    description: 'フルーツを降らせるか(1:ON/0:OFF) 別途専用WordPartyが必要です', // 説明文
-    value: '1' // デフォルト値
-   }
-  ],
-  // 複雑なWordParty用
-  postArray: postArrayHandle,
+  scriptParam, // エディターで設定できるパラメータ
+  postArray: postArrayHandle, // 複雑なWordParty用
   // 各種プレースホルダー
   placeholder: {
    message, // 全体のメッセージ
-   points: finalPoints.toString()
+   points: finalPoints.toString() // 得点
   },
   game,
   visitData
