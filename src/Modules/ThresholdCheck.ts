@@ -3,6 +3,7 @@
 import {
  AccessCondition,
  CountCondition,
+ GiftCondition,
  MatchCondition,
  RulesType,
  SyokenCondition,
@@ -30,9 +31,10 @@ export class ThresholdChecker {
  check(threshold: ThresholdType): boolean {
   const conditionMap = {
    target: () => this.matchIsTarget(),
-   CoolDown: () => this.matchIsCoolDown(threshold.CoolDown),
+   coolDown: () => this.matchIsCoolDown(threshold.coolDown),
    syoken: () => this.matchIsSyoken(threshold.syoken),
    access: () => this.matchIsAccess(threshold.access),
+   gift: () => this.matchIsGift(threshold.gift),
    count: () => this.matchIsCount(threshold.count),
    match: () => this.matchIsMatch(threshold.match)
   } as const;
@@ -46,8 +48,8 @@ export class ThresholdChecker {
  }
 
  // クールダウンのチェック
- private matchIsCoolDown(CoolDown: number): boolean {
-  return this.TimeConfig.lastTime > Date.now() + CoolDown * 1000;
+ private matchIsCoolDown(coolDown: number): boolean {
+  return this.TimeConfig.lastTime > Date.now() + coolDown * 1000;
  }
 
  // 初見・久しぶりのチェック
@@ -76,14 +78,52 @@ export class ThresholdChecker {
   return (access <= 4 && isOwner) || (access <= 3 && isModerator) || (access <= 2 && isMember) || false;
  }
 
+ // ギフトを参照する
+ private matchIsGift(gift: GiftCondition): boolean {
+  if (!this.comment?.data) return false;
+
+  // Noneの場合、ギフトがあればfalse
+  const { hasGift } = this.comment.data;
+  if (gift === GiftCondition.None) return !hasGift;
+  // ギフトがない場合、false
+  if (!hasGift) return false;
+
+  const price = 'price' in this.comment.data ? this.comment.data.price : null;
+  const tier = 'tier' in this.comment.data ? this.comment.data.tier : null;
+
+  // 指定したTier以上のギフトがあるならtrue
+  const calTier = tier ?? this.matchIsGiftHelper(price);
+  return calTier >= gift;
+ }
+
+ private matchIsGiftHelper(price: number | null): GiftCondition {
+  if (!price || price <= 0) return GiftCondition.None;
+  const giftRanges = new Map([
+   [200, GiftCondition.Blue],
+   [500, GiftCondition.LightBlue],
+   [1000, GiftCondition.Green],
+   [2000, GiftCondition.Yellow],
+   [5000, GiftCondition.Orange],
+   [10000, GiftCondition.Pink],
+   [20000, GiftCondition.Red],
+   [Infinity, GiftCondition.Purple]
+  ]);
+  for (const [threshold, condition] of giftRanges) {
+   if (price < threshold) return condition;
+  }
+  return GiftCondition.Purple;
+ }
+
  // 数値を参照する
  private matchIsCount(count: CountCondition): boolean {
-  if (!this.comment && count.unit !== 'draws') return false;
+  if (!this.comment) {
+   if (count.unit == 'tc') return false;
+   if (count.unit == 'interval') return false;
+  }
 
   const unitMap = {
    draws: this.visit.visitData[this.rule.id].draws || 0,
-   gift: this.comment?.data && 'price' in this.comment.data ? this.comment.data.price : 0,
-   lc: this.comment?.meta?.lc ?? 0,
+   totalDraws: this.visit.visitData[this.rule.id].totalDraws || 0,
    tc: this.comment?.meta?.tc ?? 0,
    interval: this.comment?.meta?.interval ?? 0
   };
@@ -107,7 +147,7 @@ export class ThresholdChecker {
 
  // 文字列を参照する
  private matchIsMatch(match: MatchCondition): boolean {
-  if (!this.comment && match.target !== 'status') return false;
+  if (!this.comment) return false;
 
   const targetMap = {
    status: this.visit.status,

@@ -152,7 +152,7 @@
 - isShowCounter: 初見カウンターを表示するか。true にすると、右下に初見カウンターが表示されます。(common_VisitCounter.css で位置などを変更できます)試験的に設置しています。
 - isProfileImage:キャラクターのアイコンを表示するか
 - basicDelay: BOT の反応遅延時間（秒）
-- omikujiCoolDown: おみくじ機能のクールダウン時間（秒）この時間内におみくじ判定が被ると「もう一度コメントしてね」という旨のトースト表示が出ます。
+- omikujicoolDown: おみくじ機能のクールダウン時間（秒）この時間内におみくじ判定が被ると「もう一度コメントしてね」という旨のトースト表示が出ます。
 - commentValidDuration: コメントしてからおみくじを有効とする時間(秒) おみくじが反応しない場合、この時間を長めにしてみてください。
 - BotUserIDname: このスクリプトが発言する comment.data.userId(通常は変更不要です)
 

@@ -5,7 +5,7 @@
   "rulesOrder": [],
   "preferences": {
     "basicDelay": 1,
-    "omikujiCoolDown": 2,
+    "omikujicoolDown": 2,
     "commentDuration": 5,
     "BotUserIDname": "FirstCounter"
   }

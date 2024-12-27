@@ -80,7 +80,7 @@ const plugin: OnePlugin = {
   } catch (error) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   console.error('Error in background processing:', errorMessage);
-  postErrorMessage('処理にエラーが起きたみたい。' + errorMessage);
+  postErrorMessage('エラー:' + errorMessage);
   }
  },
 
