@@ -1,7 +1,11 @@
 {
  "id": "marisa",
  "name": "ゆっくり魔理沙",
- "description": "",
+ "description": "花とキノコが好きな、ゆっくり魔理沙。じゃんけんはちょっと弱い。",
+ "version": "0.0.1",
+ "author": "Pintocuru",
+ "url": "https://nagipon-sozai.studio.site/",
+ "banner": "",
  "nickname": " ",
  "frameId": "OmikenMarisa",
  "party": ["!test", "!test2"],
@@ -9,11 +13,6 @@
   "--lcv-name-color": "#FFE082",
   "--lcv-text-color": "#333333",
   "--lcv-background-color": "#FF8F00"
- },
- "serviceColor": {
-  "r": 255,
-  "g": 143,
-  "b": 0
  },
  "image": {
   "Default": "marisa/Default.png",

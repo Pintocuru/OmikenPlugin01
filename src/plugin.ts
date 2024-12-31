@@ -104,6 +104,7 @@ const plugin: OnePlugin = {
    Visits: this.Visits,
    Games: this.Games
   };
+  console.info(this.Charas);
 
   const handler = new RequestHandler(responseMap);
   const result = await handler.handleRequest(req);

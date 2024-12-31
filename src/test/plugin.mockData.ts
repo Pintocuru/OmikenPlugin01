@@ -14,7 +14,7 @@ export const commentMock: Comment = {
  url: '',
  color: { r: 0, g: 0, b: 0 },
  data: {
-  comment: 'suika',
+  comment: '初見',
   id: 'yt-1733023389806',
   liveId: 'youtube-test',
   userId: 'テストユーザー',
@@ -29,7 +29,7 @@ export const commentMock: Comment = {
   meta: {},
   speechText: 'テ'
  },
- meta: { interval: 999999, tc: 10, no: 2, lc: 10 }
+ meta: { interval: 0, tc: 1, no: 1, lc: 1 }
 };
 
 // プラグインデータモック

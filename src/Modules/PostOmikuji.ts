@@ -1,11 +1,12 @@
 // src/Modules/PostOmikuji.js
 
-import { CharaType, OneCommePostType, postOneCommeRequestType } from '@type';;
+import { CharaType, OneCommePostType, postOneCommeRequestType } from '@type';
 import { configs } from '@/config';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import axios from 'axios';
 import path from 'path';
 import fs from 'fs';
+import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 
 interface PostService {
  postMessage(post: OneCommePostType, chara: CharaType): Promise<void>;
@@ -168,14 +169,14 @@ export class PostMessages implements PostService {
 
  // わんコメの枠を作成
  private async createService(chara: CharaType): Promise<Service | null> {
-  const { name, serviceColor, frameId } = chara;
+  const { name, color, frameId } = chara;
 
   try {
    const response = await axios.post(`${this.API_BASE_URL}/services`, {
     id: frameId,
     name: `おみくじBOT:${name}`,
     speech: true,
-    color: serviceColor
+    color: this.colorCodeToRGBColor(color['--lcv-background-color'])
    });
    this.services.push(response.data); // 作成した枠をthis.servicesに追加
    return response.data;
@@ -183,6 +184,16 @@ export class PostMessages implements PostService {
    console.error('Failed to create service:', error);
    return null;
   }
+ }
+
+ // カラーコードからRGBColor型のコードを生成
+ private colorCodeToRGBColor(colorCode: string): RGBColor {
+  const hex = colorCode.replace(/^#/, ''); // #を取り除く
+  if (hex.length !== 6) throw new Error(`Invalid color code: ${colorCode}`);
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return { r, g, b };
  }
 }
 

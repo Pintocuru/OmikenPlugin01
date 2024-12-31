@@ -1,7 +1,7 @@
 // src/types/plugin.ts
 
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
-import { CharaType, ScriptsParamType } from './preset';
+import { CharaType, ScriptsParamType, ScriptsType } from './preset';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -21,7 +21,7 @@ export interface StoreMainType extends StoreType {
  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Charas: Record<string, CharaType>;
- Scripts: Record<string, ScriptsParamType>;
+ Scripts: Record<string, ScriptsType>;
  TimeConfig: TimeConfigType;
 }
 
@@ -29,7 +29,7 @@ export interface StoreMainType extends StoreType {
 export interface StoreApiType extends StoreType {
  Presets: Readonly<Record<string, OmikenType>>;
  Charas: Record<string, CharaType>;
- Scripts: Record<string, ScriptsParamType>;
+ Scripts: Record<string, ScriptsType>;
 }
 
 // 全体設定用の型

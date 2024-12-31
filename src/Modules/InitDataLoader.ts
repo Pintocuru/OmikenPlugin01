@@ -10,7 +10,8 @@ import {
  VisitType,
  TimeConfigType,
  OmikujiSelectType,
- StoreAllType
+ StoreAllType,
+ ScriptsType
 } from '@type';;
 import { configs } from '@/config';
 import { getServices, postErrorMessage } from './PostOmikuji';
@@ -44,7 +45,7 @@ export class InitDataLoader {
     OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
     Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
     Charas: this.loadDirectoryContents<CharaType>('Charas', 'json'),
-    Scripts: this.loadDirectoryContents<ScriptsParamType>(configs.ScriptsRoot, 'js'),
+    Scripts: this.loadDirectoryContents<ScriptsType>(configs.ScriptsRoot, 'js'),
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
     TimeConfig: this.initializeTimeConfig(),
@@ -75,7 +76,7 @@ export class InitDataLoader {
       if (data) result[key] = data;
      } else if (extension === 'js') {
       const module = require(filePath);
-      if (module?.[key]) result[key] = module[key];
+      if (module) result[key] = module.default || module;
      }
     } catch (err) {
      this.errorHandler.handle(`ファイルの読み込みに失敗: ${filePath}`, err);

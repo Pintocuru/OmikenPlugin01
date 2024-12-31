@@ -11,24 +11,6 @@ jest.mock('electron-store', () => {
  return jest.fn(() => new MockElectronStore());
 });
 
-describe.skip('plugin.init:初期化テスト', () => {
- let storeMock: MockElectronStore;
-
- beforeEach(() => {
-  storeMock = new MockElectronStore();
- });
-
- test('正常に初期化される', () => {
-  const initialData = { services: [{ id: 'default' }] };
-
-  plugin.init({ store: storeMock }, initialData);
-
-  // TimeConfigがストアにセットされたか確認
-  const timeConfig = storeMock.get('TimeConfig', {});
-  expect(timeConfig).toHaveProperty('pluginTime');
-  expect(timeConfig).toHaveProperty('defaultFrameId', 'default');
- });
-});
 
 describe('各種関数のテスト', () => {
  beforeEach(async () => {

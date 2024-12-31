@@ -1,24 +1,29 @@
 // src/types/preset.ts
-import { BaseType, OneCommePostType } from './Omiken';
+import { BaseType, OmikenType, OneCommePostType } from './Omiken';
 import { visitDataType, GameType } from './plugin';
-import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // presetデータ
 export interface PresetType extends BaseType {
- type: 'Omiken' | 'Chara' | 'Script';
+ version: string; // バージョン番号
+ author?: string; // 開発者名
+ url?: string; // サポートページのURL
+ banner?: string; // 紹介用画像
  path?: string; // データのパス(Presetsをルートとする)
- banner?: string;
- mode?: 'overwrite' | 'append'; // 追加方法(上書き/追加)
 }
 
 // ---
 
+// おみくじデータ付きpresetデータ
+export interface PresetOmikenType extends PresetType {
+ item: OmikenType;
+ isOverwrite?: boolean; // 追加方法(true:上書き/false:追加)
+}
+
 // Chara:キャラクターJSONの型定義
-export interface CharaType extends BaseType {
+export interface CharaType extends PresetType {
  nickname?: string; // 読み上げ時の名前の読ませ方
  frameId: string | null; // わんコメの枠
- serviceColor: RGBColor; // 枠情報の色{b:number,g:number,r:number,}
  color: {
   '--lcv-name-color': string; // 名前の色
   '--lcv-text-color': string; // コメントの色
@@ -35,6 +40,12 @@ export interface CharaType extends BaseType {
 
 // ---
 
+export interface ScriptsType extends PresetType {
+ func: (visit: visitDataType, game: GameType, comment?: Comment, params?: ScriptParam[]) => ScriptsReturnType;
+ scriptParams: ScriptParam[];
+ placeholders: ScriptParam[];
+}
+
 // Script全体の型定義
 export type ScriptsParamType = (
  visit: visitDataType,
@@ -44,20 +55,14 @@ export type ScriptsParamType = (
 ) => ScriptsReturnType;
 
 // Scriptの返り値
-export type ScriptsReturnType = {
- scriptParam?: ScriptParam[]; // ゲームパラメータ
+export interface ScriptsReturnType {
  postArray?: OneCommePostType[];
- placeholder: Placeholder; // プレースホルダー
+ placeholder: { [id: string]: string | number };
  game: GameType;
  visitData: visitDataType;
-};
+}
 
 // gameのパラメータ設定用
 export interface ScriptParam extends BaseType {
  value: string; // 入る値
 }
-
-type Placeholder = {
- message: string; // 全体のメッセージ
- [key: string]: string; // 任意のプレースホルダー（動的キー）
-};

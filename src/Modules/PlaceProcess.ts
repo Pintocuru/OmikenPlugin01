@@ -2,14 +2,14 @@
 import { PlaceType, PlaceValueType, OmikujiType } from '@type';
 
 export class PlaceProcess {
- private placeholders: Record<string, string> = {};
+ private placeholders: Record<string, string | number> = {};
 
  constructor(private selectOmikuji: OmikujiType) {
   this.selectOmikuji = JSON.parse(JSON.stringify(selectOmikuji));
  }
 
  // placeholdersに入れる
- updatePlace(data: Record<string, string>): void {
+ updatePlace(data: Record<string, string | number>): void {
   this.placeholders = { ...this.placeholders, ...data };
  }
 
@@ -63,7 +63,13 @@ export class PlaceProcess {
  replacementPlace(): OmikujiType {
   const replacer = (template: string | undefined): string =>
    template
-    ? template.replace(/<<(.*?)>>/g, (_, key) => (key in this.placeholders ? this.placeholders[key] : `<<${key}>>`))
+    ? template.replace(/<<(.*?)>>/g, (_, key) => {
+       if (key in this.placeholders) {
+        const value = this.placeholders[key];
+        return value !== undefined ? String(value) : `<<${key}>>`;
+       }
+       return `<<${key}>>`;
+      })
     : '';
 
   this.selectOmikuji.post = this.selectOmikuji.post.map((post) => ({

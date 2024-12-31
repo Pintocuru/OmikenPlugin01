@@ -97,7 +97,7 @@ export class ThresholdChecker {
  }
 
  private matchIsGiftHelper(price: number | null): GiftCondition {
-  if (!price || price <= 0) return GiftCondition.None;
+  if (!price || price <= 0) return GiftCondition.All;
   const giftRanges = new Map([
    [200, GiftCondition.Blue],
    [500, GiftCondition.LightBlue],

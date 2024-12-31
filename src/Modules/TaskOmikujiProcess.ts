@@ -100,7 +100,7 @@ export class OmikujiProcessor {
  private async scriptsCall(): Promise<ScriptsReturnType | undefined> {
   try {
    const script = this.omikuji.script;
-   const func = this.storeAll.Scripts[script.scriptId];
+   const func = this.storeAll.Scripts[script.scriptId].func;
 
    if (typeof func !== 'function') {
     throw new Error(`Function ${script.scriptId} is not registered`);

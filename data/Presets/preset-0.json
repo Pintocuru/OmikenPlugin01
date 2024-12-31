@@ -1,12 +1,20 @@
 {
+ "id": "presetNull",
+ "name": "presetNull",
+ "description": "リセット用",
+ "version": "0.0.0",
+ "item": {
+  "types": {
+   "comment": [],
+   "timer": [],
+   "meta": [],
+   "waitingList": [],
+   "setList": [],
+   "reactions": [],
+   "unused": []
+  },
   "rules": {},
-  "omikuji": {},
-  "place": {},
-  "rulesOrder": [],
-  "preferences": {
-    "basicDelay": 1,
-    "omikujicoolDown": 2,
-    "commentDuration": 5,
-    "BotUserIDname": "FirstCounter"
-  }
+  "omikujis": {},
+  "places": {}
+ }
 }

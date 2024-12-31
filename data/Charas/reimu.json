@@ -1,7 +1,11 @@
 {
  "id": "reimu",
  "name": "ゆっくり霊夢",
- "description": "",
+ "description": "優しい振る舞いで人気者のゆっくり霊夢。じゃんけんはとても強い。",
+ "version": "0.0.1",
+ "author": "Pintocuru",
+ "url": "https://nagipon-sozai.studio.site/",
+ "banner": "",
  "nickname": " ",
  "frameId": "OmikenReimu",
  "party": ["!test", "!test2"],
@@ -9,11 +13,6 @@
   "--lcv-name-color": "#FFC107",
   "--lcv-text-color": "#ECEFF1",
   "--lcv-background-color": "#FF4081"
- },
- "serviceColor": {
-  "r": 255,
-  "g": 64,
-  "b": 129
  },
  "image": {
   "Default": "reimu/Default.png",
