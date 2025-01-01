@@ -74,18 +74,12 @@ export class PostMessages implements PostService {
 
  // わんコメへ投稿
  private async postOneComme(post: OneCommePostType, chara: CharaType): Promise<void> {
-  const { iconKey, content, delaySeconds, type, generatorParam, isSilent } = post;
-  const charaImage = chara.image[iconKey] || chara.image.Default || '';
-  const nickname = chara.nickname;
+  const { type, iconKey, party, isSilent, generatorParam, delaySeconds, content } = post;
   // 枠作成がfalseなら、一番上のIDを取得
   const DefaultFrameId = !configs.isCreateService ? this.services[0].id : null;
 
-  // 画像のファイルパスを確認
-  const profileImage = path.join(configs.imgRoot, charaImage);
-  // テスト:画像が存在しない場合は、エラーを表示
-  fs.access(profileImage, fs.constants.F_OK, (err) => {
-   if (err) console.error('Image does not exist:', profileImage);
-  });
+  // party があるなら、WordPartyの投稿
+  if (party) this.postWordParty(delaySeconds, party);
 
   const request: postOneCommeRequestType = {
    service: {
@@ -96,9 +90,9 @@ export class PostMessages implements PostService {
     userId: configs.botUserId,
     name: chara.name,
     comment: content,
-    profileImage,
+    profileImage: await this.charaImageCheck(chara, iconKey),
     badges: [],
-    nickname: nickname ? nickname : chara.name,
+    nickname: chara.nickname ? chara.nickname : chara.name,
     // 仕様とは異なる使い方をしているキー(仕様変更で使えなくなるかも?)
     liveId: generatorParam || '', // ジェネレーターに渡す引数
     isOwner: isSilent // BOTの読み上げを行わない
@@ -107,6 +101,17 @@ export class PostMessages implements PostService {
 
   // postする
   await this.delayedApiCall(`${this.API_BASE_URL}/comments`, request, delaySeconds, `Failed to post ${type} message`);
+ }
+
+ private async charaImageCheck(chara: CharaType, iconKey: string): Promise<string> {
+  // 画像のファイルパスを確認
+  const charaImage = chara.image[iconKey] || chara.image.Default || '';
+  const profileImage = path.join(configs.imgRoot, charaImage);
+  // テスト:画像が存在しない場合は、エラーを表示
+  fs.access(profileImage, fs.constants.F_OK, (err) => {
+   if (err) console.error('Image does not exist:', profileImage);
+  });
+  return profileImage;
  }
 
  // WordPartyの投稿

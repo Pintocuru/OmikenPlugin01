@@ -891,7 +891,7 @@
   ],
   "preferences": {
     "basicDelay": 1,
-    "omikujicoolDown": 2,
+    "omikujiCooldown": 2,
     "commentDuration": 5,
     "BotUserIDname": "FirstCounter"
   }
