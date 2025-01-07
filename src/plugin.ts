@@ -5,11 +5,11 @@ import { configs } from '@/config';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@/Modules/InitDataLoader';
 import { RequestHandler } from '@/Modules/ApiRequest';
 import { TaskCommentInstance } from '@/Modules/TaskCommentInstance';
-import { postErrorMessage } from '@/Modules/PostOmikuji';
 import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
+import { systemMessage } from './Modules/ErrorHandler';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -38,9 +38,9 @@ const plugin: OnePlugin = {
    await timerSetup(this); // timerのセットアップ
 
    // プラグインの起動メッセージ
-   postErrorMessage('おみくじBOTプラグインが起動したよ', 'info');
+   systemMessage('info', `おみくじBOTプラグインが起動したよ`);
   } catch (error) {
-   console.error('Failed to initialize due to timeout or API error:', error);
+   systemMessage('error', `おみくじBOTプラグインの初期化に失敗`, error);
    return;
   }
  },
@@ -70,7 +70,7 @@ const plugin: OnePlugin = {
 
    // 5秒以上経過したコメントはおみくじの対象外
    const isRecent = Date.now() < new Date(comment.data.timestamp).getTime() + 5000;
-   if (!isRecent) return
+   if (!isRecent) return;
 
    // おみくじの処理
    const result: PluginUpdateData = await Instance.process();
@@ -78,9 +78,7 @@ const plugin: OnePlugin = {
     if (value && this[key]) this[key] = value;
    });
   } catch (error) {
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  console.error('Error in background processing:', errorMessage);
-  postErrorMessage('エラー:' + errorMessage);
+   systemMessage('error', `おみくじBOTの処理ができませんでした`, error);
   }
  },
 
@@ -104,7 +102,6 @@ const plugin: OnePlugin = {
    Visits: this.Visits,
    Games: this.Games
   };
-  console.info(this.Charas);
 
   const handler = new RequestHandler(responseMap);
   const result = await handler.handleRequest(req);

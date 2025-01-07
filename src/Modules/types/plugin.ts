@@ -133,24 +133,42 @@ meta
 // API用
 
 // パラメータの型定義
-export type ParamsType = DataModeParams | BackupModeParams;
+export type ParamsType = PingModeParams | DataModeParams | AllDataModeParams | BackupModeParams;
+
+// Ping用型定義
+interface PingModeParams {
+ method: 'GET';
+ mode: Mode.Ping;
+ type?: never;
+}
 
 // データ取得用型定義
 interface DataModeParams {
+ method: 'GET';
  mode: Mode.Data;
  type: DataType.Omiken | DataType.Presets | DataType.Charas | DataType.Scripts | DataType.Visits | DataType.Games;
 }
 
+// 一括でのデータ取得用型定義
+interface AllDataModeParams {
+ method: 'GET';
+ mode: Mode.AllData;
+ type?: never;
+}
+
 // バックアップ用型定義
 interface BackupModeParams {
+ method: 'POST';
  mode: Mode.Backup;
- type: DataType.Omiken | DataType.Presets | DataType.TimeConfig;
+ type: DataType.Omiken | DataType.Presets;
 }
 
 // モードを定義
 export enum Mode {
+ Ping = 'ping', // データ取得
  Data = 'data', // データ取得
- Backup = 'backup' // バックアップ(エディター用)
+ Backup = 'backup', // バックアップ(エディター用)
+ AllData = 'allData' // すべてのデータ取得
 }
 
 // データの種類を定義
@@ -160,6 +178,5 @@ export enum DataType {
  Charas = 'Charas', // キャラデータ
  Scripts = 'Scripts', // スクリプト
  Visits = 'Visits', // 個人データ
- Games = 'Games', // スクリプトデータ
- TimeConfig = 'TimeConfig' // 設定(未使用かも)
+ Games = 'Games' // スクリプトデータ
 }

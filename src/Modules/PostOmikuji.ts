@@ -7,6 +7,7 @@ import axios from 'axios';
 import path from 'path';
 import fs from 'fs';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
+import { systemMessage } from './ErrorHandler';
 
 interface PostService {
  postMessage(post: OneCommePostType, chara: CharaType): Promise<void>;
@@ -109,7 +110,7 @@ export class PostMessages implements PostService {
   const profileImage = path.join(configs.imgRoot, charaImage);
   // テスト:画像が存在しない場合は、エラーを表示
   fs.access(profileImage, fs.constants.F_OK, (err) => {
-   if (err) console.error('Image does not exist:', profileImage);
+   if (err) systemMessage('warn', `キャラ画像を読めないです:${profileImage}`, err);
   });
   return profileImage;
  }
@@ -186,7 +187,7 @@ export class PostMessages implements PostService {
    this.services.push(response.data); // 作成した枠をthis.servicesに追加
    return response.data;
   } catch (error) {
-   console.error('Failed to create service:', error);
+   systemMessage('warn', `わんコメの枠を作成できませんでした`, error);
    return null;
   }
  }
@@ -211,17 +212,4 @@ export async function getServices(API_BASE_URL: string): Promise<Service[]> {
   // セットアップ中に枠情報を取得することもあるので、エラーメッセージは出さない
   return [];
  }
-}
-
-// エラーメッセージを投稿
-export function postErrorMessage(content: string, name?: string): void {
- const post: OneCommePostType[] = [
-  {
-   generatorParam: name, // 名前で使用
-   type: 'error',
-   delaySeconds: -1,
-   content
-  }
- ];
- new PostMessages(post, {});
 }

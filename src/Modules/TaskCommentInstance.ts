@@ -1,7 +1,7 @@
 // src/Modules/TaskCommentInstance.ts
 
 import { PluginUpdateData, StoreMainType, TimeConfigType, VisitType } from '@type';
-import { OmikujiSelectorFactory } from './TaskOmikujiSelect';
+import { OmikujiSelector } from './TaskOmikujiSelector';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -41,8 +41,7 @@ export class TaskCommentInstance {
  // ユーザーの枠情報が空白または異なるなら、Visitを初期化
  private resetVisit() {
   // ユーザーのvisit初期化・更新
-  const visit = this.storeAll.Visits[this.comment.data.userId] || {} as VisitType;
-  const { userId, name } = this.comment.data;
+  const visit = this.storeAll.Visits[this.comment.data.userId] || ({} as VisitType);
   // visit初期化・更新
   this.visit = {
    status: visit?.status || '',
@@ -81,20 +80,12 @@ export class TaskCommentInstance {
    ? // コメントテスター用
      { interval: 999999, tc: 10, no: 2, lc: 2 }
    : {
-      interval: this.userData.interval || 0,
-      tc: this.userData.tc + 1 || 1, // カウント前なのでインクリメント
-      lc: this.TimeConfig.lc, // プラグインが起動してからカウントしたコメント数
-      no: this.storeAll.Visits[this.comment.data.userId].round, // (仕様とは異なる)round:コメントした枠数
+      interval: this.userData?.interval || 0,
+      tc: this.userData?.tc + 1 || 1, // カウント前なのでインクリメント
+      lc: this.TimeConfig?.lc || 1, // プラグインが起動してからカウントしたコメント数
+      no: this.storeAll.Visits?.[this.comment.data.userId]?.round || 1, // (仕様とは異なる)round:コメントした枠数
       free: !!this.isFirstVisit // (仕様とは異なる)初回かどうか
      };
-
-  // ギフト価格の通貨変換(えっ、1ドル100円ですか?)
-  if (this.comment.data && 'unit' in this.comment.data) {
-   if (this.comment.data.unit === '$') {
-    this.comment.data.price *= 100;
-    this.comment.data.unit = '¥';
-   }
-  }
  }
 
  // ユーザー情報の更新
@@ -106,7 +97,7 @@ export class TaskCommentInstance {
  // おみくじの処理
  async process(): Promise<Partial<PluginUpdateData>> {
   // コメントモードでの使用
-  const commentSelector = OmikujiSelectorFactory.create('comment', {
+  const commentSelector = OmikujiSelector.create('comment', {
    comment: this.comment,
    visit: this.visit,
    timeConfig: this.TimeConfig
@@ -115,7 +106,8 @@ export class TaskCommentInstance {
   // commentのrules からおみくじを抽選
   const omikujiSelect = commentSelector.selectOmikuji(
    this.storeAll.OmikenTypesArray.comment,
-   this.storeAll.Omiken.omikujis
+   this.storeAll.Omiken.omikujis,
+   this.storeAll.Games
   );
 
   // おみくじがない場合はvisitだけ返す

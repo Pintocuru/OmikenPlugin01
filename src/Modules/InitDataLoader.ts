@@ -6,31 +6,28 @@ import {
  StoreType,
  GameType,
  TypesType,
- ScriptsParamType,
  VisitType,
  TimeConfigType,
  OmikujiSelectType,
  StoreAllType,
  ScriptsType
-} from '@type';;
+} from '@type';
 import { configs } from '@/config';
-import { getServices, postErrorMessage } from './PostOmikuji';
-import { OmikujiSelectorFactory, TimerBasedSelector } from './TaskOmikujiSelect';
+import { getServices } from './PostOmikuji';
+import { OmikujiSelector, OmikujiSelectorTimer } from './TaskOmikujiSelector';
 import { OmikujiProcessor } from './TaskOmikujiProcess';
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
+import { systemMessage } from './ErrorHandler';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
- private errorHandler: ErrorHandler;
  private jsonReader: JsonFileReader;
- private timerSelector: TimerBasedSelector;
 
  constructor(store: ElectronStore<StoreType>) {
   this.store = store;
-  this.errorHandler = new ErrorHandler();
-  this.jsonReader = new JsonFileReader(this.errorHandler);
+  this.jsonReader = new JsonFileReader();
  }
 
  // Omiken/presetデータ読み込み
@@ -49,10 +46,10 @@ export class InitDataLoader {
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
     TimeConfig: this.initializeTimeConfig(),
-    timerSelector: OmikujiSelectorFactory.create('timer') as TimerBasedSelector
+    timerSelector: OmikujiSelector.create('timer') as OmikujiSelectorTimer
    };
   } catch (error) {
-   this.errorHandler.handle('プラグインデータの読み込み中にエラーが発生', error);
+   systemMessage('error', `プラグインデータの読み込み中にエラーが発生`, error);
   }
  }
 
@@ -79,11 +76,11 @@ export class InitDataLoader {
       if (module) result[key] = module.default || module;
      }
     } catch (err) {
-     this.errorHandler.handle(`ファイルの読み込みに失敗: ${filePath}`, err);
+     systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, err);
     }
    }
   } catch (err) {
-   this.errorHandler.handle(`ディレクトリの読み取りに失敗: ${fullPath}`, err);
+   systemMessage('error', `ディレクトリの読み取りに失敗: ${fullPath}`, err);
   }
 
   return result;
@@ -116,35 +113,25 @@ interface FileReader<T> {
 
 // JSONファイルを読む
 class JsonFileReader implements FileReader<unknown> {
- constructor(private errorHandler: ErrorHandler) {}
+ constructor() {}
 
  read<T>(filePath: string): T | null {
   try {
    if (!fs.existsSync(filePath)) {
-    this.errorHandler.handle(`ファイルが見つかりません: ${filePath}`);
+    systemMessage('error', `ファイルが見つかりません: ${filePath}`);
    }
 
    const fileContent = fs.readFileSync(filePath, 'utf-8');
    const parsedData = JSON.parse(fileContent) as T;
 
    if (!parsedData) {
-    this.errorHandler.handle(`無効なデータ: ${filePath}`);
+    systemMessage('error', `無効なデータ: ${filePath}`);
    }
 
    return parsedData;
   } catch (error) {
-   this.errorHandler.handle(`ファイル読み込みエラー: ${filePath}`, error);
+   systemMessage('error', `ファイル読み込みエラー: ${filePath}`, error);
   }
- }
-}
-
-// エラー用メゾット(コンソールログとわんコメへの投稿)
-class ErrorHandler {
- handle(message: string, error?: unknown): never {
-  const errorMessage = `${message}${error ? `: ${String(error)}` : ''}`;
-  console.error(errorMessage);
-  postErrorMessage(message);
-  throw new Error(errorMessage);
  }
 }
 
@@ -174,29 +161,29 @@ export async function timerSetup(StoreAll: StoreAllType) {
 
 // データが取得できるまで待つ関数
 export async function startReadyCheck() {
-  const checkInterval = 1000; // 最初の1秒間隔
-  const extendedInterval = 15000; // 15秒間隔
-  const startTime = Date.now();
+ const checkInterval = 1000; // 最初の1秒間隔
+ const extendedInterval = 15000; // 15秒間隔
+ const startTime = Date.now();
 
-  while (true) {
-    try {
-      // APIエンドポイントをチェック
-      const dataArray = await getServices('http://localhost:11180/api');
+ while (true) {
+  try {
+   // APIエンドポイントをチェック
+   const dataArray = await getServices('http://localhost:11180/api');
 
-      if (dataArray && dataArray.length > 0) {
-        // データが取得できたらループを抜ける
-        console.log('Data is ready.');
-        break;
-      }
-    } catch (error) {
-      console.log('API not ready yet:', error);
-    }
-
-    // 10秒間は1秒間隔で再チェック
-    const elapsedTime = Date.now() - startTime;
-    const interval = elapsedTime >= 10000 ? extendedInterval : checkInterval;
-
-    // 指定された間隔で再チェック
-    await new Promise(resolve => setTimeout(resolve, interval));
+   if (dataArray && dataArray.length > 0) {
+    // データが取得できたらループを抜ける
+    console.log('Data is ready.');
+    break;
+   }
+  } catch (error) {
+   console.log('API not ready yet:', error);
   }
+
+  // 10秒間は1秒間隔で再チェック
+  const elapsedTime = Date.now() - startTime;
+  const interval = elapsedTime >= 10000 ? extendedInterval : checkInterval;
+
+  // 指定された間隔で再チェック
+  await new Promise((resolve) => setTimeout(resolve, interval));
+ }
 }

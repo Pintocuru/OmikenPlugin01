@@ -167,7 +167,10 @@ export interface CountCondition {
   | 'loop'; // 数値をvalue1で割った数
  unit:
   | 'draws' // その枠でrulesに該当した回数(個人)
-  | 'totalDraws' // その枠でrulesに該当した回数(合計)
+  | 'totalDraws' // 過去すべてのrulesに該当した回数(合計)
+  | 'gameDraws' // その配信枠でrulesに該当した回数(合計)
+  | 'gameTotalDraws' // 過去すべてのrulesに該当した回数(合計)
+  | 'lc' // 配信枠のコメント数(プラグインで独自に付与)
   | 'tc' // 総数の個人コメ数(userData.tc)
   | 'interval'; // そのユーザーの前回のコメントからの経過時間(ミリ秒)(userData.interval)
  value1: number;

@@ -1,9 +1,10 @@
 import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { ParamsType, StoreApiType } from '@type';
+import { DataType, Mode, ParamsType, StoreApiType } from '@type';
 import { configs } from '@/config';
 import { filterTypes } from './InitDataLoader';
 import path from 'path';
 import fs from 'fs/promises';
+import { systemMessage } from './ErrorHandler';
 
 export class RequestHandler {
  private responseMap: StoreApiType;
@@ -31,7 +32,7 @@ export class RequestHandler {
      };
    }
   } catch (error) {
-   console.error('リクエスト処理中にエラーが発生:', error);
+   systemMessage('warn', 'リクエスト処理中にエラーが発生:', error);
    return {
     response: this.responseError(500, 'データ処理中にエラーが発生しました')
    };
@@ -40,7 +41,33 @@ export class RequestHandler {
 
  // GET リクエストの処理
  private handleGet(params: ParamsType): PluginResponse {
-  if (params.mode === 'data') {
+  // 接続確認
+  if (params.mode === Mode.Ping) {
+   return this.responseSuccess(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+  }
+
+  // 一括でのデータ取得処理
+  if (params.mode === Mode.AllData) {
+   // すべてのデータを一括で取得する
+   const allData = {
+    Omiken: this.responseMap[DataType.Omiken],
+    Presets: this.responseMap[DataType.Presets],
+    Charas: this.responseMap[DataType.Charas],
+    Scripts: this.responseMap[DataType.Scripts],
+    Visits: this.responseMap[DataType.Visits],
+    Games: this.responseMap[DataType.Games]
+   };
+
+   // 必要に応じてエラーチェック
+   if (Object.values(allData).some((data) => data == null)) {
+    return this.responseError(500, '一部データの取得に失敗しました');
+   }
+
+   return this.responseSuccess(JSON.stringify(allData));
+  }
+
+  // 個別データの取得
+  if (params.mode === Mode.Data) {
    if (!params.type) return this.responseError(400, 'タイプパラメータが必要です');
 
    // 読み込みのデータを返す
@@ -48,7 +75,8 @@ export class RequestHandler {
    return response ? this.responseSuccess(JSON.stringify(response)) : this.responseError(400, '無効なタイプ');
   }
 
-  if (params.mode === 'backup') {
+  // エディターからバックアップの取得
+  if (params.mode === Mode.Backup) {
    return this.responseError(501, 'バックアップの取得は未実装');
   }
 

@@ -18,18 +18,18 @@ export const commentMock: Comment = {
   id: 'yt-1733023389806',
   liveId: 'youtube-test',
   userId: 'テストユーザー',
-  name: 'テストユーザー',
+  name: 'テスト',
   isOwner: false,
-  timestamp: '2024-12-01T03:23:09.806Z',
+  timestamp: '2037-12-01T03:23:09.806Z',
   badges: [],
   hasGift: false,
   profileImage: '',
-  displayName: 'テストユーザー',
+  displayName: 'テスト',
   originalProfileImage: '',
   meta: {},
   speechText: 'テ'
  },
- meta: { interval: 0, tc: 1, no: 1, lc: 1 }
+ meta: { interval: 999990, tc: 1, no: 1, lc: 11 }
 };
 
 // プラグインデータモック

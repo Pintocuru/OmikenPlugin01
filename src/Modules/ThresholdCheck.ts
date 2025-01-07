@@ -3,6 +3,7 @@
 import {
  AccessCondition,
  CountCondition,
+ GameType,
  GiftCondition,
  MatchCondition,
  RulesType,
@@ -19,7 +20,8 @@ export class ThresholdChecker {
   private readonly rule: RulesType,
   private readonly TimeConfig: TimeConfigType,
   private readonly comment?: Comment | undefined,
-  private readonly visit?: VisitType | undefined
+  private readonly visit?: VisitType | undefined,
+  private readonly Games?: Record<string, GameType> | undefined
  ) {}
 
  // 条件チェック（配列全体）
@@ -54,14 +56,15 @@ export class ThresholdChecker {
 
  // 初見・久しぶりのチェック
  private matchIsSyoken(syoken: SyokenCondition): boolean {
+  // (仕様書とは異なる)meta.free は配信枠1コメめかどうか
   if (!this.comment?.meta.free) return false;
 
-  const conditions: Record<SyokenCondition, () => boolean> = {
-   [SyokenCondition.SYOKEN]: () => this.comment!.meta.interval === 0,
-   [SyokenCondition.AGAIN]: () => this.comment!.meta.interval > 7 * 24 * 60 * 60 * 1000,
-   [SyokenCondition.HI]: () => true,
-   [SyokenCondition.ALL]: () => true
-  };
+const conditions: Record<SyokenCondition, () => boolean> = {
+ [SyokenCondition.SYOKEN]: () => this.comment.meta?.interval === 0 || this.comment.meta?.interval === undefined,
+ [SyokenCondition.AGAIN]: () => this.comment.meta.interval > 7 * 24 * 60 * 60 * 1000,
+ [SyokenCondition.HI]: () => !conditions[SyokenCondition.SYOKEN]() && !conditions[SyokenCondition.AGAIN](),
+ [SyokenCondition.ALL]: () => true
+};
   return conditions[syoken]?.() ?? false;
  }
 
@@ -121,12 +124,16 @@ export class ThresholdChecker {
    if (count.unit == 'interval') return false;
   }
 
-  const unitMap = {
-   draws: this.visit.visitData[this.rule.id].draws || 0,
-   totalDraws: this.visit.visitData[this.rule.id].totalDraws || 0,
+  const unitMap: Record<CountCondition['unit'], number> = {
+   draws: this.visit?.visitData?.[this.rule?.id]?.draws || 0,
+   totalDraws: this.visit?.visitData?.[this.rule?.id]?.totalDraws || 0,
+   gameDraws: this.Games?.[this.rule?.id]?.draws || 0,
+   gameTotalDraws: this.Games?.[this.rule?.id]?.totalDraws || 0,
+   lc: this.comment?.meta?.lc ?? 0,
    tc: this.comment?.meta?.tc ?? 0,
-   interval: this.comment?.meta?.interval ?? 0
+   interval: Math.floor((this.comment?.meta?.interval ?? 0) / 1000)
   };
+  console.log(unitMap);
   return this.matchIsCountHelper(unitMap[count.unit], count);
  }
 
@@ -137,8 +144,8 @@ export class ThresholdChecker {
   const comparisonStrategies = {
    range: () => value2 !== undefined && value >= Math.min(value1, value2) && value <= Math.max(value1, value2),
    loop: () => value1 !== 0 && value % value1 === 0,
-   min: () => value >= value1,
-   max: () => value <= value1,
+   min: () => value <= value1,
+   max: () => value >= value1,
    equal: () => value === value1
   } as const;
 

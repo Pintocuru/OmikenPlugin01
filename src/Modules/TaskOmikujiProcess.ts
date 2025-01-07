@@ -9,9 +9,10 @@ import {
  visitDataType,
  VisitType
 } from '@type';
-import { postErrorMessage, PostMessages } from './PostOmikuji';
+import { PostMessages } from './PostOmikuji';
 import { PlaceProcess } from './PlaceProcess';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
+import { systemMessage } from './ErrorHandler';
 
 type OmikujiContext = {
  game: GameType;
@@ -100,20 +101,25 @@ export class OmikujiProcessor {
  private async scriptsCall(): Promise<ScriptsReturnType | undefined> {
   try {
    const script = this.omikuji.script;
-   const func = this.storeAll.Scripts[script.scriptId].func;
+   const scriptData = this.storeAll.Scripts[script?.scriptId];
 
-   if (typeof func !== 'function') {
-    throw new Error(`Function ${script.scriptId} is not registered`);
+   // スクリプトの存在確認
+   if (!scriptData || typeof scriptData.func !== 'function') {
+    systemMessage('warn', `外部スクリプト ${script.scriptId} が読み込めません`, {
+     scriptId: script.scriptId,
+     scriptData
+    });
+    return undefined;
    }
-   console.log(this.comment, script.params);
-   return func(this.context.visitData, this.context.game, this.comment, script.params);
+
+   // スクリプトの実行
+   return scriptData.func(this.context.visitData, this.context.game, this.comment, script.params);
   } catch (error) {
-   const errorMessage = `Script execution failed: ${error.message}`;
-   postErrorMessage(errorMessage);
-   console.error(errorMessage, {
-    script: this.omikuji.script,
-    context: this.context
-   });
+    systemMessage('error', `外部スクリプトエラー`, {
+     script: this.omikuji.script,
+     context: this.context,
+     error
+    });
    return undefined;
   }
  }
@@ -135,7 +141,7 @@ export class OmikujiProcessor {
     commentMeta && {
      draws: visitData?.draws?.toString() ?? '0',
      totalDraws: visitData?.totalDraws?.toString() ?? '0',
-     user: commentData.displayName,
+     user: commentData.displayName || commentData.name,
      tc: commentMeta.tc.toString(),
      lc: commentMeta.lc.toString(),
      round: commentMeta.no.toString()
@@ -154,7 +160,7 @@ export class OmikujiProcessor {
   }
  }
 
- //  Games / Visits / TimeConfig をプラグインに返す
+ // Games / Visits / TimeConfig をプラグインに返す
  private pluginsUpdate(): PluginUpdateData | PromiseLike<Partial<StoreType>> {
   const result: PluginUpdateData = {
    Games: {
