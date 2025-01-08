@@ -6,7 +6,7 @@ import {
  ScriptsReturnType,
  StoreMainType,
  StoreType,
- visitDataType,
+ UserStatsType,
  VisitType
 } from '@type';
 import { PostMessages } from './PostOmikuji';
@@ -16,7 +16,7 @@ import { systemMessage } from './ErrorHandler';
 
 type OmikujiContext = {
  game: GameType;
- visitData?: visitDataType;
+ userStats?: UserStatsType;
  visit?: VisitType;
 };
 
@@ -36,10 +36,22 @@ export class OmikujiProcessor {
 
  // 更新する対象を取得
  private setupContext() {
-  this.context.game = this.storeAll.Games[this.omikuji.selectRuleId];
+  this.context.game = this.storeAll.Games[this.omikuji.selectRuleId] ?? {
+   ruleId: this.omikuji.selectRuleId,
+   draws: 0,
+   totalDraws: 0,
+   userStats: {},
+   gameData: {}
+  };
+
   if (this.comment) {
-   this.context.visit = this.storeAll.Visits[this.comment.data.userId];
-   this.context.visitData = this.context.visit?.visitData[this.omikuji.selectRuleId];
+   const userId = this.comment.data.userId;
+   this.context.visit = this.storeAll.Visits[userId];
+   this.context.userStats = this.context.game.userStats[userId] ?? {
+    userId,
+    draws: 0,
+    totalDraws: 0
+   };
   }
  }
 
@@ -54,25 +66,34 @@ export class OmikujiProcessor {
 
  // draws情報の更新
  private updateDrawsStatus() {
-  const { visitData, game } = this.context;
+  const { userStats, game } = this.context;
   const selectRuleId = this.omikuji.selectRuleId;
 
-  // gameがundefinedの場合に備えたデフォルト値を設定
+  // gameの初期化を拡張
   this.context.game = {
    ...game,
-   id: selectRuleId,
+   ruleId: selectRuleId,
    draws: (game?.draws ?? 0) + 1,
-   totalDraws: (game?.totalDraws ?? 0) + 1
+   totalDraws: (game?.totalDraws ?? 0) + 1,
+   userStats: game?.userStats ?? {}, // userStatsの初期化を追加
+   gameData: game?.gameData ?? {} // gameDataも念のため初期化
   };
 
-  if (this.comment && visitData) {
-   // visitDataがundefinedの場合に備えたデフォルト値を設定
-   this.context.visitData = {
-    ...visitData,
-    id: selectRuleId,
-    draws: (visitData?.draws ?? 0) + 1,
-    totalDraws: (visitData?.totalDraws ?? 0) + 1,
-    // statusの付与・更新
+  if (this.comment && userStats) {
+   const userId = this.comment.data.userId;
+   // userStatsの初期化処理を追加
+   if (!this.context.game.userStats[userId]) {
+    this.context.game.userStats[userId] = {
+     userId,
+     draws: 0,
+     totalDraws: 0
+    };
+   }
+
+   this.context.userStats = {
+    ...this.context.game.userStats[userId],
+    draws: (userStats?.draws ?? 0) + 1,
+    totalDraws: (userStats?.totalDraws ?? 0) + 1,
     ...(this.omikuji.status && { status: this.omikuji.status })
    };
   }
@@ -93,7 +114,6 @@ export class OmikujiProcessor {
    }
    // game / visitDataの更新
    if (scriptResult.game) this.context.game = scriptResult.game;
-   if (scriptResult.visitData) this.context.visitData = scriptResult.visitData;
   }
  }
 
@@ -113,20 +133,20 @@ export class OmikujiProcessor {
    }
 
    // スクリプトの実行
-   return scriptData.func(this.context.visitData, this.context.game, this.comment, script.params);
+   return scriptData.func(this.context.game, this.comment, script.params);
   } catch (error) {
-    systemMessage('error', `外部スクリプトエラー`, {
-     script: this.omikuji.script,
-     context: this.context,
-     error
-    });
+   systemMessage('error', `外部スクリプトエラー`, {
+    script: this.omikuji.script,
+    context: this.context,
+    error
+   });
    return undefined;
   }
  }
 
  private processPlaceData() {
   const { placeIds } = this.omikuji;
-  const { visitData, game } = this.context;
+  const { userStats, game } = this.context;
   const commentData = this.comment?.data;
   const commentMeta = this.comment?.meta;
 
@@ -139,8 +159,8 @@ export class OmikujiProcessor {
    gameTotalDraws: game.totalDraws?.toString() ?? '0',
    ...(commentData &&
     commentMeta && {
-     draws: visitData?.draws?.toString() ?? '0',
-     totalDraws: visitData?.totalDraws?.toString() ?? '0',
+     draws: userStats?.draws?.toString() ?? '0',
+     totalDraws: userStats?.totalDraws?.toString() ?? '0',
      user: commentData.displayName || commentData.name,
      tc: commentMeta.tc.toString(),
      lc: commentMeta.lc.toString(),
@@ -155,7 +175,6 @@ export class OmikujiProcessor {
  private storeChanges() {
   this.storeAll.store.set(`Games.${this.omikuji.selectRuleId}`, this.context.game);
   if (this.comment && this.context.visit) {
-   this.context.visit.visitData[this.omikuji.selectRuleId] = this.context.visitData;
    this.storeAll.store.set(`Visits.${this.comment.data.userId}`, this.context.visit);
   }
  }

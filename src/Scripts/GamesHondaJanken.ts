@@ -5,11 +5,11 @@ import { OneCommePostType, ScriptParam, ScriptsType } from '@type';
 // エディターで設定できるパラメータ
 const SCRIPTPARAMS: ScriptParam[] = [
  {
-  id: 'mode', // キー名
-  name: 'モード', // ルール名
-  description: '0:スイカゲーム/1:カボチャゲーム/2:クジラゲーム', // 説明文
-  type: 'number',
-  value: 0 // デフォルト値
+  id: 'isWin', // キー名
+  name: '勝利したか', // ルール名
+  description: '勝敗フラグ。', // 説明文
+  type: 'boolean', //
+  value: false // デフォルト値
  },
  {
   id: 'isFruit', // キー名
@@ -22,16 +22,40 @@ const SCRIPTPARAMS: ScriptParam[] = [
 
 const PLACEHOLDERS: ScriptParam[] = [
  {
-  id: 'message',
-  name: '標準メッセージ',
-  description: 'デフォルトのスイカゲームの返答',
-  value: 'userの得点は1500!'
+  id: 'winsUser',
+  name: '個人勝数',
+  description: 'コメントしたユーザーの、ルールの勝数(今回の配信枠内)を返します',
+  value: '2'
  },
  {
-  id: 'points',
-  name: 'ポイント',
-  description: '総合得点',
-  value: '1500'
+  id: 'winsUserTotal',
+  name: '個人勝数(すべて)',
+  description: 'コメントしたユーザーの、ルールの勝数(過去全て)を返します',
+  value: '5'
+ },
+ {
+  id: 'winsEvery',
+  name: '全員の勝数',
+  description: 'ルールの勝数(今回の配信枠内)を返します',
+  value: '18'
+ },
+ {
+  id: 'winsEveryTotal',
+  name: '全員の勝数(すべて)',
+  description: 'ルールの勝数(過去全て)を返します',
+  value: '55'
+ },
+ {
+  id: 'winsUserRate',
+  name: '個人勝率(今回の配信枠内)',
+  description: 'コメントしたユーザーの、今回の配信枠内での勝率を返します',
+  value: '16.6'
+ },
+ {
+  id: 'winsEveryRate',
+  name: '全員の勝率(今回の配信枠内)',
+  description: '今回の配信枠内での全ユーザーの平均勝率を返します',
+  value: '4.12'
  }
 ];
 
@@ -39,44 +63,54 @@ const PLACEHOLDERS: ScriptParam[] = [
 
 const plugin: ScriptsType = {
  id: 'GamesTest',
- name: 'スイカゲーム(test)',
- description: 'おみくじプラグイン用のテスト',
+ name: '勝率判定ちゃん',
+ description: 'パラメータを受け取ることで、ゲーム数や勝率を管理します。',
  version: '0.0.1',
  author: 'Pintocuru',
  url: '',
  banner: '',
- func: (visitData, game, comment, params) => {
+ func: ( game, comment, params) => {
   // ゲームモードの設定
-  let currentMode = 'suika';
-  const mode = params?.mode ?? 0;
-  if (mode === 1) currentMode = 'kabo'; // カボチャゲーム
-  if (mode === 2) currentMode = 'kujira'; // クジラゲーム
-  const isWelcome = mode === 'welcome';
-  const user = comment.data.displayName;
 
-  // ゲームの実行
-  const { points, postArray } = playGacha(GAME_CONFIGS, currentMode);
-  // 0.7倍～1.3倍にし、最終的なスコアを返す
-  const finalPoints = Math.ceil(points * (0.7 + Math.random() * 0.6));
+  // 勝率
+  const userId = comment.data.userId;
+  const userDraws = game.userStats[userId].draws;
+  let userWins = (game.userStats[userId].wins as number) ?? 0;
+  const draws = game.draws; // 今回のゲーム回数
+  let wins = game.gameData?.wins as number ?? 0; // 今回の勝利数
+  const totalDraws = game.totalDraws; // これまでのゲーム回数
+  let totalWins = game.gameData.totalWins as number; // これまでの勝利数
 
-  // メッセージの生成
-  const message = isWelcome
-   ? `${user}さん、こんにちは! ${user}の得点は${finalPoints}!`
-   : `${user}の得点は${finalPoints}!`;
+  // visitData.count[0] を勝数とする
 
-  // fruitを降らせるか(0でなければ降らせる)
-  const postArrayHandle = (game.gameData?.isFruit ?? true) !== '0' ? postArray : [];
+  // 勝利したか
+  const isWin = params.isWin; // boolean
+
+  if (isWin) {
+   userWins++;
+   wins++;
+   totalWins++;
+  }
+
+  // game.gameDataの更新
+  const gameData = game.gameData;
+  gameData.wins = wins;
+  gameData.totalWins = totalWins;
 
   return {
-   postArray: postArrayHandle, // 複雑なWordParty用
-
    // 各種プレースホルダー
    placeholder: {
-    message, // 全体のメッセージ
-    points: finalPoints.toString() // 得点
+    winsUser: userWins, // ユーザーの今回の勝利数
+    winsUserTotal: userDraws > 0 ? ((userWins / userDraws) * 100).toFixed(1) : '0.0', // ユーザーの総合勝率(%)
+    winsEvery: wins, // 全体の今回の勝利数
+    winsEveryTotal: totalWins, // 全体の総合勝利数
+    winsUserRate: userDraws > 0 ? ((userWins / userDraws) * 100).toFixed(1) : '0.0', // ユーザーの現在の勝率(%)
+    winsEveryRate: draws > 0 ? ((wins / draws) * 100).toFixed(1) : '0.0' // 全体の現在の勝率(%)
    },
-   game,
-   visitData
+   game: {
+    ...game,
+    gameData: gameData
+   },
   };
  },
  scriptParams: SCRIPTPARAMS,

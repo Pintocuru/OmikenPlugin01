@@ -44,12 +44,12 @@ export class TaskCommentInstance {
   const visit = this.storeAll.Visits[this.comment.data.userId] || ({} as VisitType);
   // visit初期化・更新
   this.visit = {
-   status: visit?.status || '',
-   lastPluginTime: visit?.lastPluginTime || 0,
-   round: visit?.round || 0,
-   visitData: visit?.visitData || {},
    name: this.comment.data.name,
-   userId: this.comment.data.userId
+   userId: this.comment.data.userId,
+   round: visit?.round || 0,
+   status: visit?.status || '',
+   point: visit?.point || 0,
+   lastPluginTime: visit?.lastPluginTime || 0,
   };
 
   // pluginTimeが現在の枠と同じなら、2回目以降のコメント
@@ -62,10 +62,6 @@ export class TaskCommentInstance {
    this.visit.lastPluginTime = pluginTime;
    this.isFirstVisit = true;
    this.visit.status = '';
-   // visitData内のdrawsをリセット
-   Object.values(this.visit.visitData).forEach((data) => {
-    data.draws = 0;
-   });
   }
  }
 

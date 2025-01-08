@@ -52,28 +52,34 @@ export interface PluginUpdateData {
 export interface VisitType {
  name: string; // ユーザー名(ニックネーム)
  userId: string; // ユーザーID
- status: string; // ステータス
- lastPluginTime: number; // 前回コメントした配信枠のactiveTime
  round: number; // コメントした配信枠の数
- visitData: Record<string, visitDataType>;
+ status: string; // 任意のステータス(共通)
+ point: number; // 任意のポイント(共通)
+ lastPluginTime: number; // 前回コメントした配信枠のactiveTime
 }
 
 // draws基礎
 interface DrawsBase {
- id: string; // id
  draws: number; // 該当するおみくじを行った配信枠での回数
  totalDraws: number; // 該当するおみくじを行った総回数
 }
 
-// ユーザーデータ(個別)
-export interface visitDataType extends DrawsBase {
- count: [number, number, number];
- items: string[];
-}
 // おみくじデータ
 export interface GameType extends DrawsBase {
+ ruleId:string // rulesのID
+ userStats: { 
+  [userId: string]: UserStatsType 
+ };
  gameData: Record<string, unknown>; // scriptで自由に使えるObject
 }
+
+// ユーザーデータ(個別)
+export interface UserStatsType extends DrawsBase {
+ userId: string;
+ [key: string]: number | string | boolean | undefined;
+}
+
+// ---
 
 // 選択したおみくじ
 export interface OmikujiSelectType extends OmikujiType {

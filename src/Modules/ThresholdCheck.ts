@@ -51,7 +51,7 @@ export class ThresholdChecker {
 
  // クールダウンのチェック
  private matchIsCoolDown(coolDown: number): boolean {
-   return Date.now() < this.TimeConfig.lastTime + coolDown * 1000;
+  return Date.now() < this.TimeConfig.lastTime + coolDown * 1000;
  }
 
  // 初見・久しぶりのチェック
@@ -59,12 +59,12 @@ export class ThresholdChecker {
   // (仕様書とは異なる)meta.free は配信枠1コメめかどうか
   if (!this.comment?.meta.free) return false;
 
-const conditions: Record<SyokenCondition, () => boolean> = {
- [SyokenCondition.SYOKEN]: () => this.comment.meta?.interval === 0 || this.comment.meta?.interval === undefined,
- [SyokenCondition.AGAIN]: () => this.comment.meta.interval > 7 * 24 * 60 * 60 * 1000,
- [SyokenCondition.HI]: () => !conditions[SyokenCondition.SYOKEN]() && !conditions[SyokenCondition.AGAIN](),
- [SyokenCondition.ALL]: () => true
-};
+  const conditions: Record<SyokenCondition, () => boolean> = {
+   [SyokenCondition.SYOKEN]: () => this.comment.meta?.interval === 0 || this.comment.meta?.interval === undefined,
+   [SyokenCondition.AGAIN]: () => this.comment.meta.interval > 7 * 24 * 60 * 60 * 1000,
+   [SyokenCondition.HI]: () => !conditions[SyokenCondition.SYOKEN]() && !conditions[SyokenCondition.AGAIN](),
+   [SyokenCondition.ALL]: () => true
+  };
   return conditions[syoken]?.() ?? false;
  }
 
@@ -119,20 +119,22 @@ const conditions: Record<SyokenCondition, () => boolean> = {
 
  // 数値を参照する
  private matchIsCount(count: CountCondition): boolean {
-  if (!this.comment) {
-   if (count.unit == 'tc') return false;
-   if (count.unit == 'interval') return false;
-  }
+  if (!this.comment && (count.unit === 'tc' || count.unit === 'interval')) return false;
+
+  const userStats = this.Games?.[this.rule?.id]?.userStats[this.comment?.data.userId];
+  const gameData = this.Games?.[this.rule?.id];
+  const meta = this.comment?.meta;
 
   const unitMap: Record<CountCondition['unit'], number> = {
-   draws: this.visit?.visitData?.[this.rule?.id]?.draws || 0,
-   totalDraws: this.visit?.visitData?.[this.rule?.id]?.totalDraws || 0,
-   gameDraws: this.Games?.[this.rule?.id]?.draws || 0,
-   gameTotalDraws: this.Games?.[this.rule?.id]?.totalDraws || 0,
-   lc: this.comment?.meta?.lc ?? 0,
-   tc: this.comment?.meta?.tc ?? 0,
-   interval: Math.floor((this.comment?.meta?.interval ?? 0) / 1000)
+   draws: userStats?.draws || 0,
+   totalDraws: userStats?.totalDraws || 0,
+   gameDraws: gameData?.draws || 0,
+   gameTotalDraws: gameData?.totalDraws || 0,
+   lc: meta?.lc || 0,
+   tc: meta?.tc || 0,
+   interval: Math.floor((meta?.interval || 0) / 1000)
   };
+
   return this.matchIsCountHelper(unitMap[count.unit], count);
  }
 

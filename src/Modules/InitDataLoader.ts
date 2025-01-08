@@ -90,8 +90,21 @@ export class InitDataLoader {
  private initializeGames(): Record<string, GameType> {
   const Games = this.store.get('Games', {}) as Record<string, GameType>;
   // 初期化
-  const newGames = Object.fromEntries(Object.entries(Games).map(([key, game]) => [key, { ...game, draws: 0 }]));
-  // storeに格納
+ const newGames = Object.fromEntries(
+  Object.entries(Games).map(([key, game]) => [
+   key,
+   {
+    ...game,
+    draws: 0, // GameType の draws 初期化
+    userStats: Object.fromEntries(
+     Object.entries(game.userStats).map(([userId, userStat]) => [
+      userId,
+      { ...userStat, draws: 0 } // UserStatsType の draws 初期化
+     ])
+    )
+   }
+  ])
+ );  // storeに格納
   this.store.set('Games', newGames);
   return newGames;
  }
@@ -153,8 +166,7 @@ export async function timerSetup(StoreAll: StoreAllType) {
   StoreAll.OmikenTypesArray.timer,
   StoreAll.Omiken.omikujis,
   async (result: OmikujiSelectType) => {
-   const processor = new OmikujiProcessor(StoreAll, result);
-   await processor.process();
+   await new OmikujiProcessor(StoreAll, result).process();
   }
  );
 }
@@ -172,7 +184,7 @@ export async function startReadyCheck() {
 
    if (dataArray && dataArray.length > 0) {
     // データが取得できたらループを抜ける
-    console.log('Data is ready.');
+    console.info('Data is ready.');
     break;
    }
   } catch (error) {

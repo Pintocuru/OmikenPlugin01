@@ -44,7 +44,7 @@ const plugin: ScriptsType = {
  author: 'Pintocuru',
  url: '',
  banner: '',
- func: (visitData, game, comment, params) => {
+ func: ( game, comment, params) => {
   // ゲームモードの設定
   let currentMode = 'suika';
   const mode = params?.mode ?? 0;
@@ -75,7 +75,6 @@ const plugin: ScriptsType = {
     points: finalPoints.toString() // 得点
    },
    game,
-   visitData
   };
  },
  scriptParams: SCRIPTPARAMS,
