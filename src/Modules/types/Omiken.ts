@@ -74,7 +74,7 @@ export interface OmikujiType extends BaseType {
  status?: string; // ユーザーに対するステータスの付与
  script?: {
   scriptId: string; // 使用する外部スクリプトのid
-  params: ScriptParam[]; // 外部スクリプトに渡す引数(Scriptから取得する)
+  params: { [id: string]: string | number | boolean }; // 外部スクリプトに渡す引数(Scriptから取得する)
  };
  placeIds: string[]; // 使用するプレースホルダーのid
  post: OneCommePostType[];
@@ -101,6 +101,7 @@ export interface OneCommePostType {
 ///////////////////////////////////
 // プレースホルダー項目の型定義
 export interface PlaceType extends BaseType {
+ placeIds: string[];
  values: PlaceValueType[];
 }
 

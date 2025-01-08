@@ -108,10 +108,6 @@ export class PostMessages implements PostService {
   // 画像のファイルパスを確認
   const charaImage = chara.image[iconKey] || chara.image.Default || '';
   const profileImage = path.join(configs.imgRoot, charaImage);
-  // テスト:画像が存在しない場合は、エラーを表示
-  fs.access(profileImage, fs.constants.F_OK, (err) => {
-   if (err) systemMessage('warn', `キャラ画像を読めないです:${profileImage}`, err);
-  });
   return profileImage;
  }
 

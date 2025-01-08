@@ -1,7 +1,7 @@
 // src/plugin.test.ts
 
 import ElectronStore from 'electron-store';
-import {   StoreType } from '../Modules/type';
+import { StoreType } from '../Modules/type';
 import { commentMock, MockElectronStore, storeMock } from './plugin.mockData';
 
 const plugin = require('../plugin');
@@ -9,7 +9,6 @@ const plugin = require('../plugin');
 jest.mock('electron-store', () => {
  return jest.fn(() => new MockElectronStore());
 });
-
 
 describe('各種関数のテスト', () => {
  beforeEach(async () => {

@@ -14,7 +14,7 @@ export const commentMock: Comment = {
  url: '',
  color: { r: 0, g: 0, b: 0 },
  data: {
-  comment: '初見',
+  comment: 'じゃんけん',
   id: 'yt-1733023389806',
   liveId: 'youtube-test',
   userId: 'テストユーザー',

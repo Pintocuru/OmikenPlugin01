@@ -1,4 +1,5 @@
-// scriptサンプル
+// scr/Scripts/GamesHondaJanken.ts
+
 import { OneCommePostType, ScriptParam, ScriptsType } from '@type';
 
 // エディターで設定できるパラメータ

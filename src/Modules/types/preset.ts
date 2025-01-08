@@ -41,7 +41,7 @@ export interface CharaType extends PresetType {
 // ---
 
 export interface ScriptsType extends PresetType {
- func: (visit: visitDataType, game: GameType, comment?: Comment, params?: ScriptParam[]) => ScriptsReturnType;
+ func: ScriptsParamType;
  scriptParams: ScriptParam[];
  placeholders: ScriptParam[];
 }
@@ -51,7 +51,7 @@ export type ScriptsParamType = (
  visit: visitDataType,
  game: GameType,
  comment?: Comment,
- params?: ScriptParam[]
+ params?: { [id: string]: string | number | boolean }
 ) => ScriptsReturnType;
 
 // Scriptの返り値
@@ -64,5 +64,6 @@ export interface ScriptsReturnType {
 
 // gameのパラメータ設定用
 export interface ScriptParam extends BaseType {
- value: string; // 入る値
+ type?: 'string' | 'number' | 'boolean'; // valueのタイプ(デフォルトはstring)
+ value: string | number | boolean; // 入る値
 }

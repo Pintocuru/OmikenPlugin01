@@ -51,7 +51,7 @@ export class ThresholdChecker {
 
  // クールダウンのチェック
  private matchIsCoolDown(coolDown: number): boolean {
-  return this.TimeConfig.lastTime > Date.now() + coolDown * 1000;
+   return Date.now() < this.TimeConfig.lastTime + coolDown * 1000;
  }
 
  // 初見・久しぶりのチェック
@@ -133,7 +133,6 @@ const conditions: Record<SyokenCondition, () => boolean> = {
    tc: this.comment?.meta?.tc ?? 0,
    interval: Math.floor((this.comment?.meta?.interval ?? 0) / 1000)
   };
-  console.log(unitMap);
   return this.matchIsCountHelper(unitMap[count.unit], count);
  }
 
