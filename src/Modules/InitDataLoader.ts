@@ -90,21 +90,24 @@ export class InitDataLoader {
  private initializeGames(): Record<string, GameType> {
   const Games = this.store.get('Games', {}) as Record<string, GameType>;
   // 初期化
- const newGames = Object.fromEntries(
-  Object.entries(Games).map(([key, game]) => [
-   key,
-   {
-    ...game,
-    draws: 0, // GameType の draws 初期化
-    userStats: Object.fromEntries(
-     Object.entries(game.userStats).map(([userId, userStat]) => [
-      userId,
-      { ...userStat, draws: 0 } // UserStatsType の draws 初期化
-     ])
-    )
-   }
-  ])
- );  // storeに格納
+  const newGames = Object.fromEntries(
+   Object.entries(Games).map(([key, game]) => [
+    key,
+    {
+     ...game,
+     draws: 0,
+     wins: 0,
+     points: 0,
+     status: '',
+     userStats: Object.fromEntries(
+      Object.entries(game.userStats).map(([userId, userStat]) => [
+       userId,
+       { ...userStat, draws: 0, wins: 0, points: 0, status: '' } // UserStatsType の draws 初期化
+      ])
+     )
+    }
+   ])
+  ); // storeに格納
   this.store.set('Games', newGames);
   return newGames;
  }

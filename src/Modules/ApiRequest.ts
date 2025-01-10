@@ -1,141 +1,105 @@
 import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { DataType, Mode, ParamsType, StoreApiType } from '@type';
-import { configs } from '@/config';
+import { DataType, Mode, OmikenType, ParamsType, StoreApiType } from '@type';
 import { filterTypes } from './InitDataLoader';
-import path from 'path';
-import fs from 'fs/promises';
 import { systemMessage } from './ErrorHandler';
 
+type RequestResult = {
+ response: PluginResponse;
+ data?: StoreApiType;
+};
 export class RequestHandler {
- private responseMap: StoreApiType;
-
- constructor(services: StoreApiType) {
-  this.responseMap = services;
- }
+ constructor(private readonly responseMap: StoreApiType) {}
 
  // リクエストの実行
- async handleRequest(req: PluginRequest): Promise<{
-  response: PluginResponse;
-  data?: StoreApiType;
- }> {
-  const { method, params, body } = req;
-
+ async request(req: PluginRequest): Promise<RequestResult> {
   try {
-   switch (method) {
-    case 'GET':
-     return { response: this.handleGet(params as unknown as ParamsType) };
-    case 'POST':
-     return this.handlePost(params, body);
-    default:
-     return {
-      response: this.responseError(404, 'サポートされていないメソッド')
-     };
-   }
+   const { method, params, body } = req;
+   const typedParams = params as unknown as ParamsType;
+
+   return method === 'GET'
+    ? { response: this.handleGet(typedParams) }
+    : method === 'POST'
+    ? this.handlePost(typedParams, body)
+    : { response: this.createResponse(404, 'サポートされていないメソッド') };
   } catch (error) {
    systemMessage('warn', 'リクエスト処理中にエラーが発生:', error);
-   return {
-    response: this.responseError(500, 'データ処理中にエラーが発生しました')
-   };
+   return { response: this.createResponse(500, 'データ処理中にエラーが発生しました') };
   }
  }
 
  // GET リクエストの処理
  private handleGet(params: ParamsType): PluginResponse {
-  // 接続確認
-  if (params.mode === Mode.Ping) {
-   return this.responseSuccess(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
-  }
+  const handlers: Record<Mode, () => PluginResponse> = {
+   [Mode.Ping]: () => this.handlePing(),
+   [Mode.AllData]: () => this.handleAllData(),
+   [Mode.Data]: () => this.handleSingleData(params),
+   [Mode.Backup]: () => this.createResponse(501, 'バックアップの取得は未実装')
+  };
 
-  // 一括でのデータ取得処理
-  if (params.mode === Mode.AllData) {
-   // すべてのデータを一括で取得する
-   const allData = {
-    Omiken: this.responseMap[DataType.Omiken],
-    Presets: this.responseMap[DataType.Presets],
-    Charas: this.responseMap[DataType.Charas],
-    Scripts: this.responseMap[DataType.Scripts],
-    Visits: this.responseMap[DataType.Visits],
-    Games: this.responseMap[DataType.Games]
-   };
+  return handlers[params.mode]?.() ?? this.createResponse(400, '無効なリクエストモード');
+ }
 
-   // 必要に応じてエラーチェック
-   if (Object.values(allData).some((data) => data == null)) {
-    return this.responseError(500, '一部データの取得に失敗しました');
-   }
+ // 接続確認
+ private handlePing(): PluginResponse {
+  return this.createResponse(
+   200,
+   JSON.stringify({
+    status: 'ok',
+    timestamp: new Date().toISOString()
+   })
+  );
+ }
 
-   return this.responseSuccess(JSON.stringify(allData));
-  }
+ // 一括でのデータ取得処理
+ private handleAllData(): PluginResponse {
+  const allData = Object.fromEntries(Object.values(DataType).map((type) => [type, this.responseMap[type]]));
 
-  // 個別データの取得
-  if (params.mode === Mode.Data) {
-   if (!params.type) return this.responseError(400, 'タイプパラメータが必要です');
+  return Object.values(allData).some((data) => data == null)
+   ? this.createResponse(500, '一部データの取得に失敗しました')
+   : this.createResponse(200, JSON.stringify(allData));
+ }
 
-   // 読み込みのデータを返す
-   const response = this.responseMap[params.type];
-   return response ? this.responseSuccess(JSON.stringify(response)) : this.responseError(400, '無効なタイプ');
-  }
+ // 個別データの取得
+ private handleSingleData(params: ParamsType): PluginResponse {
+  if (!params.type) return this.createResponse(400, 'タイプパラメータが必要です');
 
-  // エディターからバックアップの取得
-  if (params.mode === Mode.Backup) {
-   return this.responseError(501, 'バックアップの取得は未実装');
-  }
-
-  return this.responseError(400, '無効なリクエストモード');
+  const data = this.responseMap[params.type];
+  return data ? this.createResponse(200, JSON.stringify(data)) : this.createResponse(400, '無効なタイプ');
  }
 
  // POST リクエストの処理
- private async handlePost(
-  params: PluginRequest['params'],
-  body: string
- ): Promise<{
-  response: PluginResponse;
-  data?: StoreApiType;
- }> {
-  if (params.mode === 'writing') {
-   try {
-    //Omiken.index.jsonに書き込み
-    const data = JSON.parse(body);
-    const holder = path.join(configs.dataRoot, 'Omiken');
-    const filePath = path.join(holder, 'index.json');
-
-    await fs.mkdir(holder, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    console.log(`File saved at ${filePath}`);
-
-    // TODO バックアップは実装されていません
-    const backupService = new BackupService('Omiken');
-    backupService.createBackup(data);
-
-    // プラグインのデータも更新
-    Object.assign(this.responseMap, {
-     Omiken: data,
-     OmikenTypesArray: filterTypes(data.types, data.rules)
-    });
-
-    return {
-     response: this.responseSuccess('ファイルが正常に保存されました'),
-     data: this.responseMap
-    };
-   } catch (error) {
-    console.error('エラー:', error);
-    return {
-     response: this.responseError(400, 'データ処理中にエラーが発生しました')
-    };
-   }
+ private async handlePost(params: ParamsType, body: { headers: any; data: any }): Promise<RequestResult> {
+  if (params.mode !== Mode.Backup) {
+   return { response: this.createResponse(400, '無効なタイプパラメータ') };
   }
 
-  return { response: this.responseError(400, '無効なタイプパラメータ') };
+  // Mode.Backup
+  try {
+   await this.updateOmikenData(body.data);
+   return {
+    response: this.createResponse(200, 'ファイルが正常に保存されました'),
+    data: this.responseMap
+   };
+  } catch (error) {
+   console.error('エラー:', error);
+   return { response: this.createResponse(400, 'データ処理中にエラーが発生しました') };
+  }
  }
 
- // 成功レスポンスの共通関数
- responseSuccess(data: string, code: number = 200): PluginResponse {
-  return { code, response: data };
+ // おみくじデータの更新
+ private async updateOmikenData(newOmiken: OmikenType): Promise<void> {
+  this.responseMap.store.set('Omiken', newOmiken);
+  Object.assign(this.responseMap, {
+   Omiken: newOmiken,
+   OmikenTypesArray: filterTypes(newOmiken.types, newOmiken.rules)
+  });
  }
 
- // エラーレスポンスの共通関数
- responseError(code: number, message: string): PluginResponse {
-  return { code, response: message };
+ // 共通レスポンスの生成
+ private createResponse(code: number, response: string): PluginResponse {
+  return { code, response };
  }
+
 }
 
 // TODO バックアップは実装されていません

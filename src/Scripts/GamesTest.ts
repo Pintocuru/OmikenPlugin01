@@ -15,7 +15,7 @@ const SCRIPTPARAMS: ScriptParam[] = [
   name: 'フルーツをWordPartyで降らせるか', // ルール名
   description: '1:降らせる/0:OFF 別途専用WordPartyが必要です', // 説明文
   type: 'boolean',
-  value: '1' // デフォルト値
+  value: true // デフォルト値
  }
 ];
 
@@ -44,13 +44,15 @@ const plugin: ScriptsType = {
  author: 'Pintocuru',
  url: '',
  banner: '',
- func: ( game, comment, params) => {
+ func: (game, comment, params) => {
+  // params の展開
+  const mode = (params?.mode as number) ?? 0;
+  const isFruit = (params?.isFruit as boolean) ?? true;
+
   // ゲームモードの設定
   let currentMode = 'suika';
-  const mode = params?.mode ?? 0;
   if (mode === 1) currentMode = 'kabo'; // カボチャゲーム
   if (mode === 2) currentMode = 'kujira'; // クジラゲーム
-  const isWelcome = mode === 'welcome';
   const user = comment.data.displayName;
 
   // ゲームの実行
@@ -58,23 +60,16 @@ const plugin: ScriptsType = {
   // 0.7倍～1.3倍にし、最終的なスコアを返す
   const finalPoints = Math.ceil(points * (0.7 + Math.random() * 0.6));
 
-  // メッセージの生成
-  const message = isWelcome
-   ? `${user}さん、こんにちは! ${user}の得点は${finalPoints}!`
-   : `${user}の得点は${finalPoints}!`;
-
-  // fruitを降らせるか(0でなければ降らせる)
-  const postArrayHandle = (game.gameData?.isFruit ?? true) !== '0' ? postArray : [];
-
   return {
-   postArray: postArrayHandle, // 複雑なWordParty用
+   // fruitを降らせるか
+   postArray: isFruit ? postArray : [],
 
    // 各種プレースホルダー
    placeholder: {
-    message, // 全体のメッセージ
+    message: `${user}の得点は${finalPoints}!`, // メッセージ
     points: finalPoints.toString() // 得点
    },
-   game,
+   game
   };
  },
  scriptParams: SCRIPTPARAMS,

@@ -5,7 +5,6 @@ import { configs } from '@/config';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import axios from 'axios';
 import path from 'path';
-import fs from 'fs';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { systemMessage } from './ErrorHandler';
 
@@ -28,14 +27,9 @@ export class PostMessages implements PostService {
 
    // 順次処理を保証
    await Promise.all(
-    this.posts.map(async (post) => {
-     if (post.type === 'onecomme') {
-      const chara = this.Charas[post.botKey];
-      await this.postMessage(post, chara);
-     } else {
-      await this.postMessage(post);
-     }
-    })
+    this.posts.map((post) =>
+     post.type === 'onecomme' ? this.postMessage(post, this.Charas[post.botKey]) : this.postMessage(post)
+    )
    );
   } catch (error) {
    console.error('Failed to initialize posts:', error);
@@ -44,33 +38,23 @@ export class PostMessages implements PostService {
 
  async postMessage(post: OneCommePostType, chara?: CharaType): Promise<void> {
   const { type, content, delaySeconds } = post;
+  // 空のメッセージはスキップ
+  if (!content?.trim()) return;
 
-  if (!content?.trim()) return; // 空のメッセージは処理しない
-
-  // `type` が "onecomme" の場合のみ枠情報をチェック
-  if (type === 'onecomme' && chara) {
-   if (!this.services.some((s) => s.id === chara.frameId) && configs.isCreateService) {
-    await this.createService(chara);
-   }
+  // 枠情報をチェック
+  if (type === 'onecomme' && chara && !this.services.some((s) => s.id === chara.frameId) && configs.isCreateService) {
+   await this.createService(chara);
   }
 
   // `type` に応じた処理
-  switch (type) {
-   case 'onecomme': // わんコメ
-    if (chara) {
-     await this.postOneComme(post, chara);
-    }
-    break;
-   case 'party': // WordParty
-    await this.postWordParty(delaySeconds, content);
-    break;
-   case 'speech': // スピーチ(音声のみ)
-    await this.postSpeech(delaySeconds, content);
-    break;
-   case 'error': // わんコメ(error用、post.generatorParamは名前)
-    await this.postError(delaySeconds, content, post.generatorParam);
-    break;
-  }
+  const actionMap: Record<string, () => Promise<void>> = {
+   onecomme: () => (chara ? this.postOneComme(post, chara) : Promise.resolve()),
+   party: () => this.postWordParty(delaySeconds, content),
+   speech: () => this.postSpeech(delaySeconds, content),
+   error: () => this.postSystem(delaySeconds, content, post.generatorParam)
+  };
+  const action = actionMap[type];
+  if (action) await action();
  }
 
  // わんコメへ投稿
@@ -128,7 +112,7 @@ export class PostMessages implements PostService {
  }
 
  // わんコメへエラーメッセージを投稿
- private async postError(delaySeconds: number, content: string, name: string = 'error'): Promise<void> {
+ private async postSystem(delaySeconds: number, content: string, name: string = 'error'): Promise<void> {
   const request: postOneCommeRequestType = {
    service: {
     id: this.services[0].id

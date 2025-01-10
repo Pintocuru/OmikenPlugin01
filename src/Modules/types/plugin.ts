@@ -11,6 +11,7 @@ import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 
 // ElectronStore用の型
 export interface StoreType {
+ store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  Omiken: OmikenType;
  Visits: Record<string, VisitType>;
  Games: Record<string, GameType>;
@@ -18,7 +19,6 @@ export interface StoreType {
 
 // おみくじBOT用の型
 export interface StoreMainType extends StoreType {
- store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsType>;
@@ -59,24 +59,30 @@ export interface VisitType {
 }
 
 // draws基礎
-interface DrawsBase {
- draws: number; // 該当するおみくじを行った配信枠での回数
- totalDraws: number; // 該当するおみくじを行った総回数
+export interface DrawsBase {
+ draws: number; // 配信枠での、おみくじ回数
+ totalDraws: number; // おみくじの総回数
+ wins?: number; // 配信枠での、おみくじ勝利数
+ totalWins?: number; // おみくじの総勝利数
+ points?: number; // 配信枠での、おみくじポイント数
+ totalPoints?: number; // おみくじの総ポイント数
+ status?: string; // おみくじのステータス
+ items?: Record<string, string>; // おみくじで得たアイテム
+ lastPlayed?: string; // 最終プレイ日時
 }
 
 // おみくじデータ
 export interface GameType extends DrawsBase {
- ruleId:string // rulesのID
- userStats: { 
-  [userId: string]: UserStatsType 
- };
- gameData: Record<string, unknown>; // scriptで自由に使えるObject
+ ruleId: string; // rulesのID(key)
+ userStats: Record<string, UserStatsType>;
+ currentUserIds: string[]; // ユーザー履歴
+ [key: string]: any; // scriptで自由に使えるObject
 }
 
-// ユーザーデータ(個別)
+// ユーザーデータ
 export interface UserStatsType extends DrawsBase {
  userId: string;
- [key: string]: number | string | boolean | undefined;
+ name?: string; // 名前
 }
 
 // ---
@@ -91,7 +97,7 @@ export interface TimeConfigType {
  pluginTime: number; // プラグインを起動した時刻
  lc: number; // プラグインを起動してからカウントしたコメント数
  lastTime: number; // 最後におみくじ機能が実行された時刻
- lastUserId: string; // 最後におみくじを行ったuserId
+ lastUserId: string; // TODO 廃止(Gamesが担う) 最後におみくじを行ったuserId
 }
 
 // ---

@@ -62,6 +62,8 @@ export interface ScriptsReturnType {
 
 // gameのパラメータ設定用
 export interface ScriptParam extends BaseType {
+ // TODO isEverは、ちゃんとrulesでScriptを設定できるまでの暫定機能
+ isEver?: boolean; // 一度設定すると、JSONをいじらない限り同じ値になる
  type?: 'string' | 'number' | 'boolean'; // valueのタイプ(デフォルトはstring)
  value: string | number | boolean; // 入る値
 }

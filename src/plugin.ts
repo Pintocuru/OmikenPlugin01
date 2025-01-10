@@ -14,7 +14,7 @@ import { systemMessage } from './Modules/ErrorHandler';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: configs.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.0.10', // プラグインのバージョン番号
+ version: '0.0.11', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://onecomme.com', // サポートページのURL
  // services:枠情報,filter.comment:コメント
@@ -95,6 +95,7 @@ const plugin: OnePlugin = {
  async request(this: StoreAllType, req): Promise<PluginResponse> {
   // データ型のマッピング
   const responseMap: StoreApiType = {
+   store: this.store,
    Omiken: this.Omiken,
    Presets: this.Presets,
    Charas: this.Charas,
@@ -103,9 +104,8 @@ const plugin: OnePlugin = {
    Games: this.Games
   };
 
-  const handler = new RequestHandler(responseMap);
-  const result = await handler.handleRequest(req);
-  Object.assign(this, result.data);
+  const result = await new RequestHandler(responseMap).request(req);
+  if (result.data) Object.assign(this, result.data);
   return result.response;
  }
 };
