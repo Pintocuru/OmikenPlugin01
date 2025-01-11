@@ -1,6 +1,6 @@
 {
- "id": "yukkuriFortuneOmikuji",
- "name": "ゆっくり霊夢 おみくじ・フラワーおみくじ",
+ "id": "YukkuriFortuneOmikuji",
+ "name": "ゆっくり霊夢&ゆっくり魔理沙 おみくじ・フラワーおみくじ",
  "description": "ゆっくり霊夢にピッタリの、おみくじセット。",
  "version": "0.0.1",
  "item": {
@@ -26,26 +26,26 @@
          "fortuneOmikuji04",
          "fortuneOmikuji05",
          "fortuneOmikuji06",
-         "fortuneOmikuji07"
+         "fortuneOmikuji07",
+         "1736320593482-wdmdr"
        ],
        "threshold": [
          {
            "conditionType": "match",
-           "target": null,
            "coolDown": 3,
            "syoken": 1,
            "access": 2,
            "gift": 0,
-           "match": {
-             "target": "comment",
-             "case": "starts",
-             "value": ["おみくじ", "omikuji", "omikuzi", "御神籤"]
-           },
            "count": {
              "comparison": "max",
              "unit": "draws",
              "value1": 0,
              "value2": 1
+           },
+           "match": {
+             "target": "comment",
+             "case": "starts",
+             "value": ["おみくじ", "omikuji", "omikuzi", "御神籤"]
            }
          }
        ]
@@ -63,11 +63,22 @@
          "fortuneFlowerGreen",
          "fortuneFlowerOrange",
          "fortuneFlowerKinoko",
-         "fortuneFlowerWhite"
+         "fortuneFlowerWhite",
+         "1736320731539-ff1m3"
        ],
        "threshold": [
          {
            "conditionType": "match",
+           "coolDown": 3,
+           "syoken": 1,
+           "access": 2,
+           "gift": 0,
+           "count": {
+             "comparison": "max",
+             "unit": "draws",
+             "value1": 0,
+             "value2": 1
+           },
            "match": {
              "target": "comment",
              "case": "starts",
@@ -106,9 +117,9 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "joy02",
+           "delaySeconds": 1,
            "party": "!レベルアップ",
            "generatorParam": "",
-           "delaySeconds": 1,
            "content": "<<user>>さんの運勢は【大吉】<<omikuji01>>"
          }
        ]
@@ -141,8 +152,8 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "sorry01",
-           "party": "!呪いの旋律",
            "delaySeconds": 1,
+           "party": "!呪いの旋律",
            "content": "<<user>>さんの運勢は【凶】<<omikuji06>>"
          }
        ]
@@ -175,9 +186,9 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "joy01",
+           "delaySeconds": 1,
            "party": "!シャキーン2",
            "generatorParam": "",
-           "delaySeconds": 1,
            "content": "<<user>>さんの運勢は【吉】<<omikuji02>>"
          }
        ]
@@ -210,9 +221,9 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "fun03",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
-           "content": "<<user>>さんの運勢は【吉】<<omikuji03>>"
+           "party": "!シーン切り替え1",
+           "content": "<<user>>さんの運勢は【中吉】<<omikuji03>>"
          }
        ]
      },
@@ -244,8 +255,8 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "fun02",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんの運勢は【小吉】<<omikuji04>>"
          }
        ]
@@ -278,8 +289,8 @@
            "type": "onecomme",
            "botKey": "reimu",
            "iconKey": "sad01",
-           "party": "!間抜け1",
            "delaySeconds": 1,
+           "party": "!間抜け1",
            "content": "<<user>>さんの運勢は【末吉】<<omikuji05>>"
          }
        ]
@@ -312,8 +323,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "surprise02",
-           "party": "!ビシッとツッコミ1",
            "delaySeconds": 1,
+           "party": "!ビシッとツッコミ1",
            "content": "<<user>>さんの運勢は【残念賞】<<omikuji07>>"
          }
        ]
@@ -332,8 +343,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【青色】<<flowerBlue>>"
          }
        ]
@@ -352,8 +363,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【赤色】<<flowerRed>>"
          }
        ]
@@ -372,8 +383,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【黄色】<<flowerYellow>>"
          }
        ]
@@ -392,8 +403,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【紫色】<<flowerPurple>>"
          }
        ]
@@ -412,8 +423,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【緑色】<<flowerGreen>>"
          }
        ]
@@ -432,8 +443,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【オレンジ色】<<flowerOrange>>"
          }
        ]
@@ -452,8 +463,8 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "Default",
-           "party": "!シーン切り替え1",
            "delaySeconds": 1,
+           "party": "!シーン切り替え1",
            "content": "<<user>>さんは【白色】<<flowerWhite>>"
          }
        ]
@@ -472,9 +483,89 @@
            "type": "onecomme",
            "botKey": "marisa",
            "iconKey": "joy04",
-           "party": "!間抜け1",
            "delaySeconds": 1,
+           "party": "!間抜け1",
            "content": "<<user>>さんは【キノコ色】<<flowerKinoko>>"
+         }
+       ]
+     },
+     "1736320593482-wdmdr": {
+       "id": "1736320593482-wdmdr",
+       "name": "おみくじ重複",
+       "description": "おみくじ系のコメントが被った場合",
+       "rank": 10,
+       "weight": 1,
+       "threshold": [
+         {
+           "conditionType": "coolDown",
+           "coolDown": 3,
+           "syoken": 1,
+           "access": 2,
+           "gift": 0,
+           "count": {
+             "comparison": "max",
+             "unit": "draws",
+             "value1": 0,
+             "value2": 1
+           },
+           "match": {
+             "target": "comment",
+             "case": "starts",
+             "value": ["おみくじ"]
+           }
+         }
+       ],
+       "placeIds": [],
+       "post": [
+         {
+           "type": "onecomme",
+           "botKey": "reimu",
+           "iconKey": "sorry01",
+           "delaySeconds": 0,
+           "content": "<<user>>さん、おみくじが被ったみたい。またコメントしてね!",
+           "party": "",
+           "generatorParam": "toast",
+           "isSilent": true
+         }
+       ]
+     },
+     "1736320731539-ff1m3": {
+       "id": "1736320731539-ff1m3",
+       "name": "フラワーおみくじ重複",
+       "description": "おみくじ系のコメントが被った場合",
+       "rank": 10,
+       "weight": 1,
+       "threshold": [
+         {
+           "conditionType": "coolDown",
+           "coolDown": 3,
+           "syoken": 1,
+           "access": 2,
+           "gift": 0,
+           "count": {
+             "comparison": "max",
+             "unit": "draws",
+             "value1": 0,
+             "value2": 1
+           },
+           "match": {
+             "target": "comment",
+             "case": "starts",
+             "value": ["おみくじ"]
+           }
+         }
+       ],
+       "placeIds": [],
+       "post": [
+         {
+           "type": "onecomme",
+           "botKey": "marisa",
+           "iconKey": "sorry02",
+           "delaySeconds": 0,
+           "party": "",
+           "isSilent": true,
+           "generatorParam": "toast",
+           "content": "<<user>>さん、おみくじが被ったみたいだぜ。またコメントして欲しいぜ。"
          }
        ]
      }
@@ -484,6 +575,7 @@
        "id": "omikujiPlaces01",
        "name": "omikuji01",
        "description": "おみくじ:大吉",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -515,6 +607,7 @@
        "id": "omikujiPlaces02",
        "name": "omikuji02",
        "description": "おみくじ:吉",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -545,7 +638,8 @@
      "omikujiPlaces03": {
        "id": "omikujiPlaces03",
        "name": "omikuji03",
-       "description": "",
+       "description": "おみくじ:中吉",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -576,7 +670,8 @@
      "omikujiPlaces04": {
        "id": "omikujiPlaces04",
        "name": "omikuji04",
-       "description": "",
+       "description": "おみくじ:小吉",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -607,7 +702,8 @@
      "omikujiPlaces05": {
        "id": "omikujiPlaces05",
        "name": "omikuji05",
-       "description": "",
+       "description": "おみくじ:末吉",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -638,7 +734,8 @@
      "omikujiPlaces06": {
        "id": "omikujiPlaces06",
        "name": "omikuji06",
-       "description": "",
+       "description": "おみくじ:凶",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -669,7 +766,8 @@
      "omikujiPlaces07": {
        "id": "omikujiPlaces07",
        "name": "omikuji07",
-       "description": "",
+       "description": "おみくじ:残念賞。大凶じゃないよ！残念賞だよ。",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -685,7 +783,19 @@
          },
          {
            "weight": 1,
+           "value": "ニューヨークが新しくなくなったら、ただのヨークだぜ。残念ッ！"
+         },
+         {
+           "weight": 1,
+           "value": "剥いても剥いても中身がない野菜？答えは玉ねぎだぜ。残念でした。また来てね。"
+         },
+         {
+           "weight": 1,
            "value": "知ってる？「コンクリート」っていう漢字があるんだぜ。しかも1文字で。"
+         },
+         {
+           "weight": 1,
+           "value": "バスケ中にゴリラが横切っても誰も気づかないぜ。インビジブル・ゴリラ実験って言うぜ。"
          },
          {
            "weight": 1,
@@ -697,6 +807,7 @@
        "id": "flowerPlacesRed",
        "name": "flowerRed",
        "description": "フラワー:赤色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -732,6 +843,7 @@
        "id": "flowerPlacesBlue",
        "name": "flowerBlue",
        "description": "フラワー:青色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -766,7 +878,8 @@
      "flowerPlacesYellow": {
        "id": "flowerPlacesYellow",
        "name": "flowerYellow",
-       "description": "",
+       "description": "フラワー:黄色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -801,7 +914,8 @@
      "flowerPlacesPurple": {
        "id": "flowerPlacesPurple",
        "name": "flowerPurple",
-       "description": "",
+       "description": "フラワー:紫色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -836,7 +950,8 @@
      "flowerPlacesGreen": {
        "id": "flowerPlacesGreen",
        "name": "flowerGreen",
-       "description": "",
+       "description": "フラワー:緑色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -871,7 +986,8 @@
      "flowerPlacesOrange": {
        "id": "flowerPlacesOrange",
        "name": "flowerOrange",
-       "description": "",
+       "description": "フラワー:オレンジ色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -906,7 +1022,8 @@
      "flowerPlacesWhite": {
        "id": "flowerPlacesWhite",
        "name": "flowerWhite",
-       "description": "",
+       "description": "フラワー:白色",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,
@@ -941,7 +1058,8 @@
      "flowerPlacesKinoko": {
        "id": "flowerPlacesKinoko",
        "name": "flowerKinoko",
-       "description": "",
+       "description": "フラワー:キノコ",
+       "placeIds": [],
        "values": [
          {
            "weight": 1,

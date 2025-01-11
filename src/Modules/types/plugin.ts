@@ -36,7 +36,7 @@ export interface StoreApiType extends StoreType {
 export interface StoreAllType extends StoreMainType {
  Presets: Record<string, OmikenType>;
  filterCommentProcess(comment: Comment, userData: UserNameData): void;
- timerSelector: any;
+ timerSelector: any; // プラグイン専用の型なのでany
 }
 
 // プラグインのデータを更新するreturn用の型
@@ -58,8 +58,18 @@ export interface VisitType {
  lastPluginTime: number; // 前回コメントした配信枠のactiveTime
 }
 
-// draws基礎
-export interface DrawsBase {
+// おみくじデータ
+export interface GameType  {
+ ruleId: string; // rulesのID(key)
+ userStats: Record<string, UserStatsType>;
+ currentUserIds: string[]; // ユーザー履歴
+ [key: string]: any; // scriptで自由に使えるObject
+}
+
+// ユーザーデータ
+export interface UserStatsType  {
+ userId: string;
+ name?: string; // 名前
  draws: number; // 配信枠での、おみくじ回数
  totalDraws: number; // おみくじの総回数
  wins?: number; // 配信枠での、おみくじ勝利数
@@ -69,20 +79,6 @@ export interface DrawsBase {
  status?: string; // おみくじのステータス
  items?: Record<string, string>; // おみくじで得たアイテム
  lastPlayed?: string; // 最終プレイ日時
-}
-
-// おみくじデータ
-export interface GameType extends DrawsBase {
- ruleId: string; // rulesのID(key)
- userStats: Record<string, UserStatsType>;
- currentUserIds: string[]; // ユーザー履歴
- [key: string]: any; // scriptで自由に使えるObject
-}
-
-// ユーザーデータ
-export interface UserStatsType extends DrawsBase {
- userId: string;
- name?: string; // 名前
 }
 
 // ---

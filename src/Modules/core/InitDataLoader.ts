@@ -14,12 +14,12 @@ import {
 } from '@type';
 import { configs } from '@/config';
 import { systemMessage } from '@core/ErrorHandler';
-import { getServices } from '@tasks/PostOmikuji';
 import { OmikujiSelector, OmikujiSelectorTimer } from '@tasks/OmikujiSelector';
 import { OmikujiProcessor } from '@tasks/OmikujiProcess';
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
+import { ServiceAPI } from '../api/serviceAPI';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
@@ -31,7 +31,7 @@ export class InitDataLoader {
  }
 
  // Omiken/presetデータ読み込み
- loadPluginData(): Omit<StoreAllType, 'filterCommentProcess'> {
+ load(): Partial<StoreAllType> {
   try {
    // TODO 後でdefault値を入れたいかも
    const Omiken = this.store.get('Omiken', {}) as OmikenType;
@@ -160,19 +160,19 @@ export async function timerSetup(StoreAll: StoreAllType) {
  );
 }
 
-// データが取得できるまで待つ関数
+// データが取得できる、または枠が作成されるまで待つ
 export async function startReadyCheck() {
  const CONFIG = {
   INITIAL_INTERVAL: 1000, // 最初の1秒間隔
   EXTENDED_INTERVAL: 15000, // 15秒間隔
   THRESHOLD_TIME: 10000, // 10秒間は1秒間隔で再チェック
-  API_ENDPOINT: 'http://localhost:11180/api'
  };
  const startTime = Date.now();
 
  while (true) {
   try {
-   const dataArray = await getServices(CONFIG.API_ENDPOINT);
+   const dataArray = await new ServiceAPI().getServices();
+   // 枠が作成された時点で
    if (dataArray?.length > 0) {
     console.info('Data is ready.');
     break;

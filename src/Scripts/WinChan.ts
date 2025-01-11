@@ -1,6 +1,5 @@
-// scr/Scripts/GamesHondaJanken.ts
-
-import { DrawsBase, GameType, ScriptParam, ScriptsType, UserStatsType } from '@type';
+// scr/Scripts/WinChan.ts
+import { GameType, ScriptParam, ScriptsReturnType, ScriptsType, UserStatsType } from '@type';
 
 // エディターで設定できるパラメータ
 const SCRIPTPARAMS: ScriptParam[] = [
@@ -67,25 +66,43 @@ const PLACEHOLDERS: ScriptParam[] = [
 
 // ---
 
+// 追加game定義
 interface GameDataType extends GameType {
- rankings: Ranking[];
+ rankings: UserRankingType[];
  rankingHistory?: RankingHistory[];
 }
 
-// ランキングデータ
-interface Ranking extends DrawsBase {
- userId: string;
- name: string;
- rate: number;
+// 追加パラメータ定義
+interface GameParams {
+ isWin: boolean;
+ getPoint: number;
+ rankMode: number;
+ rankDays: number;
+ historyDays: number;
 }
 
+// ランキングデータ定義
+interface UserRankingType extends UserStatsType {
+ rate?: number;
+ pointHistory?: PointHistory[];
+}
+
+// ランキング履歴定義
 type RankingHistory = {
  date: string;
- rankings: Ranking[];
+ rankings: UserRankingType[];
 };
 
+interface PointHistory {
+ timestamp: number;
+ points: number;
+ name: string;
+ userId: string;
+}
+
+// ジェネレーター用
 interface Props {
- rankings: Ranking[];
+ rankings: UserRankingType[];
  currentUserId?: string;
 }
 
@@ -99,128 +116,172 @@ const plugin: ScriptsType = {
  author: 'Pintocuru',
  url: '',
  banner: '',
- func: (game, comment, params) => {
-  // 型定義の拡張
-  const localGame = game as GameDataType;
-
-  // パラメータ設定(型アサーションが必須)
-  const {
-   isWin = false,
-   getPoint = 0,
-   rankMode = 0,
-   rankDays = 20,
-   historyDays = 10
-  } = params as {
-   isWin: boolean;
-   getPoint: number;
-   rankMode: number;
-   rankDays: number;
-   historyDays: number;
-  };
-
-  // 初期化
-  const { userId } = comment.data;
-  const today = new Date().toISOString().split('T')[0];
-  const userStats = localGame.userStats;
-  const userData = userStats[userId];
-
-  // 値の更新をヘルパー関数
-  const updateStats = (target: UserStatsType | GameDataType, field: string, value: number) => {
-   // 必ず数値型で初期化
-   if (typeof target[field] !== 'number') {
-    target[field] = 0;
-   }
-   if (typeof target[`total${field.charAt(0).toUpperCase()}${field.slice(1)}`] !== 'number') {
-    target[`total${field.charAt(0).toUpperCase()}${field.slice(1)}`] = 0;
-   }
-
-   // インクリメント処理
-   target[field] += value;
-   target[`total${field.charAt(0).toUpperCase()}${field.slice(1)}`] += value;
-  };
-
-  // 勝利の場合の処理
-  if (isWin) {
-   updateStats(userData, 'wins', 1);
-   updateStats(localGame, 'wins', 1);
-  }
-  // ポイントが1以上ある場合は足す
-  if (getPoint > 0) {
-   updateStats(userData, 'points', getPoint);
-   updateStats(localGame, 'points', getPoint);
-  }
-
-  // ランキングを生成する前に userStats を更新
-  userStats[userId] = {
-   ...userData,
-   draws: userData.draws,
-   totalDraws: userData.totalDraws,
-   wins: userData.wins ?? 0,
-   totalWins: userData.totalWins ?? 0,
-   points: userData.points ?? 0,
-   totalPoints: userData.totalPoints ?? 0
-  };
-
-  // 勝率計算用関数
-  const calculateRate = (wins: number, draws: number): number => (draws > 0 ? (wins / draws) * 100 : 0);
-
-  // ランキングの更新
-  const rankMap = {
-   0: 'wins',
-   1: 'rate',
-   2: 'points',
-   3: 'totalPoints'
-  } as const;
-  const rankings: Ranking[] = Object.entries(userStats)
-   .map(([id, stats]) => ({
-    userId: id,
-    name: stats.name,
-    ...stats,
-    rate: calculateRate(stats.wins || 0, stats.draws)
-   }))
-   .sort((a, b) => (b[rankMap[rankMode]] ?? 0) - (a[rankMap[rankMode]] ?? 0))
-   .slice(0, rankDays);
-
-  // 現在のユーザーのエントリを最上位に移動
-  const currentUserIndex = rankings.findIndex((rank) => rank.userId === userId);
-  if (currentUserIndex > -1) {
-   const currentUser = rankings.splice(currentUserIndex, 1)[0];
-   rankings.unshift(currentUser);
-  }
-
-  // ランキング履歴の更新
-  const rankingHistory = localGame.rankingHistory ?? [];
-  const todayRankingIndex = rankingHistory.findIndex((r) => r.date === today);
-
-  if (todayRankingIndex === -1) {
-   rankingHistory.unshift({ date: today, rankings });
-   if (rankingHistory.length > historyDays) {
-    rankingHistory.pop();
-   }
-  } else {
-   rankingHistory[todayRankingIndex].rankings = rankings;
-  }
-
-  // 戻り値の計算
-  const winsUser = userData.wins || 0;
-
-  return {
-   placeholder: {
-    winsUser,
-    winsRank: currentUserIndex + 1 || '不明',
-    winsRate: calculateRate(winsUser, userData.draws)
-   },
-   // returnでまとめて更新する
-   game: {
-    ...localGame,
-    rankings,
-    rankingHistory,
-    userStats
-   }
-  };
- },
+ func: (game, comment, params) =>
+  updateGame(game as GameDataType, comment.data.userId, params as unknown as GameParams),
  scriptParams: SCRIPTPARAMS,
  placeholders: PLACEHOLDERS
 };
 
 module.exports = plugin;
+
+// ---
+
+const updateGame = (game: GameDataType, userId: string, params: GameParams): ScriptsReturnType => {
+ const { rankMode, isWin, getPoint, rankDays, historyDays } = params;
+
+ // 統計の更新
+ const updatedStats = updateStats(game.userStats[userId], params, getPoint);
+ const updatedUserStats = { ...game.userStats, [userId]: updatedStats };
+
+ // ランキング管理と履歴更新
+ const rankingManager = new RankingManager(updatedUserStats, rankMode, rankDays);
+ const rankings = rankingManager.selectRankings(userId);
+ const rankingHistory = rankingManager.updateHistory(game.rankingHistory, rankings, historyDays);
+
+ // 結果を構築
+ return {
+  placeholder: calculatePlaceholders(updatedStats, rankings, userId),
+  game: {
+   ...game,
+   rankings,
+   rankingHistory,
+   userStats: updatedUserStats
+  }
+ };
+};
+
+
+// ---
+
+// ユーザーの更新
+function updateStats(userStats: UserStatsType, params: GameParams, points: number): UserStatsType {
+ const stats = { ...userStats };
+ const { rankMode, isWin } = params;
+
+ const updateField = (target: UserStatsType, field: keyof Pick<UserStatsType, 'wins' | 'points'>, value: number) => {
+  const totalField = `total${field.charAt(0).toUpperCase()}${field.slice(1)}`;
+
+  // ランキングモード2の場合は値を直接置き換え、それ以外は加算
+  target[field] = rankMode === 2 ? value : (target[field] || 0) + value;
+  target[totalField] = (target[totalField] || 0) + value;
+ };
+
+ // 必要に応じてフィールドを更新
+ if (isWin) updateField(stats, 'wins', 1);
+ if (points > 0) updateField(stats, 'points', points);
+
+ return stats;
+}
+
+
+// ---
+
+// ランキング生成関数
+class RankingManager {
+ private userStats: Record<string, UserRankingType>;
+ private rankMode: number;
+ private rankDays: number;
+
+ constructor(userStats: Record<string, UserRankingType>, rankMode: number, rankDays: number) {
+  this.userStats = userStats;
+  this.rankMode = rankMode;
+  this.rankDays = rankDays;
+ }
+
+ // ランキングの生成
+ selectRankings(currentUserId?: string): UserRankingType[] {
+  // 1ゲームの得点によるランキング
+  if (this.rankMode === 2) return this.pointRankings(currentUserId);
+
+  // 総得点によるランキング
+  return this.totalRankings(currentUserId);
+ }
+
+ // 履歴の更新
+ updateHistory(history: RankingHistory[] = [], rankings: UserRankingType[], historyDays: number): RankingHistory[] {
+  const today = new Date().toISOString().split('T')[0];
+  const todayRankingIndex = history.findIndex((r) => r.date === today);
+
+  if (todayRankingIndex === -1) {
+   history.unshift({ date: today, rankings });
+   return history.slice(0, historyDays);
+  }
+
+  history[todayRankingIndex].rankings = rankings;
+  return history;
+ }
+
+ // ポイントベースのランキング生成
+ private pointRankings(currentUserId?: string): UserRankingType[] {
+  const allHistory = Object.entries(this.userStats)
+   .flatMap(([_, stats]) =>
+    (stats.pointHistory ?? []).map((history) => ({
+     userId: history.userId,
+     name: history.name,
+     points: history.points,
+     timestamp: history.timestamp,
+     draws: 0,
+     totalDraws: 0,
+    }))
+   )
+   .sort((a, b) => {
+    if (b.points === a.points) return b.timestamp - a.timestamp;
+    return b.points - a.points;
+   })
+   .slice(0, this.rankDays);
+
+  return this.prioritizeCurrentUser(allHistory, currentUserId);
+ }
+
+ // 総得点によるランキング
+ private totalRankings(currentUserId?: string): UserRankingType[] {
+  const rankMap = {
+   0: 'wins',
+   1: 'rate',
+   3: 'totalPoints'
+  } as const;
+
+  const rankings = Object.entries(this.userStats)
+   .map(([id, stats]) => ({
+    userId: id,
+    name: stats.name,
+    ...stats,
+    rate: stats.draws > 0 ? (stats.wins || 0 / stats.draws) * 100 : 0
+   }))
+   .sort((a, b) => (b[rankMap[this.rankMode]] ?? 0) - (a[rankMap[this.rankMode]] ?? 0))
+   .slice(0, this.rankDays);
+
+  return this.prioritizeCurrentUser(rankings, currentUserId);
+ }
+
+ // 現在のユーザーを一番上にする
+ private prioritizeCurrentUser<T extends { userId: string }>(rankings: T[], currentUserId?: string): T[] {
+  if (!currentUserId) return rankings;
+
+  const currentUserIndex = rankings.findIndex((rank) => rank.userId === currentUserId);
+
+  if (currentUserIndex > -1) {
+   const [currentUser] = rankings.splice(currentUserIndex, 1);
+   rankings.unshift(currentUser);
+  }
+
+  return rankings;
+ }
+}
+
+// プレースホルダー計算関数
+function calculatePlaceholders(
+ userStats: UserStatsType,
+ rankings: UserRankingType[],
+ userId: string
+): ScriptsReturnType['placeholder'] {
+ const winsUser = userStats.wins || 0;
+ const currentUserIndex = rankings.findIndex((rank) => rank.userId === userId);
+ const winsRate = userStats.draws > 0 ? (winsUser / userStats.draws) * 100 : 0;
+
+ return {
+  winsUser,
+  winsRank: currentUserIndex + 1 || '不明',
+  winsRate
+ };
+}

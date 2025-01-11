@@ -1,5 +1,6 @@
 // scriptサンプル
-import { OneCommePostType, ScriptParam, ScriptsType } from '@type';
+import { OneCommePostType, ScriptParam, ScriptsParamType, ScriptsReturnType, ScriptsType } from '@type';
+const WinChan = require('./WinChan');
 
 // エディターで設定できるパラメータ
 const SCRIPTPARAMS: ScriptParam[] = [
@@ -17,35 +18,41 @@ const SCRIPTPARAMS: ScriptParam[] = [
   type: 'boolean',
   value: true // デフォルト値
  }
-];
+] as const;
 
 const PLACEHOLDERS: ScriptParam[] = [
  {
   id: 'message',
   name: '標準メッセージ',
-  description: 'デフォルトのスイカゲームの返答',
+  description: 'デフォルトのスイカジェネレーターの返答',
   value: 'userの得点は1500!'
  },
  {
   id: 'points',
   name: 'ポイント',
-  description: '総合得点',
+  description: 'スイカジェネレーターの得点を返します',
   value: '1500'
+ },
+ {
+  id: 'winsRank',
+  name: '順位',
+  description: '今回の順位を返します',
+  value: '3'
  }
-];
+] as const;
 
 // ---
 
 const plugin: ScriptsType = {
- id: 'GamesTest',
- name: 'スイカゲーム(test)',
- description: 'おみくじプラグイン用のテスト',
- version: '0.0.1',
+ id: 'GouseiSuika',
+ name: 'スイカジェネレーター',
+ description: 'スイカゲーム風のおみくじ',
+ version: '0.0.2',
  author: 'Pintocuru',
  url: '',
  banner: '',
  func: (game, comment, params) => {
-  // params の展開
+  // パラメータ設定(型アサーションが必須)
   const mode = (params?.mode as number) ?? 0;
   const isFruit = (params?.isFruit as boolean) ?? true;
 
@@ -57,8 +64,18 @@ const plugin: ScriptsType = {
 
   // ゲームの実行
   const { points, postArray } = playGacha(GAME_CONFIGS, currentMode);
-  // 0.7倍～1.3倍にし、最終的なスコアを返す
-  const finalPoints = Math.ceil(points * (0.7 + Math.random() * 0.6));
+
+  // WinChanでランキングの生成
+  const winParams = {
+   getPoint: points, // 獲得したポイント
+   rankMode: 2, // ランキングモード(2:1回のポイント)
+   rankDays: 10 // 保存するランキング数
+  };
+  const result = WinChan.func(game, comment, winParams) as ScriptsReturnType;
+
+  // ユーザーの順位を取得
+  const { winsRank } = result.placeholder;
+
 
   return {
    // fruitを降らせるか
@@ -66,10 +83,11 @@ const plugin: ScriptsType = {
 
    // 各種プレースホルダー
    placeholder: {
-    message: `${user}の得点は${finalPoints}!`, // メッセージ
-    points: finalPoints.toString() // 得点
+    message: `${user}の得点は${points}!`, // メッセージ
+    points, // 得点
+    winsRank // 順位
    },
-   game
+   game: result.game
   };
  },
  scriptParams: SCRIPTPARAMS,
@@ -236,7 +254,10 @@ function playGacha(items: GameConfigs, currentMode = 'suika') {
   });
  }
 
- return { points: totalPoints, postArray };
+ // 0.7倍～1.3倍にし、最終的なスコアを返す
+ const finalPoints = Math.ceil(totalPoints * (0.7 + Math.random() * 0.6));
+
+ return { points: finalPoints, postArray };
 }
 
 // 単一アイテムの抽選

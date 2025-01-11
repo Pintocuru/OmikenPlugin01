@@ -1,6 +1,6 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from '@type';
+import { StoreType, StoreAllType, StoreApiType } from '@type';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
@@ -32,16 +32,15 @@ const plugin: OnePlugin = {
    // わんコメの枠データが取得できる(=セットアップ完了)まで待つ
    await startReadyCheck();
 
-   // 初期化してthisに上書き
-   const loader = new InitDataLoader(store);
-   Object.assign(this, loader.loadPluginData());
-   await timerSetup(this); // timerのセットアップ
+   // 初期化
+   Object.assign(this, new InitDataLoader(store).load());
+   // timerのセットアップ
+   await timerSetup(this);
 
    // プラグインの起動メッセージ
    systemMessage('info', `おみくじBOTプラグインが起動したよ`);
   } catch (error) {
    systemMessage('error', `おみくじBOTプラグインの初期化に失敗`, error);
-   return;
   }
  },
 
@@ -74,7 +73,7 @@ const plugin: OnePlugin = {
    if (commentAge > COMMENT_EXPIRY_MS) return;
 
    // おみくじの処理
-   const result= await botProcessor.process();
+   const result = await botProcessor.process();
    Object.entries(result).forEach(([key, value]) => {
     if (value && this[key]) this[key] = value;
    });
@@ -92,7 +91,7 @@ const plugin: OnePlugin = {
   }
  },
 
- // called when a request is made to the plugin-specific
+ // Rest APIを使った送受信
  async request(this: StoreAllType, req): Promise<PluginResponse> {
   // データ型のマッピング
   const responseMap: StoreApiType = {
@@ -108,7 +107,7 @@ const plugin: OnePlugin = {
   const result = await new RequestHandler(responseMap).request(req);
   if (result.data) Object.assign(this, result.data);
   return result.response;
- }
+ },
 };
 
 module.exports = plugin;
