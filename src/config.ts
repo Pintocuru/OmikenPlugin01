@@ -19,6 +19,7 @@ interface Configs {
  dataRoot: string;
  ScriptsRoot: string;
  isCreateService: boolean;
+ BASE_URL: string;
  basicDelaySeconds: number;
  botUserId: string;
  PLUGIN_UID: string;
@@ -40,6 +41,7 @@ export const configs: Configs = {
   ? __dirname + '../../dist/Scripts' // 開発環境用
   : __dirname + '/Scripts', // 本番環境用
  isCreateService, // わんコメに自動で枠を作成してもいいか
+ BASE_URL: 'http://localhost:11180/api', // わんコメのapi
  basicDelaySeconds, // わんコメに投稿する際の基本遅延
  botUserId: 'FirstCounter', // このプラグインが投稿するuserId
  PLUGIN_UID // プラグイン固有の一意のID

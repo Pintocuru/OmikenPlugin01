@@ -174,7 +174,7 @@ const plugin: ScriptsType = {
   const rankings: Ranking[] = Object.entries(userStats)
    .map(([id, stats]) => ({
     userId: id,
-    name: comment.data.name,
+    name: stats.name,
     ...stats,
     rate: calculateRate(stats.wins || 0, stats.draws)
    }))

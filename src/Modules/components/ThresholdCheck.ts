@@ -1,4 +1,4 @@
-// src/Modules/ThresholdCheck.ts
+// src/Modules/components/ThresholdCheck.ts
 
 import {
  AccessCondition,

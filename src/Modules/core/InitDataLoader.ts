@@ -1,4 +1,4 @@
-// src/Modules/InitDataLoader.js
+// src/Modules/core/InitDataLoader.js
 import {
  OmikenType,
  RulesType,
@@ -13,13 +13,13 @@ import {
  ScriptsType
 } from '@type';
 import { configs } from '@/config';
-import { getServices } from './PostOmikuji';
-import { OmikujiSelector, OmikujiSelectorTimer } from './TaskOmikujiSelector';
-import { OmikujiProcessor } from './TaskOmikujiProcess';
+import { systemMessage } from '@core/ErrorHandler';
+import { getServices } from '@tasks/PostOmikuji';
+import { OmikujiSelector, OmikujiSelectorTimer } from '@tasks/OmikujiSelector';
+import { OmikujiProcessor } from '@tasks/OmikujiProcess';
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
-import { systemMessage } from './ErrorHandler';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
@@ -59,30 +59,23 @@ export class InitDataLoader {
   const fullPath = extension === 'js' ? dirPath : path.join(configs.dataRoot, dirPath);
 
   try {
-   const files = fs.readdirSync(fullPath);
+   fs
+    .readdirSync(fullPath)
+    .filter((file) => file.endsWith(`.${extension}`))
+    .forEach((file) => {
+     const key = file.replace(`.${extension}`, '');
+     const filePath = path.join(fullPath, file);
 
-   for (const file of files) {
-    // 指定された拡張子のみ対象
-    if (!file.endsWith(`.${extension}`)) continue;
-    const key = file.replace(new RegExp(`\\.${extension}$`), '');
-    const filePath = path.join(fullPath, file);
-
-    try {
-     if (extension === 'json') {
-      const data = this.jsonReader.read<T>(filePath);
-      if (data) result[key] = data;
-     } else if (extension === 'js') {
-      const module = require(filePath);
-      if (module) result[key] = module.default || module;
+     try {
+      result[key] =
+       extension === 'json' ? this.jsonReader.read<T>(filePath) : require(filePath).default || require(filePath);
+     } catch (err) {
+      systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, err);
      }
-    } catch (err) {
-     systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, err);
-    }
-   }
+    });
   } catch (err) {
    systemMessage('error', `ディレクトリの読み取りに失敗: ${fullPath}`, err);
   }
-
   return result;
  }
 
@@ -90,36 +83,29 @@ export class InitDataLoader {
  private initializeGames(): Record<string, GameType> {
   const Games = this.store.get('Games', {}) as Record<string, GameType>;
   // 初期化
+  const resetStats = { draws: 0, wins: 0, points: 0, status: '' };
+
   const newGames = Object.fromEntries(
    Object.entries(Games).map(([key, game]) => [
     key,
     {
      ...game,
-     draws: 0,
-     wins: 0,
-     points: 0,
-     status: '',
+     ...resetStats,
      userStats: Object.fromEntries(
-      Object.entries(game.userStats).map(([userId, userStat]) => [
-       userId,
-       { ...userStat, draws: 0, wins: 0, points: 0, status: '' } // UserStatsType の draws 初期化
-      ])
+      Object.entries(game.userStats).map(([userId, userStat]) => [userId, { ...userStat, ...resetStats }])
      )
     }
    ])
-  ); // storeに格納
+  );
+
+  // storeに格納
   this.store.set('Games', newGames);
   return newGames;
  }
 
  // TimeConfigを初期化する
  private initializeTimeConfig(): TimeConfigType {
-  return {
-   pluginTime: Date.now(),
-   lc: 0,
-   lastTime: 0,
-   lastUserId: ''
-  };
+  return { pluginTime: Date.now(), lc: 0, lastTime: 0, lastUserId: '' };
  }
 }
 
@@ -176,17 +162,18 @@ export async function timerSetup(StoreAll: StoreAllType) {
 
 // データが取得できるまで待つ関数
 export async function startReadyCheck() {
- const checkInterval = 1000; // 最初の1秒間隔
- const extendedInterval = 15000; // 15秒間隔
+ const CONFIG = {
+  INITIAL_INTERVAL: 1000, // 最初の1秒間隔
+  EXTENDED_INTERVAL: 15000, // 15秒間隔
+  THRESHOLD_TIME: 10000, // 10秒間は1秒間隔で再チェック
+  API_ENDPOINT: 'http://localhost:11180/api'
+ };
  const startTime = Date.now();
 
  while (true) {
   try {
-   // APIエンドポイントをチェック
-   const dataArray = await getServices('http://localhost:11180/api');
-
-   if (dataArray && dataArray.length > 0) {
-    // データが取得できたらループを抜ける
+   const dataArray = await getServices(CONFIG.API_ENDPOINT);
+   if (dataArray?.length > 0) {
     console.info('Data is ready.');
     break;
    }
@@ -194,9 +181,8 @@ export async function startReadyCheck() {
    console.log('API not ready yet:', error);
   }
 
-  // 10秒間は1秒間隔で再チェック
   const elapsedTime = Date.now() - startTime;
-  const interval = elapsedTime >= 10000 ? extendedInterval : checkInterval;
+  const interval = elapsedTime >= CONFIG.THRESHOLD_TIME ? CONFIG.EXTENDED_INTERVAL : CONFIG.INITIAL_INTERVAL;
 
   // 指定された間隔で再チェック
   await new Promise((resolve) => setTimeout(resolve, interval));

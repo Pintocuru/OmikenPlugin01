@@ -1,15 +1,15 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { StoreType, StoreAllType, StoreApiType, PluginUpdateData } from '@type';
+import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
+import { systemMessage } from '@core/ErrorHandler';
+import { RequestHandler } from '@api/ApiRequest';
+import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
 import { configs } from '@/config';
-import { InitDataLoader, startReadyCheck, timerSetup } from '@/Modules/InitDataLoader';
-import { RequestHandler } from '@/Modules/ApiRequest';
-import { TaskCommentInstance } from '@/Modules/TaskCommentInstance';
 import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { systemMessage } from './Modules/ErrorHandler';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
@@ -61,19 +61,20 @@ const plugin: OnePlugin = {
  // filterCommentProcess:BOT処理
  async filterCommentProcess(this: StoreAllType, comment: Comment, userData: UserNameData) {
   try {
+   const COMMENT_EXPIRY_MS = 5000; // 5秒以上経過したコメントはおみくじの対象外
    this.TimeConfig.lc++; // TimeConfig.lcをインクリメント
 
    // インスタンスの発行
-   const Instance = new TaskCommentInstance(this, comment, userData);
+   const botProcessor = new CommentBotProcessor(this, comment, userData);
    // ユーザー情報の更新
-   this.Visits[comment.data.userId] = Instance.returnVisit();
+   this.Visits[comment.data.userId] = botProcessor.returnVisit();
 
-   // 5秒以上経過したコメントはおみくじの対象外
-   const isRecent = Date.now() < new Date(comment.data.timestamp).getTime() + 5000;
-   if (!isRecent) return;
+   // 期限切れコメントの早期リターン
+   const commentAge = Date.now() - new Date(comment.data.timestamp).getTime();
+   if (commentAge > COMMENT_EXPIRY_MS) return;
 
    // おみくじの処理
-   const result: PluginUpdateData = await Instance.process();
+   const result= await botProcessor.process();
    Object.entries(result).forEach(([key, value]) => {
     if (value && this[key]) this[key] = value;
    });

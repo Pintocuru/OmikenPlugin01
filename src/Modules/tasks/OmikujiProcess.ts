@@ -1,3 +1,5 @@
+// src/Modules/tasks/OmikujiProcess.ts
+
 import {
  GameType,
  OmikujiSelectType,
@@ -9,10 +11,10 @@ import {
  UserStatsType,
  VisitType
 } from '@type';
-import { PostMessages } from './PostOmikuji';
-import { PlaceProcess } from './PlaceProcess';
+import { systemMessage } from '@core/ErrorHandler';
+import { PlaceProcess } from '@tasks/PlaceProcess';
+import { PostMessage } from '@api/PostMessage';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
-import { systemMessage } from './ErrorHandler';
 
 // 型定義の改善
 type OmikujiContext = {
@@ -72,6 +74,8 @@ export class OmikujiProcessor {
    // userStatsの初期化（必要な場合）
    if (!this.getCurrentUserStats()) {
     this.updateUserStats({
+     userId: this.comment.data.userId,
+     name: this.comment.data.name,
      draws: 0,
      totalDraws: 0
     });
@@ -103,6 +107,8 @@ export class OmikujiProcessor {
 
   // userStatsの更新
   this.updateUserStats({
+   userId: this.comment.data.userId,
+   name: this.comment.data.name,
    draws: (this.getCurrentUserStats()?.draws ?? 0) + 1,
    totalDraws: (this.getCurrentUserStats()?.totalDraws ?? 0) + 1,
    ...(this.omikuji.status && { status: this.omikuji.status })
@@ -118,7 +124,7 @@ export class OmikujiProcessor {
    this.placeProcessor.updatePlace(scriptResult.placeholder);
 
    if (scriptResult.postArray?.length > 0) {
-    new PostMessages(scriptResult.postArray, this.storeAll.Charas);
+    new PostMessage(scriptResult.postArray, this.storeAll.Charas).post();
    }
 
    if (scriptResult.game) {
@@ -235,8 +241,9 @@ export class OmikujiProcessor {
   return result;
  }
 
- private postFinalMessages() {
+ private async postFinalMessages() {
+  // プレースホルダーを置き換え、投稿するデータを用意
   const finalOmikuji = this.placeProcessor.replacementPlace();
-  new PostMessages(finalOmikuji.post, this.storeAll.Charas);
+  await new PostMessage(finalOmikuji.post, this.storeAll.Charas).post();
  }
 }

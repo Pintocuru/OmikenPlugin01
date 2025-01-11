@@ -1,7 +1,8 @@
-import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
+// src/Modules/api/ApiRequest.ts
 import { DataType, Mode, OmikenType, ParamsType, StoreApiType } from '@type';
-import { filterTypes } from './InitDataLoader';
-import { systemMessage } from './ErrorHandler';
+import { filterTypes } from '@core/InitDataLoader';
+import { systemMessage } from '@core/ErrorHandler';
+import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
 type RequestResult = {
  response: PluginResponse;
@@ -98,15 +99,5 @@ export class RequestHandler {
  // 共通レスポンスの生成
  private createResponse(code: number, response: string): PluginResponse {
   return { code, response };
- }
-
-}
-
-// TODO バックアップは実装されていません
-class BackupService {
- constructor(private type: string) {}
-
- createBackup(data: any) {
-  console.info(`Backup created for type: ${this.type}`, data);
  }
 }
