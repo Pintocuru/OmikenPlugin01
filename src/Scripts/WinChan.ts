@@ -18,6 +18,13 @@ const SCRIPTPARAMS: ScriptParam[] = [
   value: 0 // デフォルト値
  },
  {
+  id: 'isRank', // キー名
+  name: '結果をランキングに入れるか', // ルール名
+  description: 'OFFなら、ランキングに影響を与えません', // 説明文
+  type: 'boolean', // 型
+  value: true // デフォルト値
+ },
+ {
   id: 'rankMode', // キー名
   name: 'ランキングモード', // ルール名
   description: '0:勝数/1:レート/2:1回のポイント/3:合計ポイント', // 説明文
@@ -76,29 +83,25 @@ interface GameDataType extends GameType {
 interface GameParams {
  isWin: boolean;
  getPoint: number;
+ isRank: boolean;
  rankMode: number;
  rankDays: number;
  historyDays: number;
 }
 
 // ランキングデータ定義
-interface UserRankingType extends UserStatsType {
+interface UserRankingType extends Partial<UserStatsType> {
+ userId: string;
+ name?: string;
  rate?: number;
- pointHistory?: PointHistory[];
 }
 
 // ランキング履歴定義
 type RankingHistory = {
  date: string;
+ age: number;
  rankings: UserRankingType[];
 };
-
-interface PointHistory {
- timestamp: number;
- points: number;
- name: string;
- userId: string;
-}
 
 // ジェネレーター用
 interface Props {
@@ -111,8 +114,8 @@ interface Props {
 const plugin: ScriptsType = {
  id: 'WinChan',
  name: '勝率判定ちゃん',
- description: 'パラメータを受け取ることで、ゲーム数や勝率を管理します。',
- version: '0.0.1',
+ description: 'パラメータを受け取ることで、ゲーム数や勝率を生成します。',
+ version: '0.0.2',
  author: 'Pintocuru',
  url: '',
  banner: '',
@@ -122,25 +125,25 @@ const plugin: ScriptsType = {
  placeholders: PLACEHOLDERS
 };
 
-module.exports = plugin;
+export default plugin;
 
 // ---
 
 const updateGame = (game: GameDataType, userId: string, params: GameParams): ScriptsReturnType => {
- const { rankMode, isWin, getPoint, rankDays, historyDays } = params;
+ const { getPoint, historyDays } = params;
 
  // 統計の更新
  const updatedStats = updateStats(game.userStats[userId], params, getPoint);
  const updatedUserStats = { ...game.userStats, [userId]: updatedStats };
 
  // ランキング管理と履歴更新
- const rankingManager = new RankingManager(updatedUserStats, rankMode, rankDays);
- const rankings = rankingManager.selectRankings(userId);
- const rankingHistory = rankingManager.updateHistory(game.rankingHistory, rankings, historyDays);
+ const rankingManager = new RankingManager(game, updatedUserStats, params, userId);
+ const rankings = rankingManager.selectRankings();
+ const rankingHistory = rankingManager.updateHistory(rankings, historyDays);
 
  // 結果を構築
  return {
-  placeholder: calculatePlaceholders(updatedStats, rankings, userId),
+  placeholder: calculatePlaceholders(updatedStats, rankings, userId, params),
   game: {
    ...game,
    rankings,
@@ -149,7 +152,6 @@ const updateGame = (game: GameDataType, userId: string, params: GameParams): Scr
   }
  };
 };
-
 
 // ---
 
@@ -173,68 +175,72 @@ function updateStats(userStats: UserStatsType, params: GameParams, points: numbe
  return stats;
 }
 
-
 // ---
 
 // ランキング生成関数
 class RankingManager {
- private userStats: Record<string, UserRankingType>;
- private rankMode: number;
- private rankDays: number;
-
- constructor(userStats: Record<string, UserRankingType>, rankMode: number, rankDays: number) {
-  this.userStats = userStats;
-  this.rankMode = rankMode;
-  this.rankDays = rankDays;
- }
+ countLimit: number;
+ constructor(
+  private readonly game: GameDataType,
+  private readonly userStats: Record<string, UserStatsType>,
+  private readonly params: GameParams,
+  private readonly userId: string
+ ) {}
 
  // ランキングの生成
- selectRankings(currentUserId?: string): UserRankingType[] {
-  // 1ゲームの得点によるランキング
-  if (this.rankMode === 2) return this.pointRankings(currentUserId);
+ selectRankings(): UserRankingType[] {
+  // isRankがfalseなら、ランキングは更新されない
+  if (!this.params.isRank) return this.game.rankings;
+
+  if (this.params.rankMode === 2)
+   // 1ゲームの得点によるランキング
+   return this.pointRankings();
 
   // 総得点によるランキング
-  return this.totalRankings(currentUserId);
+  return this.totalRankings();
  }
 
  // 履歴の更新
- updateHistory(history: RankingHistory[] = [], rankings: UserRankingType[], historyDays: number): RankingHistory[] {
+ updateHistory(rankings: UserRankingType[], historyDays: number): RankingHistory[] {
+  const { rankingHistory = [] } = this.game;
   const today = new Date().toISOString().split('T')[0];
-  const todayRankingIndex = history.findIndex((r) => r.date === today);
 
-  if (todayRankingIndex === -1) {
-   history.unshift({ date: today, rankings });
-   return history.slice(0, historyDays);
+  // draws <= 1 の場合、新しい履歴を作成し、rankingsをリセット
+  if (this.game.draws <= 1) {
+   this.game.age = Number.isFinite(this.game.age) ? this.game.age + 1 : 1;
+   // rankingsをリセット
+   const emptyRankings: UserRankingType[] = [];
+   rankingHistory.unshift({
+    date: today,
+    age: this.game.age,
+    rankings: emptyRankings
+   });
+   return rankingHistory.slice(0, Math.max(0, Math.floor(historyDays)));
   }
 
-  history[todayRankingIndex].rankings = rankings;
-  return history;
+  if (rankingHistory[0]) rankingHistory[0].rankings = rankings;
+  return rankingHistory;
  }
 
  // ポイントベースのランキング生成
- private pointRankings(currentUserId?: string): UserRankingType[] {
-  const allHistory = Object.entries(this.userStats)
-   .flatMap(([_, stats]) =>
-    (stats.pointHistory ?? []).map((history) => ({
-     userId: history.userId,
-     name: history.name,
-     points: history.points,
-     timestamp: history.timestamp,
-     draws: 0,
-     totalDraws: 0,
-    }))
-   )
-   .sort((a, b) => {
-    if (b.points === a.points) return b.timestamp - a.timestamp;
-    return b.points - a.points;
-   })
-   .slice(0, this.rankDays);
+ private pointRankings(): UserRankingType[] {
+  // draws=1なら、ランキングを新しくする
+  const rankingsOld = this.game.draws <= 1 ? [] : [...(this.game.rankings || [])];
 
-  return this.prioritizeCurrentUser(allHistory, currentUserId);
+  // 既存のrankingsから新しいエントリを追加
+  const newEntry = {
+   userId: this.userId || '',
+   name: this.userStats[this.userId || '']?.name || 'Unknown',
+   points: this.userStats[this.userId || '']?.points || 0
+  };
+
+  const rankings = [...rankingsOld, newEntry].sort((a, b) => b.points - a.points).slice(0, this.params.rankDays);
+
+  return this.prioritizeCurrentUser(rankings, this.userId);
  }
 
  // 総得点によるランキング
- private totalRankings(currentUserId?: string): UserRankingType[] {
+ private totalRankings(): UserRankingType[] {
   const rankMap = {
    0: 'wins',
    1: 'rate',
@@ -246,12 +252,12 @@ class RankingManager {
     userId: id,
     name: stats.name,
     ...stats,
-    rate: stats.draws > 0 ? (stats.wins || 0 / stats.draws) * 100 : 0
+    rate: stats.draws > 0 ? ((stats.wins || 0) / stats.draws) * 100 : 0
    }))
-   .sort((a, b) => (b[rankMap[this.rankMode]] ?? 0) - (a[rankMap[this.rankMode]] ?? 0))
-   .slice(0, this.rankDays);
+   .sort((a, b) => (b[rankMap[this.params.rankMode]] ?? 0) - (a[rankMap[this.params.rankMode]] ?? 0))
+   .slice(0, this.params.rankDays);
 
-  return this.prioritizeCurrentUser(rankings, currentUserId);
+  return this.prioritizeCurrentUser(rankings, this.userId);
  }
 
  // 現在のユーザーを一番上にする
@@ -273,15 +279,28 @@ class RankingManager {
 function calculatePlaceholders(
  userStats: UserStatsType,
  rankings: UserRankingType[],
- userId: string
+ userId: string,
+ params: GameParams // パラメータを追加
 ): ScriptsReturnType['placeholder'] {
  const winsUser = userStats.wins || 0;
- const currentUserIndex = rankings.findIndex((rank) => rank.userId === userId);
+ let winsRank: number | string;
+
+ if (params.rankMode === 2) {
+  // 1回毎のランキングの場合
+  const points = userStats.points || 0;
+  const betterScores = rankings.filter((rank) => rank.points > points).length;
+  winsRank = betterScores + 1;
+ } else {
+  // 通常のランキングの場合
+  const currentUserIndex = rankings.findIndex((rank) => rank.userId === userId);
+  winsRank = currentUserIndex + 1 || '不明';
+ }
+
  const winsRate = userStats.draws > 0 ? (winsUser / userStats.draws) * 100 : 0;
 
  return {
   winsUser,
-  winsRank: currentUserIndex + 1 || '不明',
+  winsRank,
   winsRate
  };
 }

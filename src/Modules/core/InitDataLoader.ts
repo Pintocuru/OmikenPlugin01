@@ -23,11 +23,9 @@ import { ServiceAPI } from '../api/serviceAPI';
 
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
- private jsonReader: JsonFileReader;
 
  constructor(store: ElectronStore<StoreType>) {
   this.store = store;
-  this.jsonReader = new JsonFileReader();
  }
 
  // Omiken/presetデータ読み込み
@@ -48,8 +46,9 @@ export class InitDataLoader {
     TimeConfig: this.initializeTimeConfig(),
     timerSelector: OmikujiSelector.create('timer') as OmikujiSelectorTimer
    };
-  } catch (error) {
-   systemMessage('error', `プラグインデータの読み込み中にエラーが発生`, error);
+  } catch (e) {
+   systemMessage('error', `プラグインデータの読み込み中にエラーが発生`, e);
+   throw new Error();
   }
  }
 
@@ -59,41 +58,53 @@ export class InitDataLoader {
   const fullPath = extension === 'js' ? dirPath : path.join(configs.dataRoot, dirPath);
 
   try {
-   fs
-    .readdirSync(fullPath)
-    .filter((file) => file.endsWith(`.${extension}`))
-    .forEach((file) => {
-     const key = file.replace(`.${extension}`, '');
-     const filePath = path.join(fullPath, file);
+   const files = fs.readdirSync(fullPath).filter((file) => file.endsWith(`.${extension}`));
+   files.forEach((file) => {
+    const key = file.replace(`.${extension}`, '');
+    const filePath = path.join(fullPath, file);
 
-     try {
-      result[key] =
-       extension === 'json' ? this.jsonReader.read<T>(filePath) : require(filePath).default || require(filePath);
-     } catch (err) {
-      systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, err);
-     }
-    });
-  } catch (err) {
-   systemMessage('error', `ディレクトリの読み取りに失敗: ${fullPath}`, err);
+    try {
+     result[key] =
+      extension === 'json'
+       ? readJsonFile<T>(filePath)
+       : require(filePath).default || require(filePath);
+    } catch (e) {
+     systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, e);
+     throw new Error(`ファイルの読み込みに失敗: ${filePath}`);
+    }
+   });
+  } catch (e) {
+   systemMessage('error', `ディレクトリの読み取りに失敗: ${fullPath}`, e);
+   throw new Error(`ディレクトリの読み取りに失敗: ${fullPath}`);
   }
+
   return result;
  }
 
  // Gamesのすべてのdrawsを初期化する
  private initializeGames(): Record<string, GameType> {
-  const Games = this.store.get('Games', {}) as Record<string, GameType>;
+  const Games = (this.store.get('Games', {}) ?? {}) as Record<string, GameType>;
   // 初期化
-  const resetStats = { draws: 0, wins: 0, points: 0, status: '' };
-
   const newGames = Object.fromEntries(
    Object.entries(Games).map(([key, game]) => [
     key,
     {
      ...game,
-     ...resetStats,
-     userStats: Object.fromEntries(
-      Object.entries(game.userStats).map(([userId, userStat]) => [userId, { ...userStat, ...resetStats }])
-     )
+     draws: 0,
+     userStats: game.userStats
+      ? Object.fromEntries(
+         Object.entries(game.userStats).map(([userId, userStat]) => [
+          userId,
+          {
+           ...userStat,
+           draws: 0,
+           wins: userStat?.wins != null ? 0 : undefined,
+           points: userStat?.points != null ? 0 : undefined,
+           status: userStat?.status != null ? '' : undefined
+          }
+         ])
+        )
+      : {} 
     }
    ])
   );
@@ -109,33 +120,28 @@ export class InitDataLoader {
  }
 }
 
-interface FileReader<T> {
- read(filePath: string): T | null;
-}
-
 // JSONファイルを読む
-class JsonFileReader implements FileReader<unknown> {
- constructor() {}
-
- read<T>(filePath: string): T | null {
-  try {
-   if (!fs.existsSync(filePath)) {
-    systemMessage('error', `ファイルが見つかりません: ${filePath}`);
-   }
-
-   const fileContent = fs.readFileSync(filePath, 'utf-8');
-   const parsedData = JSON.parse(fileContent) as T;
-
-   if (!parsedData) {
-    systemMessage('error', `無効なデータ: ${filePath}`);
-   }
-
-   return parsedData;
-  } catch (error) {
-   systemMessage('error', `ファイル読み込みエラー: ${filePath}`, error);
+function readJsonFile<T>(filePath: string): T | null {
+ try {
+  if (!fs.existsSync(filePath)) {
+   systemMessage('error', `ファイルが見つかりません: ${filePath}`);
+   return null;
   }
+
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const parsedData = JSON.parse(fileContent) as T;
+
+  if (!parsedData) {
+   systemMessage('error', `無効なデータ: ${filePath}`);
+  }
+
+  return parsedData;
+ } catch (error) {
+  systemMessage('error', `ファイル読み込みエラー: ${filePath}`, error);
+  return null;
  }
 }
+
 
 // rulesを配列にする
 export function filterTypes(types: Record<TypesType, string[]>, rules: Record<string, RulesType>) {
@@ -165,7 +171,7 @@ export async function startReadyCheck() {
  const CONFIG = {
   INITIAL_INTERVAL: 1000, // 最初の1秒間隔
   EXTENDED_INTERVAL: 15000, // 15秒間隔
-  THRESHOLD_TIME: 10000, // 10秒間は1秒間隔で再チェック
+  THRESHOLD_TIME: 10000 // 10秒間は1秒間隔で再チェック
  };
  const startTime = Date.now();
 

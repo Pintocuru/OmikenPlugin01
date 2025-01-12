@@ -125,11 +125,12 @@ export class ThresholdChecker {
   const gameData = this.Games?.[this.rule?.id];
   const meta = this.comment?.meta;
 
+  // drawsはインクリメント前なので+1しておく
   const unitMap: Record<CountCondition['unit'], number> = {
-   draws: userStats?.draws || 0,
-   totalDraws: userStats?.totalDraws || 0,
-   gameDraws: gameData?.draws || 0,
-   gameTotalDraws: gameData?.totalDraws || 0,
+   draws: userStats?.draws + 1 || 0,
+   totalDraws: userStats?.totalDraws + 1 || 0,
+   gameDraws: gameData?.draws + 1 || 0,
+   gameTotalDraws: gameData?.totalDraws + 1 || 0,
    lc: meta?.lc || 0,
    tc: meta?.tc || 0,
    interval: Math.floor((meta?.interval || 0) / 1000)

@@ -1,7 +1,7 @@
 // src/types/plugin.ts
 
 import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
-import { CharaType, ScriptsParamType, ScriptsType } from './preset';
+import { CharaType, ScriptParam, ScriptsParamType, ScriptsType } from './preset';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
@@ -58,20 +58,24 @@ export interface VisitType {
  lastPluginTime: number; // 前回コメントした配信枠のactiveTime
 }
 
+interface DrawsType {
+ draws: number; // 配信枠での、おみくじ回数
+ totalDraws: number; // おみくじの総回数
+}
+
 // おみくじデータ
-export interface GameType  {
+export interface GameType extends DrawsType {
  ruleId: string; // rulesのID(key)
+ settings: ScriptParam[]; // scriptParamsで設定したisEverのデータが入る
  userStats: Record<string, UserStatsType>;
  currentUserIds: string[]; // ユーザー履歴
  [key: string]: any; // scriptで自由に使えるObject
 }
 
 // ユーザーデータ
-export interface UserStatsType  {
+export interface UserStatsType extends DrawsType {
  userId: string;
  name?: string; // 名前
- draws: number; // 配信枠での、おみくじ回数
- totalDraws: number; // おみくじの総回数
  wins?: number; // 配信枠での、おみくじ勝利数
  totalWins?: number; // おみくじの総勝利数
  points?: number; // 配信枠での、おみくじポイント数

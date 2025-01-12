@@ -6,6 +6,7 @@ import {
  PluginUpdateData,
  ScriptParam,
  ScriptsReturnType,
+ ScriptsType,
  StoreMainType,
  StoreType,
  UserStatsType,
@@ -62,6 +63,7 @@ export class OmikujiProcessor {
    ruleId: this.omikuji.selectRuleId,
    draws: 0,
    totalDraws: 0,
+   settings: [],
    currentUserIds: [],
    userStats: {}
   };
@@ -115,56 +117,102 @@ export class OmikujiProcessor {
   });
  }
 
+ // Scriptsの読み込み
  private async executeScript() {
   if (!this.omikuji.script) return;
 
   const scriptResult = await this.scriptsCall();
 
   if (scriptResult) {
+   // プレース情報の更新
    this.placeProcessor.updatePlace(scriptResult.placeholder);
 
+   // postArrayがあるなら、わんコメに投稿
    if (scriptResult.postArray?.length > 0) {
     new PostMessage(scriptResult.postArray, this.storeAll.Charas).post();
    }
 
-   if (scriptResult.game) {
-    this.context.game = scriptResult.game;
-   }
+   // game情報を更新
+   if (scriptResult.game) this.context.game = scriptResult.game;
   }
  }
 
+ // 外部スクリプトの実行
  private async scriptsCall(): Promise<ScriptsReturnType | undefined> {
   try {
    const { scriptId, params } = this.omikuji.script;
    const scriptData = this.storeAll.Scripts[scriptId];
-   const scriptParams = scriptData.scriptParams;
 
-   const convertedParams: { [id: string]: string | number | boolean } = {};
-   for (const param of scriptParams) {
-    if (params[param.id]) {
-     convertedParams[param.id] = this.convertScriptParam(params[param.id], param.type);
-    }
-   }
+   if (!this.isValidScript(scriptData)) return undefined;
 
-   if (!scriptData || typeof scriptData.func !== 'function') {
-    systemMessage('warn', `外部スクリプト ${scriptId} が読み込めません`, {
-     scriptId,
-     scriptData
-    });
-    return undefined;
-   }
+   const processedParams = this.processScriptParams(scriptData.scriptParams, params, this.context.game.settings);
 
-   return scriptData.func(this.context.game, this.comment, convertedParams);
+   return scriptData.func(this.context.game, this.comment, processedParams);
   } catch (error) {
-   systemMessage('error', `外部スクリプトエラー`, {
-    script: this.omikuji.script,
-    context: this.context,
-    error
-   });
+   this.handleScriptError(error);
    return undefined;
   }
  }
 
+ private processScriptParams(
+  scriptParams: ScriptParam[],
+  inputParams: { [id: string]: string },
+  settings: ScriptParam[] = []
+ ): { [id: string]: string | number | boolean } {
+  // 永続化設定の更新
+  this.updateGameSettings(scriptParams, settings);
+
+  // パラメータの型変換
+  const convertedParams = this.convertInputParams(scriptParams, inputParams);
+
+  // パラメータの統合（優先順位: converted > settings > default）
+  return scriptParams.reduce(
+   (acc, param) => ({
+    ...acc,
+    [param.id]: convertedParams[param.id] ?? settings.find((s) => s.id === param.id)?.value ?? param.value
+   }),
+   {}
+  );
+ }
+
+ // 設定の更新
+ private updateGameSettings(scriptParams: ScriptParam[], settings: ScriptParam[]): void {
+  const mergedSettings = new Map(
+   [...settings, ...scriptParams.filter((param) => param.isEver)].map((param) => [param.id, param])
+  );
+
+  this.context.game.settings = Array.from(mergedSettings.values());
+ }
+
+ private convertInputParams(
+  scriptParams: ScriptParam[],
+  inputParams: { [id: string]: string }
+ ): { [id: string]: string | number | boolean } {
+  const result: { [id: string]: string | number | boolean } = {};
+
+  for (const param of scriptParams) {
+   if (inputParams[param.id]) {
+    result[param.id] = this.convertScriptParam(inputParams[param.id], param.type);
+   }
+  }
+
+  return result;
+ }
+
+ private isValidScript(scriptData: ScriptsType): boolean {
+  if (!scriptData || typeof scriptData.func !== 'function') {
+   systemMessage('warn', `外部スクリプトが読み込めません`, scriptData);
+   return false;
+  }
+  return true;
+ }
+
+ private handleScriptError(e: unknown): void {
+  systemMessage('error', `外部スクリプトエラー`, e);
+  throw new Error();
+ }
+
+ // typeを参照し、paramsの文字列をnumber/booleanに変換
  private convertScriptParam(value: string, type: ScriptParam['type'] = 'string'): string | number | boolean {
   try {
    switch (type) {

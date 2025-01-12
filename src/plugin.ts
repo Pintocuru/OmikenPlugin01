@@ -39,8 +39,9 @@ const plugin: OnePlugin = {
 
    // プラグインの起動メッセージ
    systemMessage('info', `おみくじBOTプラグインが起動したよ`);
-  } catch (error) {
-   systemMessage('error', `おみくじBOTプラグインの初期化に失敗`, error);
+  } catch (e) {
+   systemMessage('error', `おみくじBOTプラグインの初期化に失敗`, e);
+   throw new Error();
   }
  },
 
@@ -77,8 +78,9 @@ const plugin: OnePlugin = {
    Object.entries(result).forEach(([key, value]) => {
     if (value && this[key]) this[key] = value;
    });
-  } catch (error) {
-   systemMessage('error', `おみくじBOTの処理ができませんでした`, error);
+  } catch (e) {
+   systemMessage('error', `おみくじBOTの処理ができませんでした`, e);
+   throw new Error();
   }
  },
 
@@ -107,7 +109,7 @@ const plugin: OnePlugin = {
   const result = await new RequestHandler(responseMap).request(req);
   if (result.data) Object.assign(this, result.data);
   return result.response;
- },
+ }
 };
 
 module.exports = plugin;

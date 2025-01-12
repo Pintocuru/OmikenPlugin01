@@ -1,6 +1,6 @@
 // scriptサンプル
-import { OneCommePostType, ScriptParam, ScriptsParamType, ScriptsReturnType, ScriptsType } from '@type';
-const WinChan = require('./WinChan');
+import { OneCommePostType, ScriptParam, ScriptsType } from '@type';
+import WinChan from './WinChan';
 
 // エディターで設定できるパラメータ
 const SCRIPTPARAMS: ScriptParam[] = [
@@ -12,9 +12,17 @@ const SCRIPTPARAMS: ScriptParam[] = [
   value: 0 // デフォルト値
  },
  {
+  id: 'isRank', // キー名
+  name: '結果をランキングに入れるか', // ルール名
+  description: 'OFFなら、ランキングに影響を与えません', // 説明文
+  type: 'boolean', // 型
+  value: true // デフォルト値
+ },
+ {
   id: 'isFruit', // キー名
   name: 'フルーツをWordPartyで降らせるか', // ルール名
   description: '1:降らせる/0:OFF 別途専用WordPartyが必要です', // 説明文
+  isEver: true,
   type: 'boolean',
   value: true // デフォルト値
  }
@@ -43,18 +51,24 @@ const PLACEHOLDERS: ScriptParam[] = [
 
 // ---
 
+// 追加パラメータ定義
+interface GameParams {
+ mode: number;
+ isFruit: boolean;
+ isRank: boolean;
+}
+
 const plugin: ScriptsType = {
  id: 'GouseiSuika',
  name: 'スイカジェネレーター',
  description: 'スイカゲーム風のおみくじ',
- version: '0.0.2',
+ version: '0.0.3',
  author: 'Pintocuru',
  url: '',
  banner: '',
  func: (game, comment, params) => {
   // パラメータ設定(型アサーションが必須)
-  const mode = (params?.mode as number) ?? 0;
-  const isFruit = (params?.isFruit as boolean) ?? true;
+  const { mode, isFruit, isRank } = params as unknown as GameParams;
 
   // ゲームモードの設定
   let currentMode = 'suika';
@@ -68,14 +82,15 @@ const plugin: ScriptsType = {
   // WinChanでランキングの生成
   const winParams = {
    getPoint: points, // 獲得したポイント
+   isRank, // ランキングに載せるか
    rankMode: 2, // ランキングモード(2:1回のポイント)
-   rankDays: 10 // 保存するランキング数
+   rankDays: 20, // 保存するランキング数
+   historyDays: 10 // 履歴を残す日数
   };
-  const result = WinChan.func(game, comment, winParams) as ScriptsReturnType;
+  const result = WinChan.func(game, comment, winParams);
 
   // ユーザーの順位を取得
   const { winsRank } = result.placeholder;
-
 
   return {
    // fruitを降らせるか
@@ -94,7 +109,7 @@ const plugin: ScriptsType = {
  placeholders: PLACEHOLDERS
 };
 
-module.exports = plugin;
+export default plugin;
 
 // ---
 

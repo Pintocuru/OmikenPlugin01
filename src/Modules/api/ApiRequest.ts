@@ -22,8 +22,8 @@ export class RequestHandler {
     : method === 'POST'
     ? this.handlePost(typedParams, body)
     : { response: this.createResponse(404, 'サポートされていないメソッド') };
-  } catch (error) {
-   systemMessage('warn', 'リクエスト処理中にエラーが発生:', error);
+  } catch (e) {
+   systemMessage('warn', 'リクエスト処理中にエラーが発生:', e);
    return { response: this.createResponse(500, 'データ処理中にエラーが発生しました') };
   }
  }

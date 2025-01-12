@@ -1,0 +1,144 @@
+{
+ "id": "BomberSpin",
+ "name": "ボンバースピン",
+ "description": "APPLI BOMBERSPIN風のおみくじ",
+ "version": "0.0.1",
+ "item": {
+  "types": {
+   "comment": ["BomberSpin"],
+   "timer": [],
+   "unused": [],
+   "meta": [],
+   "waitingList": [],
+   "setList": [],
+   "reactions": []
+  },
+  "rules": {
+   "BomberSpin": {
+    "id": "BomberSpin",
+    "name": "ボンバースピン",
+    "description": "メダルスロットをモチーフにしたおみくじ。目指せ、出玉大爆発!",
+    "color": "#C62828",
+    "enableIds": ["BomberSpin-normal", "BomberSpin-over"],
+    "threshold": [
+     {
+      "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["スロット", "スピン", "ボンバー", "ぼんばー", "すろっと", "すぴん", "slot", "🎰", "Bomber", "spin"]
+      }
+     }
+    ]
+   }
+  },
+  "omikujis": {
+   "BomberSpin-normal": {
+    "id": "BomberSpin-normal",
+    "name": "ボンバースピン",
+    "description": "メダルスロットをモチーフにしたおみくじ。目指せ、出玉大爆発!",
+    "rank": 0,
+    "weight": 1,
+    "threshold": [],
+    "script": {
+     "scriptId": "BomberSpin",
+     "params": {
+      "mode": "0",
+      "isFruit": "true",
+      "isRank": "true",
+      "isBomber": "true"
+     }
+    },
+    "placeIds": [],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 2.5,
+      "party": "!シーン切り替え1",
+      "content": "<<message>>"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 7,
+      "party": "!ニュースタイトル表示3",
+      "isSilent": true,
+      "generatorParam": "toast",
+      "content": "<<user>>の<<payout>>は、<<winsRank>>位だよ。"
+     }
+    ]
+   },
+   "BomberSpin-over": {
+    "id": "BomberSpin-over",
+    "name": "ボンバースピン (回数超過)",
+    "description": "6回以上はランキングに反映されません",
+    "rank": 3,
+    "weight": 1,
+    "threshold": [
+     {
+      "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 6,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "script": {
+     "scriptId": "BomberSpin",
+     "params": {
+      "mode": "0",
+      "isRank": "false",
+      "isFruit": "true",
+      "isBomber": "true"
+     }
+    },
+    "placeIds": [],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 2.5,
+      "party": "!シーン切り替え1",
+      "content": "<<message>>"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 7,
+      "party": "!ニュースタイトル表示3",
+      "isSilent": true,
+      "generatorParam": "toast",
+      "content": "<<user>>は5回を超えてるから、参考記録だよ。"
+     }
+    ]
+   }
+  },
+  "places": {}
+ }
+}

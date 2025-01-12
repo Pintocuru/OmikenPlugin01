@@ -7,9 +7,9 @@
     "types": {
       "comment": [
         "HondaJanken",
-        "1736312345147-ytjlq",
-        "1736313395228-r7e2j",
-        "1736313398326-xw59j"
+        "HondaJanken-Rock",
+        "HondaJanken-Scissors",
+        "HondaJanken-Paper"
       ],
       "timer": [],
       "unused": [],
@@ -33,7 +33,7 @@
           "1736307722566-dtnvq",
           "1736307931650-wrj7f",
           "1736308696148-vzo8h",
-          "OverlapOmikuji"
+          "HondaJankenOverlap"
         ],
         "threshold": [
           {
@@ -56,8 +56,8 @@
           }
         ]
       },
-      "1736312345147-ytjlq": {
-        "id": "1736312345147-ytjlq",
+      "HondaJanken-Rock": {
+        "id": "HondaJanken-Rock",
         "name": "じゃんけん(グー)",
         "description": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。",
         "color": "#283593",
@@ -66,7 +66,7 @@
           "1736247177903-w9npy",
           "1736312480939-sy2gn",
           "1736308696148-vzo8h",
-          "OverlapOmikuji"
+          "HondaJankenOverlap"
         ],
         "threshold": [
           {
@@ -89,8 +89,8 @@
           }
         ]
       },
-      "1736313395228-r7e2j": {
-        "id": "1736313395228-r7e2j",
+      "HondaJanken-Scissors": {
+        "id": "HondaJanken-Scissors",
         "name": "じゃんけん(チョキ)",
         "description": "あなたの考えてる事ぐらい、俺にはお見通しです。",
         "color": "#283593",
@@ -99,7 +99,7 @@
           "1736307533195-0zgu9",
           "1736312527752-twp6c",
           "1736312549989-2bgie",
-          "OverlapOmikuji"
+          "HondaJankenOverlap"
         ],
         "threshold": [
           {
@@ -122,8 +122,8 @@
           }
         ]
       },
-      "1736313398326-xw59j": {
-        "id": "1736313398326-xw59j",
+      "HondaJanken-Paper": {
+        "id": "HondaJanken-Paper",
         "name": "じゃんけん(パー)",
         "description": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!",
         "color": "#283593",
@@ -132,7 +132,7 @@
           "1736307722566-dtnvq",
           "1736312569324-c90et",
           "1736312586656-grxd6",
-          "OverlapOmikuji"
+          "HondaJankenOverlap"
         ],
         "threshold": [
           {
@@ -920,8 +920,8 @@
           }
         ]
       },
-      "OverlapOmikuji": {
-        "id": "OverlapOmikuji",
+      "HondaJankenOverlap": {
+        "id": "HondaJankenOverlap",
         "name": "おみくじ被り",
         "description": "5秒以内に他の人がおみくじ系のコマンドをした場合、キャンセルされます",
         "rank": 10,

@@ -30,8 +30,9 @@ export class BackupService {
 
    fs.writeFileSync(backupPath, JSON.stringify(data, null, 2), 'utf8');
    return backupFilename;
-  } catch (error) {
-   systemMessage('error', 'バックアップ作成エラー:', error);
+  } catch (e) {
+   systemMessage('error', 'バックアップ作成エラー:', e);
+   throw new Error();
   }
  }
 
@@ -49,7 +50,7 @@ export class BackupService {
   const backupPath = path.join(this.backupDir, filename);
 
   if (!fs.existsSync(backupPath)) {
-   systemMessage('error', '指定されたバックアップファイルが見つかりません');
+   systemMessage('warn', '指定されたバックアップファイルが見つかりません');
   }
 
   const backupContent = fs.readFileSync(backupPath, 'utf8');
