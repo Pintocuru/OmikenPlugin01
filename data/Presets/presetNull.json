@@ -3,6 +3,8 @@
  "name": "presetNull",
  "description": "リセット用",
  "version": "0.0.0",
+ "tags": ["Reset"],
+ "banner": "img/reset_icon.png",
  "item": {
   "types": {
    "comment": [],

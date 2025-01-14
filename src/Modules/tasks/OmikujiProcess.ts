@@ -156,7 +156,7 @@ export class OmikujiProcessor {
 
  private processScriptParams(
   scriptParams: ScriptParam[],
-  inputParams: { [id: string]: string },
+  inputParams: Record<string, string | number | boolean>,
   settings: ScriptParam[] = []
  ): { [id: string]: string | number | boolean } {
   // 永続化設定の更新
@@ -186,7 +186,7 @@ export class OmikujiProcessor {
 
  private convertInputParams(
   scriptParams: ScriptParam[],
-  inputParams: { [id: string]: string }
+  inputParams: Record<string, string | number | boolean>
  ): { [id: string]: string | number | boolean } {
   const result: { [id: string]: string | number | boolean } = {};
 
@@ -213,14 +213,19 @@ export class OmikujiProcessor {
  }
 
  // typeを参照し、paramsの文字列をnumber/booleanに変換
- private convertScriptParam(value: string, type: ScriptParam['type'] = 'string'): string | number | boolean {
+ private convertScriptParam(
+  value: string | number | boolean,
+  type: ScriptParam['type'] = 'string'
+ ): string | number | boolean {
   try {
    switch (type) {
     case 'number':
      const num = Number(value);
      return isNaN(num) ? 0 : num;
     case 'boolean':
-     return ['true', '1', 'yes'].includes(value.toLowerCase());
+     if (typeof value === 'string') {
+      return ['true', '1', 'yes'].includes(value.toLowerCase());
+     }
     default:
      return value;
    }

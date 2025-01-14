@@ -1,0 +1,34 @@
+{
+ "id": "test",
+ "name": "test",
+ "description": "test:pink",
+ "version": "0.0.1",
+ "author": "Pintocuru",
+ "order": 1,
+ "tags": ["test"],
+ "banner": "_Default/ribon.png",
+ "isIconDisplay": false,
+ "nickname": " ",
+ "frameId": null,
+ "party": [
+  "!シーン切り替え1",
+  "!レベルアップ",
+  "!シャキーン2",
+  "!ビシッとツッコミ1",
+  "!チーン1",
+  "!間抜け1",
+  "!間抜け5",
+  "!呪いの旋律",
+  "!不安（ピアノ演奏）",
+  "!ニュースタイトル表示3",
+  "!クイズ出題1",
+  "!クイズ不正解1",
+  "!クイズ正解1"
+ ],
+ "color": {
+  "--lcv-name-color": "#FFC107",
+  "--lcv-text-color": "#ECEFF1",
+  "--lcv-background-color": "#FF4081"
+ },
+ "image": { "Default": "_Default/ribon.png" }
+}

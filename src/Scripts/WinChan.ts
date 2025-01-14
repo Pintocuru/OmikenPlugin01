@@ -33,14 +33,6 @@ const SCRIPTPARAMS: ScriptParam[] = [
   value: 0 // デフォルト値
  },
  {
-  id: 'rankDays', // キー名
-  name: '保存するランキング数', // ルール名
-  description: '1日ごとに保存するランキング数。多いほどデータ量も増えます。', // 説明文
-  isEver: true, // 永続化するか
-  type: 'number', //
-  value: 20 // デフォルト値
- },
- {
   id: 'historyDays', // キー名
   name: '履歴を残す回数', // ルール名
   description: 'この配信回数を超えると、古いランキングから消去されます', // 説明文
@@ -85,7 +77,6 @@ interface GameParams {
  getPoint: number;
  isRank: boolean;
  rankMode: number;
- rankDays: number;
  historyDays: number;
 }
 
@@ -93,6 +84,7 @@ interface GameParams {
 interface UserRankingType extends Partial<UserStatsType> {
  userId: string;
  name?: string;
+ rank?: number;
  rate?: number;
 }
 
@@ -218,7 +210,8 @@ class RankingManager {
    return rankingHistory.slice(0, Math.max(0, Math.floor(historyDays)));
   }
 
-  if (rankingHistory[0]) rankingHistory[0].rankings = rankings;
+  // 上位10位までのみ記録
+  if (rankingHistory[0]) rankingHistory[0].rankings = rankings.slice(0, 10);
   return rankingHistory;
  }
 
@@ -228,13 +221,16 @@ class RankingManager {
   const rankingsOld = this.game.draws <= 1 ? [] : [...(this.game.rankings || [])];
 
   // 既存のrankingsから新しいエントリを追加
+  const thisUser = this.userStats[this.userId || ''];
   const newEntry = {
    userId: this.userId || '',
-   name: this.userStats[this.userId || '']?.name || 'Unknown',
-   points: this.userStats[this.userId || '']?.points || 0
+   name: thisUser?.name || 'Unknown',
+   points: thisUser?.points || 0
   };
 
-  const rankings = [...rankingsOld, newEntry].sort((a, b) => b.points - a.points).slice(0, this.params.rankDays);
+  const rankings = [...rankingsOld, newEntry]
+   .sort((a, b) => b.points - a.points)
+   .map((entry, index) => ({ ...entry, rank: index + 1 }));
 
   return this.prioritizeCurrentUser(rankings, this.userId);
  }
@@ -244,20 +240,31 @@ class RankingManager {
   const rankMap = {
    0: 'wins',
    1: 'rate',
-   3: 'totalPoints'
+   3: 'points'
   } as const;
 
-  const rankings = Object.entries(this.userStats)
-   .map(([id, stats]) => ({
-    userId: id,
-    name: stats.name,
-    ...stats,
-    rate: stats.draws > 0 ? ((stats.wins || 0) / stats.draws) * 100 : 0
-   }))
-   .sort((a, b) => (b[rankMap[this.params.rankMode]] ?? 0) - (a[rankMap[this.params.rankMode]] ?? 0))
-   .slice(0, this.params.rankDays);
+  // 前回のランキングを取得
+  const rankingsOld = this.game.draws <= 1 ? [] : [...(this.game.rankings || [])];
 
-  return this.prioritizeCurrentUser(rankings, this.userId);
+  // 新しいランキングの更新処理
+  const updatedRankings = Object.entries(this.userStats)
+   .map(([id, stats]) => {
+    // 前回のランキングから一致するユーザーを検索
+    const oldRanking = rankingsOld.find((rank) => rank.userId === id);
+
+    return {
+     userId: id,
+     name: stats.name,
+     draws: stats.draws ?? oldRanking?.draws ?? 0,
+     wins: stats.wins ?? oldRanking?.wins ?? 0,
+     points: stats.points ?? oldRanking?.points ?? 0,
+     rate: stats.draws > 0 ? ((stats.wins || 0) / stats.draws) * 100 : 0
+    };
+   })
+   .sort((a, b) => (b[rankMap[this.params.rankMode]] ?? 0) - (a[rankMap[this.params.rankMode]] ?? 0))
+   .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+  return this.prioritizeCurrentUser(updatedRankings, this.userId);
  }
 
  // 現在のユーザーを一番上にする

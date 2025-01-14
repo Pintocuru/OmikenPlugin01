@@ -3,6 +3,10 @@
  "name": "名人 Mei-Jin",
  "description": "Fallguysの「ピクセル名人」から発想を得たおみくじ",
  "version": "0.0.1",
+ "author": "Pintocuru",
+ "order": 10001,
+ "tags": ["おみくじ", "Fallguys"],
+ "banner": "",
  "item": {
   "types": {
    "comment": ["1736665695501-pi58l"],

@@ -1,1159 +1,1158 @@
 {
-  "id": "YukkuriHondaJanken",
-  "name": "じゃんけん",
-  "description": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。",
-  "version": "0.0.1",
-  "item":{
-    "types": {
-      "comment": [
-        "HondaJanken",
-        "HondaJanken-Rock",
-        "HondaJanken-Scissors",
-        "HondaJanken-Paper"
-      ],
-      "timer": [],
-      "unused": [],
-      "meta": [],
-      "waitingList": [],
-      "setList": [],
-      "reactions": []
-    },
-    "rules": {
-      "HondaJanken": {
-        "id": "HondaJanken",
-        "name": "じゃんけん",
-        "description": "ここは練習ではありません。全身全霊で俺と向き合ってください。",
-        "color": "#283593",
-        "enableIds": [
-          "1736247177100-w9ddw",
-          "1736247177903-w9npy",
-          "1736307219773-kver1",
-          "1736307533195-0zgu9",
-          "1736307602808-op1nj",
-          "1736307722566-dtnvq",
-          "1736307931650-wrj7f",
-          "1736308696148-vzo8h",
-          "HondaJankenOverlap"
-        ],
-        "threshold": [
-          {
-            "conditionType": "match",
-            "coolDown": 3,
-            "syoken": 1,
-            "access": 2,
-            "gift": 0,
-            "count": {
-              "comparison": "max",
-              "unit": "draws",
-              "value1": 0,
-              "value2": 1
-            },
-            "match": {
-              "target": "comment",
-              "case": "starts",
-              "value": ["じゃんけん", "janken"]
-            }
-          }
-        ]
+ "id": "YukkuriHondaJanken",
+ "name": "じゃんけん",
+ "description": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。",
+ "version": "0.0.1",
+ "author": "Pintocuru",
+ "order": 103,
+ "tags": ["ゆっくり霊夢", "勝数", "ランキング", "じゃんけん"],
+ "banner": "img/HondaJanken.png",
+ "item": {
+  "types": {
+   "comment": ["HondaJanken", "HondaJanken-Rock", "HondaJanken-Scissors", "HondaJanken-Paper"],
+   "timer": [],
+   "unused": [],
+   "meta": [],
+   "waitingList": [],
+   "setList": [],
+   "reactions": []
+  },
+  "rules": {
+   "HondaJanken": {
+    "id": "HondaJanken",
+    "name": "じゃんけん",
+    "description": "ここは練習ではありません。全身全霊で俺と向き合ってください。",
+    "color": "#283593",
+    "enableIds": [
+     "1736247177100-w9ddw",
+     "1736247177903-w9npy",
+     "1736307219773-kver1",
+     "1736307533195-0zgu9",
+     "1736307602808-op1nj",
+     "1736307722566-dtnvq",
+     "1736307931650-wrj7f",
+     "1736308696148-vzo8h",
+     "HondaJankenOverlap"
+    ],
+    "threshold": [
+     {
+      "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
       },
-      "HondaJanken-Rock": {
-        "id": "HondaJanken-Rock",
-        "name": "じゃんけん(グー)",
-        "description": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。",
-        "color": "#283593",
-        "enableIds": [
-          "1736247177100-w9ddw",
-          "1736247177903-w9npy",
-          "1736312480939-sy2gn",
-          "1736308696148-vzo8h",
-          "HondaJankenOverlap"
-        ],
-        "threshold": [
-          {
-            "conditionType": "match",
-            "coolDown": 3,
-            "syoken": 1,
-            "access": 2,
-            "gift": 0,
-            "count": {
-              "comparison": "max",
-              "unit": "draws",
-              "value1": 0,
-              "value2": 1
-            },
-            "match": {
-              "target": "comment",
-              "case": "exact",
-              "value": ["グー", "ぐー", "✊️", "👊"]
-            }
-          }
-        ]
-      },
-      "HondaJanken-Scissors": {
-        "id": "HondaJanken-Scissors",
-        "name": "じゃんけん(チョキ)",
-        "description": "あなたの考えてる事ぐらい、俺にはお見通しです。",
-        "color": "#283593",
-        "enableIds": [
-          "1736307219773-kver1",
-          "1736307533195-0zgu9",
-          "1736312527752-twp6c",
-          "1736312549989-2bgie",
-          "HondaJankenOverlap"
-        ],
-        "threshold": [
-          {
-            "conditionType": "match",
-            "coolDown": 3,
-            "syoken": 1,
-            "access": 2,
-            "gift": 0,
-            "count": {
-              "comparison": "max",
-              "unit": "draws",
-              "value1": 0,
-              "value2": 1
-            },
-            "match": {
-              "target": "comment",
-              "case": "exact",
-              "value": ["チョキ", "ちょき", "✌️"]
-            }
-          }
-        ]
-      },
-      "HondaJanken-Paper": {
-        "id": "HondaJanken-Paper",
-        "name": "じゃんけん(パー)",
-        "description": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!",
-        "color": "#283593",
-        "enableIds": [
-          "1736307602808-op1nj",
-          "1736307722566-dtnvq",
-          "1736312569324-c90et",
-          "1736312586656-grxd6",
-          "HondaJankenOverlap"
-        ],
-        "threshold": [
-          {
-            "conditionType": "match",
-            "coolDown": 3,
-            "syoken": 1,
-            "access": 2,
-            "gift": 0,
-            "count": {
-              "comparison": "max",
-              "unit": "draws",
-              "value1": 0,
-              "value2": 1
-            },
-            "match": {
-              "target": "comment",
-              "case": "exact",
-              "value": ["パー", "ぱー", "✋️", "🖐️"]
-            }
-          }
-        ]
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["じゃんけん", "janken"]
       }
-    },
-    "omikujis": {
-      "1736247177100-w9ddw": {
-        "id": "1736247177100-w9ddw",
-        "name": "じゃんけん:グーA",
-        "description": "何事も準備がすべて。それを怠っている事がバレてますよ。",
-        "rank": 0,
-        "weight": 35,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736236217166-wlg6i"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_3"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "fun03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenA1>> ",
-            "generatorParam": "honda"
-          }
-        ]
+     }
+    ]
+   },
+   "HondaJanken-Rock": {
+    "id": "HondaJanken-Rock",
+    "name": "じゃんけん(グー)",
+    "description": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。",
+    "color": "#283593",
+    "enableIds": [
+     "1736247177100-w9ddw",
+     "1736247177903-w9npy",
+     "1736312480939-sy2gn",
+     "1736308696148-vzo8h",
+     "HondaJankenOverlap"
+    ],
+    "threshold": [
+     {
+      "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
       },
-      "1736247177903-w9npy": {
-        "id": "1736247177903-w9npy",
-        "name": "じゃんけん:グーB",
-        "description": "ちゃんと分析してます?じっくり結果に向き合ってください。",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736247527908-fkygm"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_3"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "joy04",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenA2>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736307219773-kver1": {
-        "id": "1736307219773-kver1",
-        "name": "じゃんけん:チョキA",
-        "description": "たかがじゃんけん、そう思ってないですか？",
-        "rank": 0,
-        "weight": 35,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736306572601-aod98"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_1"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "fun03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenB1>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736307533195-0zgu9": {
-        "id": "1736307533195-0zgu9",
-        "name": "じゃんけん:チョキB",
-        "description": "ただの運やと思ってませんか?",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736306635501-6o6ak"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_1"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "joy04",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenB2>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736307602808-op1nj": {
-        "id": "1736307602808-op1nj",
-        "name": "じゃんけん:パーA",
-        "description": "なんで負けたか、明日まで考えといてください。",
-        "rank": 0,
-        "weight": 35,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736306695904-ayv6i"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_2"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "fun03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenC1>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736307722566-dtnvq": {
-        "id": "1736307722566-dtnvq",
-        "name": "じゃんけん:パーB",
-        "description": "この結果はじゃんけんに対する意識の差です。",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "false",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736306697517-r26u6"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_2"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_lose"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "joy04",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の勝ち!<<JankenC2>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736307931650-wrj7f": {
-        "id": "1736307931650-wrj7f",
-        "name": "じゃんけん:勝利EveryA",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_<<JankenWinHand>> "
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "joy01",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736308331896-95gld": {
-        "id": "1736308331896-95gld",
-        "name": "じゃんけん:勝利EveryB",
-        "description": "やるやん。今日は負けを認めます。ただ、勝ち逃げは許しませんよ。",
-        "rank": 0,
-        "weight": 35,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_<<JankenWinHand>> "
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "anger03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736308696148-vzo8h": {
-        "id": "1736308696148-vzo8h",
-        "name": "じゃんけん:勝利AB",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 1,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_2"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "anger03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736312480939-sy2gn": {
-        "id": "1736312480939-sy2gn",
-        "name": "じゃんけん:勝利AA ",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 1,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_2"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "joy01",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736312527752-twp6c": {
-        "id": "1736312527752-twp6c",
-        "name": "じゃんけん:勝利BA ",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20",
-            "historyDays": "10"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_3"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "joy01",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736312549989-2bgie": {
-        "id": "1736312549989-2bgie",
-        "name": "じゃんけん:勝利BB",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_3"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "anger03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736312569324-c90et": {
-        "id": "1736312569324-c90et",
-        "name": "じゃんけん:勝利CA",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_1"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "joy01",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "1736312586656-grxd6": {
-        "id": "1736312586656-grxd6",
-        "name": "じゃんけん:勝利CB",
-        "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
-        "rank": 0,
-        "weight": 3,
-        "threshold": [],
-        "status": "",
-        "script": {
-          "scriptId": "WinChan",
-          "params": {
-            "isWin": "true",
-            "rankCount": "20",
-            "historyDays": "10",
-            "getPoint": "0",
-            "rankMode": "0",
-            "rankDays": "20"
-          }
-        },
-        "placeIds": ["1736307006905-1yuls"],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 1,
-            "generatorParam": "",
-            "content": "じゃんけんぽん!"
-          },
-          {
-            "type": "party",
-            "botKey": "reimu",
-            "iconKey": "Default",
-            "delaySeconds": 1.4,
-            "content": "!janken_1"
-          },
-          {
-            "type": "party",
-            "botKey": "marisa",
-            "iconKey": "Default",
-            "delaySeconds": 2.9,
-            "party": "",
-            "content": "!janken_win"
-          },
-          {
-            "type": "onecomme",
-            "botKey": "marisa",
-            "iconKey": "anger03",
-            "delaySeconds": 5,
-            "party": "!シーン切り替え1",
-            "content": "俺の負け!<<JankenV>> ",
-            "generatorParam": "honda"
-          }
-        ]
-      },
-      "HondaJankenOverlap": {
-        "id": "HondaJankenOverlap",
-        "name": "おみくじ被り",
-        "description": "5秒以内に他の人がおみくじ系のコマンドをした場合、キャンセルされます",
-        "rank": 10,
-        "weight": 1,
-        "threshold": [
-          {
-            "conditionType": "coolDown",
-            "coolDown": 3,
-            "syoken": 1,
-            "access": 2,
-            "gift": 0,
-            "count": {
-              "comparison": "max",
-              "unit": "draws",
-              "value1": 0,
-              "value2": 1
-            },
-            "match": {
-              "target": "comment",
-              "case": "starts",
-              "value": ["おみくじ"]
-            }
-          }
-        ],
-        "placeIds": [],
-        "post": [
-          {
-            "type": "onecomme",
-            "botKey": "reimu",
-            "iconKey": "sorry01",
-            "delaySeconds": 0,
-            "party": "",
-            "isSilent": true,
-            "generatorParam": "toast",
-            "content": "コメントが被って、<<user>>さんのじゃんけんができなかったみたい。もう一度コメントしてね！"
-          }
-        ]
+      "match": {
+       "target": "comment",
+       "case": "exact",
+       "value": ["グー", "ぐー", "✊️", "👊"]
       }
-    },
-    "places": {
-      "1736236217166-wlg6i": {
-        "id": "1736236217166-wlg6i",
-        "name": "JankenA1",
-        "description": "負けは次につながるチャンスです!ネバーギブアップ!",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "負けは次につながるチャンスです!ネバーギブアップ!"
-          },
-          {
-            "weight": 1,
-            "value": "じゃんけんの向こう側に何があるか、考えてみてください。"
-          },
-          {
-            "weight": 1,
-            "value": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。"
-          },
-          {
-            "weight": 1,
-            "value": "何事も準備がすべて。それを怠っている事がバレてますよ。"
-          }
-        ]
+     }
+    ]
+   },
+   "HondaJanken-Scissors": {
+    "id": "HondaJanken-Scissors",
+    "name": "じゃんけん(チョキ)",
+    "description": "あなたの考えてる事ぐらい、俺にはお見通しです。",
+    "color": "#283593",
+    "enableIds": [
+     "1736307219773-kver1",
+     "1736307533195-0zgu9",
+     "1736312527752-twp6c",
+     "1736312549989-2bgie",
+     "HondaJankenOverlap"
+    ],
+    "threshold": [
+     {
+      "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
       },
-      "1736247527908-fkygm": {
-        "id": "1736247527908-fkygm",
-        "name": "JankenA2",
-        "description": "ケイスケ ホンダの心なんて読めるわけがない、そう思ってないですか。",
-        "placeIds": ["1736306125063-3lqal"],
-        "values": [
-          {
-            "weight": 1,
-            "value": "<<JankenHonda>> の心なんて読めるわけがない、そう思ってないですか。あきらめへん人だけに見える景色があるはずです。"
-          },
-          {
-            "weight": 1,
-            "value": "ちゃんと分析してます?じっくり結果に向き合ってください。"
-          },
-          {
-            "weight": 1,
-            "value": "ここは練習ではありません。全身全霊で俺と向き合ってください。"
-          }
-        ]
-      },
-      "1736306125063-3lqal": {
-        "id": "1736306125063-3lqal",
-        "name": "JankenHonda",
-        "description": "僕にじゃんけんで勝ったら、1本あげますよ。",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "マリサ キリサメ"
-          }
-        ]
-      },
-      "1736306572601-aod98": {
-        "id": "1736306572601-aod98",
-        "name": "JankenB1",
-        "description": "運を味方につけるのは、地道な努力ですよ。",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "たかがじゃんけん、そう思ってないですか？それやったら明日も、俺が勝ちますよ。"
-          },
-          {
-            "weight": 1,
-            "value": "ウラのウラのウラまで読む訓練をしてくださいね。どこまで読もうとするかで結果が変わってきます。"
-          },
-          {
-            "weight": 1,
-            "value": "運を味方につけるのは、地道な努力ですよ。"
-          },
-          {
-            "weight": 1,
-            "value": "あなたの考えてる事ぐらい、俺にはお見通しです。"
-          }
-        ]
-      },
-      "1736306635501-6o6ak": {
-        "id": "1736306635501-6o6ak",
-        "name": "JankenB2",
-        "description": "その程度の、気持ちで勝てるとでも思ったんですか?",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "自信を持って勝負にしっかりと向き合える、そう思えるまで、準備してください。"
-          },
-          {
-            "weight": 1,
-            "value": "ただの運やと思ってませんか?運も実力のうち!聞いたことありますよね?"
-          },
-          {
-            "weight": 1,
-            "value": "その程度の、気持ちで勝てるとでも思ったんですか?ちゃんと練習してきてください。"
-          }
-        ]
-      },
-      "1736306695904-ayv6i": {
-        "id": "1736306695904-ayv6i",
-        "name": "JankenC1",
-        "description": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "なんで負けたか、明日まで考えといてください。そしたら何かが見えてくるはずです。"
-          },
-          {
-            "weight": 1,
-            "value": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。"
-          },
-          {
-            "weight": 1,
-            "value": "動揺してませんか?運が大事な時こそ集中力が物を言いますよ!"
-          },
-          {
-            "weight": 1,
-            "value": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!"
-          }
-        ]
-      },
-      "1736306697517-r26u6": {
-        "id": "1736306697517-r26u6",
-        "name": "JankenC2",
-        "description": "複雑に考えてないですか?答えはシンプルです。",
-        "placeIds": ["1736306125063-3lqal"],
-        "values": [
-          {
-            "weight": 1,
-            "value": "複雑に考えてないですか?答えはシンプルです。<<JankenHonda>> の心を読む、それだけです。"
-          },
-          {
-            "weight": 1,
-            "value": "正確にはじゃんけんを味方につけた俺の勝ち!"
-          },
-          {
-            "weight": 1,
-            "value": "1年間何やってたんですか？この結果はじゃんけんに対する意識の差です。"
-          }
-        ]
-      },
-      "1736307006905-1yuls": {
-        "id": "1736307006905-1yuls",
-        "name": "JankenV",
-        "description": "やるやん。明日は俺にリベンジさせて。",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "やるやん。明日は俺にリベンジさせて。"
-          },
-          {
-            "weight": 1,
-            "value": "でも、今度は絶対、俺が勝つから!また明日やろう!"
-          },
-          {
-            "weight": 1,
-            "value": "明日、俺が勝つからまたやろう!"
-          },
-          {
-            "weight": 1,
-            "value": "やるやん。今日は負けを認めます。ただ、勝ち逃げは許しませんよ。"
-          }
-        ]
-      },
-      "1736307992233-4f33p": {
-        "id": "1736307992233-4f33p",
-        "name": "JankenWinHand",
-        "description": "!janken_ に続く数値。1:グー2:チョキ3:パー4:I Love You",
-        "placeIds": [],
-        "values": [
-          {
-            "weight": 1,
-            "value": "1"
-          },
-          {
-            "weight": 1,
-            "value": "2"
-          },
-          {
-            "weight": 1,
-            "value": "3"
-          },
-          {
-            "weight": 1,
-            "value": "4"
-          }
-        ]
+      "match": {
+       "target": "comment",
+       "case": "exact",
+       "value": ["チョキ", "ちょき", "✌️"]
       }
-    }
+     }
+    ]
+   },
+   "HondaJanken-Paper": {
+    "id": "HondaJanken-Paper",
+    "name": "じゃんけん(パー)",
+    "description": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!",
+    "color": "#283593",
+    "enableIds": [
+     "1736307602808-op1nj",
+     "1736307722566-dtnvq",
+     "1736312569324-c90et",
+     "1736312586656-grxd6",
+     "HondaJankenOverlap"
+    ],
+    "threshold": [
+     {
+      "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "exact",
+       "value": ["パー", "ぱー", "✋️", "🖐️"]
+      }
+     }
+    ]
+   }
+  },
+  "omikujis": {
+   "1736247177100-w9ddw": {
+    "id": "1736247177100-w9ddw",
+    "name": "じゃんけん:グーA",
+    "description": "何事も準備がすべて。それを怠っている事がバレてますよ。",
+    "rank": 0,
+    "weight": 35,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736236217166-wlg6i"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_3"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "fun03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenA1>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736247177903-w9npy": {
+    "id": "1736247177903-w9npy",
+    "name": "じゃんけん:グーB",
+    "description": "ちゃんと分析してます?じっくり結果に向き合ってください。",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736247527908-fkygm"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_3"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "joy04",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenA2>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736307219773-kver1": {
+    "id": "1736307219773-kver1",
+    "name": "じゃんけん:チョキA",
+    "description": "たかがじゃんけん、そう思ってないですか？",
+    "rank": 0,
+    "weight": 35,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736306572601-aod98"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_1"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "fun03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenB1>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736307533195-0zgu9": {
+    "id": "1736307533195-0zgu9",
+    "name": "じゃんけん:チョキB",
+    "description": "ただの運やと思ってませんか?",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736306635501-6o6ak"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_1"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "joy04",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenB2>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736307602808-op1nj": {
+    "id": "1736307602808-op1nj",
+    "name": "じゃんけん:パーA",
+    "description": "なんで負けたか、明日まで考えといてください。",
+    "rank": 0,
+    "weight": 35,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736306695904-ayv6i"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_2"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "fun03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenC1>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736307722566-dtnvq": {
+    "id": "1736307722566-dtnvq",
+    "name": "じゃんけん:パーB",
+    "description": "この結果はじゃんけんに対する意識の差です。",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "false",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736306697517-r26u6"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_2"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_lose"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "joy04",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の勝ち!<<JankenC2>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736307931650-wrj7f": {
+    "id": "1736307931650-wrj7f",
+    "name": "じゃんけん:勝利EveryA",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_<<JankenWinHand>> "
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "joy01",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736308331896-95gld": {
+    "id": "1736308331896-95gld",
+    "name": "じゃんけん:勝利EveryB",
+    "description": "やるやん。今日は負けを認めます。ただ、勝ち逃げは許しませんよ。",
+    "rank": 0,
+    "weight": 35,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_<<JankenWinHand>> "
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "anger03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736308696148-vzo8h": {
+    "id": "1736308696148-vzo8h",
+    "name": "じゃんけん:勝利AB",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 1,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_2"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "anger03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736312480939-sy2gn": {
+    "id": "1736312480939-sy2gn",
+    "name": "じゃんけん:勝利AA ",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 1,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_2"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "joy01",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736312527752-twp6c": {
+    "id": "1736312527752-twp6c",
+    "name": "じゃんけん:勝利BA ",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20",
+      "historyDays": "10"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_3"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "joy01",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736312549989-2bgie": {
+    "id": "1736312549989-2bgie",
+    "name": "じゃんけん:勝利BB",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_3"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "anger03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736312569324-c90et": {
+    "id": "1736312569324-c90et",
+    "name": "じゃんけん:勝利CA",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls", "1736307992233-4f33p"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_1"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "joy01",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "1736312586656-grxd6": {
+    "id": "1736312586656-grxd6",
+    "name": "じゃんけん:勝利CB",
+    "description": "でも、今度は絶対、俺が勝つから!また明日やろう!",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "script": {
+     "scriptId": "WinChan",
+     "params": {
+      "isWin": "true",
+      "rankCount": "20",
+      "historyDays": "10",
+      "getPoint": "0",
+      "rankMode": "0",
+      "rankDays": "20"
+     }
+    },
+    "placeIds": ["1736307006905-1yuls"],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 1,
+      "generatorParam": "",
+      "content": "じゃんけんぽん!"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 1.4,
+      "content": "!janken_1"
+     },
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 2.9,
+      "party": "",
+      "content": "!janken_win"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "marisa",
+      "iconKey": "anger03",
+      "delaySeconds": 5,
+      "party": "!シーン切り替え1",
+      "content": "俺の負け!<<JankenV>> ",
+      "generatorParam": "honda"
+     }
+    ]
+   },
+   "HondaJankenOverlap": {
+    "id": "HondaJankenOverlap",
+    "name": "おみくじ被り",
+    "description": "5秒以内に他の人がおみくじ系のコマンドをした場合、キャンセルされます",
+    "rank": 10,
+    "weight": 1,
+    "threshold": [
+     {
+      "conditionType": "coolDown",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "placeIds": [],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "reimu",
+      "iconKey": "sorry01",
+      "delaySeconds": 0,
+      "party": "",
+      "isSilent": true,
+      "generatorParam": "toast",
+      "content": "コメントが被って、<<user>>さんのじゃんけんができなかったみたい。もう一度コメントしてね！"
+     }
+    ]
+   }
+  },
+  "places": {
+   "1736236217166-wlg6i": {
+    "id": "1736236217166-wlg6i",
+    "name": "JankenA1",
+    "description": "負けは次につながるチャンスです!ネバーギブアップ!",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "負けは次につながるチャンスです!ネバーギブアップ!"
+     },
+     {
+      "weight": 1,
+      "value": "じゃんけんの向こう側に何があるか、考えてみてください。"
+     },
+     {
+      "weight": 1,
+      "value": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。"
+     },
+     {
+      "weight": 1,
+      "value": "何事も準備がすべて。それを怠っている事がバレてますよ。"
+     }
+    ]
+   },
+   "1736247527908-fkygm": {
+    "id": "1736247527908-fkygm",
+    "name": "JankenA2",
+    "description": "ケイスケ ホンダの心なんて読めるわけがない、そう思ってないですか。",
+    "placeIds": ["1736306125063-3lqal"],
+    "values": [
+     {
+      "weight": 1,
+      "value": "<<JankenHonda>> の心なんて読めるわけがない、そう思ってないですか。あきらめへん人だけに見える景色があるはずです。"
+     },
+     {
+      "weight": 1,
+      "value": "ちゃんと分析してます?じっくり結果に向き合ってください。"
+     },
+     {
+      "weight": 1,
+      "value": "ここは練習ではありません。全身全霊で俺と向き合ってください。"
+     }
+    ]
+   },
+   "1736306125063-3lqal": {
+    "id": "1736306125063-3lqal",
+    "name": "JankenHonda",
+    "description": "僕にじゃんけんで勝ったら、1本あげますよ。",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "マリサ キリサメ"
+     }
+    ]
+   },
+   "1736306572601-aod98": {
+    "id": "1736306572601-aod98",
+    "name": "JankenB1",
+    "description": "運を味方につけるのは、地道な努力ですよ。",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "たかがじゃんけん、そう思ってないですか？それやったら明日も、俺が勝ちますよ。"
+     },
+     {
+      "weight": 1,
+      "value": "ウラのウラのウラまで読む訓練をしてくださいね。どこまで読もうとするかで結果が変わってきます。"
+     },
+     {
+      "weight": 1,
+      "value": "運を味方につけるのは、地道な努力ですよ。"
+     },
+     {
+      "weight": 1,
+      "value": "あなたの考えてる事ぐらい、俺にはお見通しです。"
+     }
+    ]
+   },
+   "1736306635501-6o6ak": {
+    "id": "1736306635501-6o6ak",
+    "name": "JankenB2",
+    "description": "その程度の、気持ちで勝てるとでも思ったんですか?",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "自信を持って勝負にしっかりと向き合える、そう思えるまで、準備してください。"
+     },
+     {
+      "weight": 1,
+      "value": "ただの運やと思ってませんか?運も実力のうち!聞いたことありますよね?"
+     },
+     {
+      "weight": 1,
+      "value": "その程度の、気持ちで勝てるとでも思ったんですか?ちゃんと練習してきてください。"
+     }
+    ]
+   },
+   "1736306695904-ayv6i": {
+    "id": "1736306695904-ayv6i",
+    "name": "JankenC1",
+    "description": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "なんで負けたか、明日まで考えといてください。そしたら何かが見えてくるはずです。"
+     },
+     {
+      "weight": 1,
+      "value": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。"
+     },
+     {
+      "weight": 1,
+      "value": "動揺してませんか?運が大事な時こそ集中力が物を言いますよ!"
+     },
+     {
+      "weight": 1,
+      "value": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!"
+     }
+    ]
+   },
+   "1736306697517-r26u6": {
+    "id": "1736306697517-r26u6",
+    "name": "JankenC2",
+    "description": "複雑に考えてないですか?答えはシンプルです。",
+    "placeIds": ["1736306125063-3lqal"],
+    "values": [
+     {
+      "weight": 1,
+      "value": "複雑に考えてないですか?答えはシンプルです。<<JankenHonda>> の心を読む、それだけです。"
+     },
+     {
+      "weight": 1,
+      "value": "正確にはじゃんけんを味方につけた俺の勝ち!"
+     },
+     {
+      "weight": 1,
+      "value": "1年間何やってたんですか？この結果はじゃんけんに対する意識の差です。"
+     }
+    ]
+   },
+   "1736307006905-1yuls": {
+    "id": "1736307006905-1yuls",
+    "name": "JankenV",
+    "description": "やるやん。明日は俺にリベンジさせて。",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "やるやん。明日は俺にリベンジさせて。"
+     },
+     {
+      "weight": 1,
+      "value": "でも、今度は絶対、俺が勝つから!また明日やろう!"
+     },
+     {
+      "weight": 1,
+      "value": "明日、俺が勝つからまたやろう!"
+     },
+     {
+      "weight": 1,
+      "value": "やるやん。今日は負けを認めます。ただ、勝ち逃げは許しませんよ。"
+     }
+    ]
+   },
+   "1736307992233-4f33p": {
+    "id": "1736307992233-4f33p",
+    "name": "JankenWinHand",
+    "description": "!janken_ に続く数値。1:グー2:チョキ3:パー4:I Love You",
+    "placeIds": [],
+    "values": [
+     {
+      "weight": 1,
+      "value": "1"
+     },
+     {
+      "weight": 1,
+      "value": "2"
+     },
+     {
+      "weight": 1,
+      "value": "3"
+     },
+     {
+      "weight": 1,
+      "value": "4"
+     }
+    ]
+   }
   }
+ }
 }

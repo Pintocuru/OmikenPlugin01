@@ -7,6 +7,7 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 export interface PresetType extends BaseType {
  version: string; // バージョン番号
  author?: string; // 開発者名
+ tags: string[]; // 内容を表すタグ
  url?: string; // サポートページのURL
  banner?: string; // 紹介用画像
  path?: string; // データのパス(Presetsをルートとする)
@@ -22,14 +23,13 @@ export interface PresetOmikenType extends PresetType {
 
 // Chara:キャラクターJSONの型定義
 export interface CharaType extends PresetType {
+ isIconDisplay: boolean; // アイコンを表示するか
  nickname?: string; // 読み上げ時の名前の読ませ方
  frameId: string | null; // わんコメの枠
  color: {
   '--lcv-name-color': string; // 名前の色
   '--lcv-text-color': string; // コメントの色
   '--lcv-background-color': string; // 背景色
-  '--lcv-background-brightness'?: string; // 背景色の明度(ジェネレーター用)
-  '--lcv-background-opacity'?: string; // 背景色の不透明度(ジェネレーター用)
  };
  image: {
   Default: string; // defaultは必須

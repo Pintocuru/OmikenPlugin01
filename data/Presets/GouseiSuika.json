@@ -3,6 +3,10 @@
  "name": "スイカジェネレーター",
  "description": "スイカゲーム風のおみくじ",
  "version": "0.0.3",
+ "author": "Pintocuru",
+ "order": 11,
+ "tags": ["ポイント", "ランキング", "スイカ"],
+ "banner": "img/GouseiSuika.png",
  "item": {
   "types": {
    "comment": ["GouseiSuika"],

@@ -3,11 +3,14 @@
  "name": "ドラちゃん",
  "description": "5percent_Dora",
  "version": "0.0.1",
+ "author": "Pintocuru",
+ "order": 90001,
+ "tags": ["おみくじ", "ネタ"],
+ "banner": "img/5percent_Dora.png",
+ "url": "https://twitter.com/5percent_Dora",
  "item": {
   "types": {
-   "comment": [
-    "1736667115765-wb34u"
-   ],
+   "comment": ["1736667115765-wb34u"],
    "timer": [],
    "meta": [],
    "waitingList": [],
@@ -21,10 +24,7 @@
     "name": "ドラちゃん",
     "description": "https://twitter.com/5percent_Dora",
     "color": "#3F51B5",
-    "enableIds": [
-     "1736666725900-6ewwk",
-     "1736667025677-xocc5"
-    ],
+    "enableIds": ["1736666725900-6ewwk", "1736667025677-xocc5"],
     "threshold": [
      {
       "conditionType": "match",
@@ -41,11 +41,7 @@
       "match": {
        "target": "comment",
        "case": "starts",
-       "value": [
-        "ドラちゃん",
-        "dorachan",
-        "5percent_Dora"
-       ]
+       "value": ["ドラちゃん", "dorachan", "5percent_Dora"]
       }
      }
     ]
@@ -59,9 +55,7 @@
     "rank": 0,
     "weight": 19,
     "threshold": [],
-    "placeIds": [
-     "1736666644802-fm0z5"
-    ],
+    "placeIds": ["1736666644802-fm0z5"],
     "post": [
      {
       "type": "onecomme",
