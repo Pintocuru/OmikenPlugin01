@@ -1,10 +1,10 @@
 {
- "id": "YukkuriHondaJanken",
- "name": "ゆっくり霊夢とじゃんけん",
+ "id": "HondaJanken",
+ "name": "じゃんけん",
  "description": "どんな事でも絶対に勝つんや!というメンタリティーが大事ですよ。",
  "version": "0.0.1",
  "author": "Pintocuru",
- "order": 113,
+ "order": 13,
  "tags": ["ゆっくり霊夢", "勝数", "ランキング", "じゃんけん"],
  "banner": "img/HondaJanken.png",
  "item": {
@@ -59,7 +59,7 @@
     "id": "HondaJanken-Rock",
     "name": "じゃんけん(グー)",
     "description": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。",
-    "color": "#283593",
+    "color": "#B71C1C",
     "enableIds": [
      "1736247177100-w9ddw",
      "1736247177903-w9npy",
@@ -92,7 +92,7 @@
     "id": "HondaJanken-Scissors",
     "name": "じゃんけん(チョキ)",
     "description": "あなたの考えてる事ぐらい、俺にはお見通しです。",
-    "color": "#283593",
+    "color": "#E8EAF6",
     "enableIds": [
      "1736307219773-kver1",
      "1736307533195-0zgu9",
@@ -125,7 +125,7 @@
     "id": "HondaJanken-Paper",
     "name": "じゃんけん(パー)",
     "description": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!",
-    "color": "#283593",
+    "color": "#303F9F",
     "enableIds": [
      "1736307602808-op1nj",
      "1736307722566-dtnvq",
@@ -179,7 +179,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -187,14 +187,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_3"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -202,12 +202,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "fun03",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenA1>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenA1>> "
      }
     ]
    },
@@ -234,7 +234,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -242,14 +242,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_3"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -257,12 +257,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "joy04",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenA2>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenA2>> "
      }
     ]
    },
@@ -288,7 +288,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -296,14 +296,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_1"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -311,12 +311,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "fun03",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenB1>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenB1>> "
      }
     ]
    },
@@ -342,7 +342,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -350,14 +350,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_1"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -365,12 +365,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "joy04",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenB2>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenB2>> "
      }
     ]
    },
@@ -396,7 +396,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -404,14 +404,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_2"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -419,12 +419,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "fun03",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenC1>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenC1>> "
      }
     ]
    },
@@ -450,7 +450,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -458,14 +458,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_2"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -473,12 +473,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "joy04",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の勝ち!<<JankenC2>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の勝ち!<<JankenC2>> "
      }
     ]
    },
@@ -505,7 +505,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -513,14 +513,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_<<JankenWinHand>> "
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -528,12 +528,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "joy01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -560,7 +560,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -568,14 +568,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_<<JankenWinHand>> "
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -583,12 +583,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "anger03",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -614,7 +614,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -622,14 +622,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_2"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -637,12 +637,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "anger03",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -668,7 +668,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -676,14 +676,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_2"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -691,12 +691,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "joy01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -722,7 +722,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -730,14 +730,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_3"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -745,12 +745,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "joy01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -777,7 +777,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -785,14 +785,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_3"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -800,12 +800,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "anger03",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -832,7 +832,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -840,14 +840,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_1"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -855,12 +855,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "joy01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -887,7 +887,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 1,
       "generatorParam": "",
@@ -895,14 +895,14 @@
      },
      {
       "type": "party",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 1.4,
       "content": "!janken_1"
      },
      {
       "type": "party",
-      "botKey": "marisa",
+      "botKey": "OmikenBotPurple",
       "iconKey": "Default",
       "delaySeconds": 2.9,
       "party": "",
@@ -910,12 +910,12 @@
      },
      {
       "type": "onecomme",
-      "botKey": "marisa",
-      "iconKey": "anger03",
+      "botKey": "OmikenBotPurple",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!シーン切り替え1",
-      "content": "俺の負け!<<JankenV>> ",
-      "generatorParam": "honda"
+      "generatorParam": "honda",
+      "content": "俺の負け!<<JankenV>> "
      }
     ]
    },
@@ -949,8 +949,8 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "sorry01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 0,
       "party": "",
       "isSilent": true,
@@ -1013,7 +1013,7 @@
     "values": [
      {
       "weight": 1,
-      "value": "マリサ キリサメ"
+      "value": "ケイスケ ホンダ"
      }
     ]
    },

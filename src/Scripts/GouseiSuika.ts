@@ -64,6 +64,7 @@ const plugin: ScriptsType = {
  description: 'スイカゲーム風のおみくじ',
  version: '0.0.3',
  author: 'Pintocuru',
+ tags: ['ポイント', 'ランキング', 'スイカ'],
  url: '',
  banner: '',
  func: (game, comment, params) => {

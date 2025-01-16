@@ -4,7 +4,7 @@
  "description": "メダルスロットをモチーフにしたおみくじ。目指せ、出玉大爆発!",
  "version": "0.0.1",
  "author": "Pintocuru",
- "order": 12,
+ "order": 14,
  "tags": ["ポイント", "ランキング", "スロット"],
  "banner": "img/BomberSpin.png",
  "item": {
@@ -67,7 +67,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 2.5,
       "party": "!シーン切り替え1",
@@ -75,8 +75,8 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "Default",
+      "botKey": "OmikenBotYellow",
+      "iconKey": "concentric",
       "delaySeconds": 7,
       "party": "!ニュースタイトル表示3",
       "isSilent": true,
@@ -124,7 +124,7 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
+      "botKey": "OmikenBotPink",
       "iconKey": "Default",
       "delaySeconds": 2.5,
       "party": "!シーン切り替え1",
@@ -132,8 +132,8 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "Default",
+      "botKey": "OmikenBotYellow",
+      "iconKey": "concentric",
       "delaySeconds": 7,
       "party": "!ニュースタイトル表示3",
       "isSilent": true,

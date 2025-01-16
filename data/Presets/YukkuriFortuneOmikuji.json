@@ -4,8 +4,8 @@
  "description": "ゆっくり霊夢にピッタリの、おみくじセット。",
  "version": "0.0.1",
  "author": "Pintocuru",
- "order": 101,
- "tags": ["ゆっくり霊夢", "おみくじ"],
+ "order": 111,
+ "tags": ["Yukkuri", "ゆっくり霊夢", "ゆっくり魔理沙", "おみくじ"],
  "banner": "img/YukkuriFortuneOmikuji.png",
  "item": {
   "types": {

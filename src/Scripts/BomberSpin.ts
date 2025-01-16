@@ -98,6 +98,7 @@ const plugin: ScriptsType = {
  description: 'APPLI BOMBERSPIN風のおみくじ',
  version: '0.0.1',
  author: 'Pintocuru',
+ tags: ['ポイント', 'ランキング', 'スロット'],
  url: '',
  banner: '',
  func: (game, comment, params) => {

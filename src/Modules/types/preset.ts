@@ -7,6 +7,7 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 export interface PresetType extends BaseType {
  version: string; // バージョン番号
  author?: string; // 開発者名
+ order?: number; // 並び順
  tags: string[]; // 内容を表すタグ
  url?: string; // サポートページのURL
  banner?: string; // 紹介用画像

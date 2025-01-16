@@ -59,8 +59,8 @@
     "post": [
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "relax01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 1.5,
       "content": "はぁーい、<<5percent_Dora>>～",
       "party": "!シーン切り替え1"
@@ -110,8 +110,8 @@
      },
      {
       "type": "onecomme",
-      "botKey": "reimu",
-      "iconKey": "sorry01",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
       "delaySeconds": 5,
       "party": "!呪いの旋律",
       "content": "オンボロがオンボロをボロンしてしまいました。大変失礼いたしました。"

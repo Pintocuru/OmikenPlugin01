@@ -109,6 +109,7 @@ const plugin: ScriptsType = {
  description: 'パラメータを受け取ることで、ゲーム数や勝率を生成します。',
  version: '0.0.2',
  author: 'Pintocuru',
+ tags: ['ベース', '勝数', 'ポイント', '勝率', 'ランキング'],
  url: '',
  banner: '',
  func: (game, comment, params) =>

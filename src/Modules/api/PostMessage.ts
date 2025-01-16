@@ -1,21 +1,17 @@
 // src/Modules/api/PostMessage.ts
-import { CharaType, OneCommePostType, postOneCommeRequestType } from '@type';
-import { CommentService, ReactionService } from '@api/PostComment';
+import { CharaType, OneCommePostType, SendCommentType } from '@type';
+import { postSpeech, postSystemMessage, postWordParty, sendComment } from '@api/PostOneComme';
 import { ServiceAPI } from '@api/serviceAPI';
 import { configs } from '@/config';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import path from 'path';
 
 export class PostMessage {
- private readonly commentService: CommentService;
  private readonly serviceAPI: ServiceAPI;
- private readonly reactionService: ReactionService;
  private services: Service[] = [];
 
  constructor(private posts: OneCommePostType[], private charas?: Record<string, CharaType>) {
-  this.commentService = new CommentService();
   this.serviceAPI = new ServiceAPI();
-  this.reactionService = new ReactionService();
  }
 
  async post(): Promise<void> {
@@ -43,7 +39,7 @@ export class PostMessage {
   if (!content?.trim()) return;
 
   // キャラクターの枠作成チェック
-  if (type === 'onecomme' && chara && configs.isCreateService) {
+  if (type === 'onecomme' && chara && chara.isIconDisplay && configs.isCreateService) {
    const existingService = this.services.some((s) => s.id === chara.frameId);
    if (!existingService) {
     const newService = await this.serviceAPI.createService(
@@ -60,30 +56,31 @@ export class PostMessage {
   // メッセージタイプに応じた投稿処理
   const postActions: Record<string, () => Promise<void>> = {
    onecomme: async () => {
-    if (!chara) return;
-    const DefaultFrameId = !configs.isCreateService ? this.services[0]?.id : null;
-    const request = this.createCommentRequest(post, chara, DefaultFrameId);
+    if (post.party) postWordParty(post.party, delaySeconds);
 
-    if (post.party) this.reactionService.postWordParty(post.party, delaySeconds);
-    this.commentService.postComment(request, delaySeconds);
+    // キャラクター情報があり、枠情報が取得できるなら、わんコメへ投稿
+    const DefaultFrameId = this.services[0]?.id || null;
+    if (chara && DefaultFrameId) {
+     const request = this.createCommentRequest(post, chara, DefaultFrameId);
+     sendComment(request, delaySeconds);
+    } else {
+     // キャラ情報がない、または枠情報がないなら、テストコメントで投稿
+     postSystemMessage(content, 'おみくじBOT', delaySeconds);
+    }
    },
-   party: async () => this.reactionService.postWordParty(content, delaySeconds),
-   speech: async () => this.reactionService.postSpeech(content, delaySeconds),
-   error: async () => this.commentService.postSystemMessage(content, post.generatorParam, delaySeconds)
+   party: async () => postWordParty(content, delaySeconds),
+   speech: async () => postSpeech(content, delaySeconds),
+   error: async () => postSystemMessage(content, post.generatorParam, delaySeconds)
   };
 
   const action = postActions[type];
   if (action) await action();
  }
 
- private createCommentRequest(
-  post: OneCommePostType,
-  chara: CharaType,
-  defaultFrameId: string | null
- ): postOneCommeRequestType {
+ private createCommentRequest(post: OneCommePostType, chara: CharaType, defaultFrameId: string): SendCommentType {
   return {
    service: {
-    id: chara.frameId || defaultFrameId
+    id: chara.frameId && chara.frameId.trim() ? chara.frameId : defaultFrameId
    },
    comment: {
     id: Date.now() + Math.random().toString().slice(2, 12),
@@ -92,7 +89,7 @@ export class PostMessage {
     comment: post.content,
     profileImage: this.getCharaImagePath(chara, post.iconKey),
     badges: [],
-    nickname: chara.nickname || chara.name,
+    nickname: '　',
     liveId: post.generatorParam || '',
     isOwner: post.isSilent
    }

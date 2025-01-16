@@ -1,11 +1,11 @@
 {
  "id": "YukkuriShokenChecker",
- "name": "初見判定ちゃん(ゆっくり霊夢/ゆっくり魔理沙)",
- "description": "ゆっくり霊夢/ゆっくり魔理沙の、初見判定機能プリセットです",
+ "name": "初見判定ちゃん(ゆっくり霊夢)",
+ "description": "ゆっくり霊夢&ゆっくり魔理沙の、初見判定機能プリセットです",
  "version": "0.0.1",
  "author": "Pintocuru",
- "order":102,
- "tags": ["ゆっくり霊夢", "カウンター", "チェッカー"],
+ "order": 112,
+ "tags": ["Yukkuri", "ゆっくり霊夢", "ゆっくり魔理沙", "カウンター", "チェッカー"],
  "banner": "img/YukkuriShokenChecker.png",
  "item": {
   "types": {

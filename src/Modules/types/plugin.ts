@@ -102,8 +102,8 @@ export interface TimeConfigType {
 
 // ---
 
-// わんコメにpostする際の型定義
-export interface postOneCommeRequestType {
+// わんコメSend Commentの型定義
+export interface SendCommentType {
  service: Pick<Service, 'id' | 'translate'>;
  comment: Pick<
   BaseResponse,
@@ -137,8 +137,22 @@ commentVisible(boolean): プラグインのfilter.commentでfalseする効果と
 speechText
 originalProfileImage
 meta
-
 */
+
+// わんコメSend Test Comment型定義
+export interface SendTestCommentType{
+ platform: string;
+ hasGift: boolean;
+ unit: string;
+ price: number;
+ giftType: string;
+ newComment: boolean;
+ repeater: boolean;
+ subscribe: boolean;
+ speech: boolean;
+ username: string;
+ comment: string;
+}
 
 // ---
 

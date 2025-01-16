@@ -20,6 +20,15 @@ export class ServiceAPI {
  // わんコメの枠を作成
  async createService(name: string, frameId: string, color: string): Promise<Service | null> {
   try {
+   // frameIdの検証
+   if (
+    !frameId || // null, undefined, 空文字を除外
+    !/^[a-zA-Z0-9]+$/.test(frameId) || // 英数字以外を除外
+    frameId.length < 4 // 長さが3文字以下を除外
+   ) {
+    throw new Error('無効なframeIdです。');
+   }
+
    const response = await axios.post(`${configs.BASE_URL}/services`, {
     id: frameId,
     name: `おみくじBOT:${name}`,
