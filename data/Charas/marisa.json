@@ -1,6 +1,7 @@
 {
  "id": "marisa",
  "name": "ゆっくり魔理沙",
+ "displayName": "ゆっくり魔理沙",
  "description": "花とキノコが好きな、ゆっくり魔理沙。じゃんけんはちょっと弱い。",
  "version": "0.0.1",
  "author": "Pintocuru",
@@ -9,7 +10,6 @@
  "url": "https://nagipon-sozai.studio.site/",
  "banner": "marisa/Default.png",
  "isIconDisplay": true,
- "nickname": "ゆっくり魔理沙",
  "frameId": "OmikenMarisa",
  "party": [
   "!シーン切り替え1",

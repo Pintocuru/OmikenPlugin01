@@ -64,10 +64,7 @@ export class InitDataLoader {
     const filePath = path.join(fullPath, file);
 
     try {
-     result[key] =
-      extension === 'json'
-       ? readJsonFile<T>(filePath)
-       : require(filePath).default || require(filePath);
+     result[key] = extension === 'json' ? readJsonFile<T>(filePath) : require(filePath).default || require(filePath);
     } catch (e) {
      systemMessage('error', `ファイルの読み込みに失敗: ${filePath}`, e);
      throw new Error(`ファイルの読み込みに失敗: ${filePath}`);
@@ -104,7 +101,7 @@ export class InitDataLoader {
           }
          ])
         )
-      : {} 
+      : {}
     }
    ])
   );
@@ -141,7 +138,6 @@ function readJsonFile<T>(filePath: string): T | null {
   return null;
  }
 }
-
 
 // rulesを配列にする
 export function filterTypes(types: Record<TypesType, string[]>, rules: Record<string, RulesType>) {

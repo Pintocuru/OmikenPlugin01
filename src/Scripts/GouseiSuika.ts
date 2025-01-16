@@ -61,7 +61,7 @@ interface GameParams {
 const plugin: ScriptsType = {
  id: 'GouseiSuika',
  name: 'スイカジェネレーター',
- description: 'スイカゲーム風のおみくじ',
+ description: '米兜科技 合成大西瓜風のおみくじ',
  version: '0.0.3',
  author: 'Pintocuru',
  tags: ['ポイント', 'ランキング', 'スイカ'],

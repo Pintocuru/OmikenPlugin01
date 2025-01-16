@@ -1,5 +1,5 @@
 // scriptサンプル
-import {  ScriptParam, ScriptsType } from '@type';
+import { ScriptParam, ScriptsType } from '@type';
 import WinChan from './WinChan';
 
 // エディターで設定できるパラメータ
@@ -95,7 +95,7 @@ const winComments: [number, string][] = [
 const plugin: ScriptsType = {
  id: 'BomberSpin',
  name: 'ボンバースピン',
- description: 'APPLI BOMBERSPIN風のおみくじ',
+ description: 'APPLI BOMBERSPIN2風のおみくじ',
  version: '0.0.1',
  author: 'Pintocuru',
  tags: ['ポイント', 'ランキング', 'スロット'],

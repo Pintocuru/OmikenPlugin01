@@ -5,11 +5,16 @@
  "version": "0.0.1",
  "author": "Pintocuru",
  "order": 113,
- "tags": ["ゆっくり霊夢", "勝数", "ランキング", "じゃんけん"],
- "banner": "img/HondaJanken.png",
+ "tags": ["Yukkuri", "ゆっくり霊夢", "ゆっくり魔理沙", "勝数", "ランキング", "じゃんけん"],
+ "banner": "img/YukkuriHondaJanken.png",
  "item": {
   "types": {
-   "comment": ["HondaJanken", "HondaJanken-Rock", "HondaJanken-Scissors", "HondaJanken-Paper"],
+   "comment": [
+    "YukkuriHondaJanken",
+    "YukkuriHondaJanken-Rock",
+    "YukkuriHondaJanken-Scissors",
+    "YukkuriHondaJanken-Paper"
+   ],
    "timer": [],
    "unused": [],
    "meta": [],
@@ -18,8 +23,8 @@
    "reactions": []
   },
   "rules": {
-   "HondaJanken": {
-    "id": "HondaJanken",
+   "YukkuriHondaJanken": {
+    "id": "YukkuriHondaJanken",
     "name": "じゃんけん",
     "description": "ここは練習ではありません。全身全霊で俺と向き合ってください。",
     "color": "#283593",
@@ -55,8 +60,8 @@
      }
     ]
    },
-   "HondaJanken-Rock": {
-    "id": "HondaJanken-Rock",
+   "YukkuriHondaJanken-Rock": {
+    "id": "YukkuriHondaJanken-Rock",
     "name": "じゃんけん(グー)",
     "description": "いい勝負でしたね!でも結果が伴わないと、全く意味がありません。",
     "color": "#283593",
@@ -88,8 +93,8 @@
      }
     ]
    },
-   "HondaJanken-Scissors": {
-    "id": "HondaJanken-Scissors",
+   "YukkuriHondaJanken-Scissors": {
+    "id": "YukkuriHondaJanken-Scissors",
     "name": "じゃんけん(チョキ)",
     "description": "あなたの考えてる事ぐらい、俺にはお見通しです。",
     "color": "#283593",
@@ -121,8 +126,8 @@
      }
     ]
    },
-   "HondaJanken-Paper": {
-    "id": "HondaJanken-Paper",
+   "YukkuriHondaJanken-Paper": {
+    "id": "YukkuriHondaJanken-Paper",
     "name": "じゃんけん(パー)",
     "description": "それで勝てると思ってるんやったら、俺がずっと勝ちますよ!",
     "color": "#283593",

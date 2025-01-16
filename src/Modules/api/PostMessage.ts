@@ -1,5 +1,5 @@
 // src/Modules/api/PostMessage.ts
-import { CharaType, OneCommePostType, SendCommentType } from '@type';
+import { CharaType, OneCommePostType, SendCommentParamsType, SendCommentType } from '@type';
 import { postSpeech, postSystemMessage, postWordParty, sendComment } from '@api/PostOneComme';
 import { ServiceAPI } from '@api/serviceAPI';
 import { configs } from '@/config';
@@ -78,22 +78,42 @@ export class PostMessage {
  }
 
  private createCommentRequest(post: OneCommePostType, chara: CharaType, defaultFrameId: string): SendCommentType {
+  const id: SendCommentParamsType = {
+   id: Date.now().toString(36),
+   charaId: chara.id,
+   param: post.generatorParam || undefined,
+   isSilent: post.isSilent?.toString() || undefined
+  };
   return {
    service: {
     id: chara.frameId && chara.frameId.trim() ? chara.frameId : defaultFrameId
    },
    comment: {
-    id: Date.now() + Math.random().toString().slice(2, 12),
+    id: this.objectToKeyValueString(id),
     userId: configs.botUserId,
-    name: chara.name,
+    name: chara.displayName || 'おみくじBOT',
     comment: post.content,
     profileImage: this.getCharaImagePath(chara, post.iconKey),
     badges: [],
-    nickname: '　',
-    liveId: post.generatorParam || '',
-    isOwner: post.isSilent
+    nickname: ' '
    }
   };
+ }
+
+ private objectToKeyValueString(obj: Record<string, any>): string {
+  return Object.entries(obj)
+   .filter(
+    ([_, value]) =>
+     value !== undefined &&
+     value !== 'undefined' &&
+     value !== false &&
+     value !== 'false' &&
+     value !== null &&
+     value !== 'null' &&
+     value !== ''
+   )
+   .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+   .join(',');
  }
 
  private getCharaImagePath(chara: CharaType, iconKey: string): string {

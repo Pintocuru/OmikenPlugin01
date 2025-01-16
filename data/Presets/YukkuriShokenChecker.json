@@ -1,6 +1,6 @@
 {
  "id": "YukkuriShokenChecker",
- "name": "初見判定ちゃん(ゆっくり霊夢)",
+ "name": "ゆっくり霊夢の初見判定",
  "description": "ゆっくり霊夢&ゆっくり魔理沙の、初見判定機能プリセットです",
  "version": "0.0.1",
  "author": "Pintocuru",
@@ -39,6 +39,16 @@
     "threshold": [
      {
       "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
       "match": {
        "target": "comment",
        "case": "starts",
@@ -47,11 +57,20 @@
      },
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "max",
        "unit": "tc",
        "value1": 6,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ]
@@ -65,7 +84,21 @@
     "threshold": [
      {
       "conditionType": "gift",
-      "gift": 0
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ]
    },
@@ -85,7 +118,21 @@
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 4
+      "coolDown": 3,
+      "syoken": 4,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ]
    },
@@ -106,6 +153,16 @@
     "threshold": [
      {
       "conditionType": "match",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
       "match": {
        "target": "comment",
        "case": "starts",
@@ -114,11 +171,20 @@
      },
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "min",
        "unit": "tc",
        "value1": 5,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ]
@@ -134,11 +200,20 @@
     "threshold": [
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "loop",
        "unit": "lc",
        "value1": 100,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ],
@@ -170,11 +245,20 @@
     "threshold": [
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "loop",
        "unit": "lc",
        "value1": 200,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ],
@@ -206,11 +290,20 @@
     "threshold": [
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "loop",
        "unit": "tc",
        "value1": 100,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ],
@@ -237,12 +330,26 @@
     "id": "1730456695760-5zb8i",
     "name": "久しぶり1",
     "description": "7日経過後にコメントしたときのお返事です。",
-    "rank": 0,
+    "rank": 1,
     "weight": 3,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 2
+      "coolDown": 3,
+      "syoken": 2,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -268,12 +375,26 @@
     "id": "1730456872841-c9gwr",
     "name": "久しぶり2",
     "description": "7日経過後にコメントしたときのお返事。同一枠の連続配信の場合でも、ちゃんと反応するはず。",
-    "rank": 0,
-    "weight": 1,
+    "rank": 1,
+    "weight": 2,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 2
+      "coolDown": 3,
+      "syoken": 2,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -299,12 +420,26 @@
     "id": "1731148126492-sqbn5",
     "name": "初見1",
     "description": "初めてコメントした方への挨拶です。",
-    "rank": 0,
+    "rank": 2,
     "weight": 3,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 1
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -337,12 +472,26 @@
     "id": "1731149012459-vcc4r",
     "name": "初見2",
     "description": "初めてコメントした方への挨拶。わんコメ基準なので、過去データがなければ誰もが初見になります。",
-    "rank": 0,
-    "weight": 1,
+    "rank": 2,
+    "weight": 2,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 1
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -376,11 +525,25 @@
     "name": "こんにちは1",
     "description": "その配信枠の1コメでのお返事です。",
     "rank": 0,
-    "weight": 1,
+    "weight": 3,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 3
+      "coolDown": 3,
+      "syoken": 3,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -407,11 +570,25 @@
     "name": "こんにちは2",
     "description": "その配信枠の1コメでのお返事です。",
     "rank": 0,
-    "weight": 1,
+    "weight": 2,
     "threshold": [
      {
       "conditionType": "syoken",
-      "syoken": 3
+      "coolDown": 3,
+      "syoken": 3,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -461,8 +638,8 @@
       "type": "onecomme",
       "botKey": "marisa",
       "iconKey": "joy03",
-      "party": "!シーン切り替え1",
       "delaySeconds": 0.5,
+      "party": "!シーン切り替え1",
       "content": "やったぜ!<<user>>さんからギフトを頂いたぜ。これを元手に配信に精を出すぜ。ありがとだぜ!"
      }
     ]
@@ -495,8 +672,8 @@
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "joy03",
-      "party": "!シーン切り替え1",
       "delaySeconds": 0.5,
+      "party": "!シーン切り替え1",
       "content": "<<user>>さん、ギフトありがとう!これからも配信続けていくわ。応援してね!"
      }
     ]
@@ -510,7 +687,21 @@
     "threshold": [
      {
       "conditionType": "gift",
-      "gift": 4
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 4,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -534,8 +725,8 @@
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "love02",
-      "party": "!シーン切り替え1",
       "delaySeconds": 0.5,
+      "party": "!シーン切り替え1",
       "content": "<<price>>ポイント!! <<user>>さん、こんなに貰っちゃっていいの!?もう私達頑張るしかないじゃない!"
      }
     ]
@@ -549,7 +740,21 @@
     "threshold": [
      {
       "conditionType": "gift",
-      "gift": 5
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 5,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -573,8 +778,8 @@
       "type": "onecomme",
       "botKey": "marisa",
       "iconKey": "love03",
-      "party": "!シーン切り替え1",
       "delaySeconds": 0.5,
+      "party": "!シーン切り替え1",
       "content": "<<price>>ポイント!!いいのか?<<user>>さん!あなたの心意気に感謝するぜ!"
      }
     ]
@@ -584,7 +789,7 @@
     "name": "初見詐欺011",
     "description": "初見でもないのに初見とコメントした人へのツッコミ",
     "rank": 0,
-    "weight": 8,
+    "weight": 10,
     "threshold": [],
     "status": "",
     "placeIds": ["1731155882263-4ja9n"],
@@ -600,8 +805,8 @@
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "contempt02",
-      "party": "!間抜け5",
       "delaySeconds": 1.5,
+      "party": "!間抜け5",
       "content": "<<WelcomeSagi011>>"
      }
     ]
@@ -611,15 +816,24 @@
     "name": "初見詐欺021",
     "description": "すいぶん経つのに未だに初見とコメントする人へのツッコミ。友人に初見です！としつこく迫る顔の厚さよ。",
     "rank": 0,
-    "weight": 2,
+    "weight": 4,
     "threshold": [
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "max",
        "unit": "tc",
        "value1": 100,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ],
@@ -637,8 +851,8 @@
       "type": "onecomme",
       "botKey": "marisa",
       "iconKey": "sorry02",
-      "party": "!ビシッとツッコミ1",
       "delaySeconds": 1.5,
+      "party": "!ビシッとツッコミ1",
       "content": "<<WelcomeSagi02>>"
      }
     ]
@@ -664,8 +878,8 @@
       "type": "onecomme",
       "botKey": "marisa",
       "iconKey": "love03",
-      "party": "!レベルアップ",
       "delaySeconds": 1.5,
+      "party": "!レベルアップ",
       "content": "はじめましてだぜ、<<user>>さん!私はゆっくり魔理沙だぜ。高評価を押してほしいんだぜ。"
      }
     ]
@@ -691,8 +905,8 @@
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "joy03",
-      "party": "!レベルアップ",
       "delaySeconds": 1.5,
+      "party": "!レベルアップ",
       "content": "はじめまして。<<user>>さんが来てくれて嬉しいわ。私はゆっくり霊夢よ。チャンネル登録するなら今のうち！"
      }
     ]
@@ -706,7 +920,22 @@
     "threshold": [
      {
       "conditionType": "target",
-      "target": null
+      "target": null,
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
      }
     ],
     "status": "",
@@ -716,16 +945,16 @@
       "type": "party",
       "botKey": "marisa",
       "iconKey": "Default",
-      "party": "",
       "delaySeconds": 0,
+      "party": "",
       "content": "!初見"
      },
      {
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "contempt01",
-      "party": "!クイズ不正解1",
       "delaySeconds": 1.6,
+      "party": "!クイズ不正解1",
       "content": "初見詐欺は連投するものではないわ。他の誰かにコメントを頼んでみるのもいいわね。"
      }
     ]
@@ -744,24 +973,24 @@
       "type": "party",
       "botKey": "marisa",
       "iconKey": "Default",
-      "party": "",
       "delaySeconds": 0,
+      "party": "",
       "content": "!初見"
      },
      {
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "joy03",
-      "party": "!レベルアップ",
       "delaySeconds": 1.5,
+      "party": "!レベルアップ",
       "content": "<<user>>さん、初めまして!ゆっくりしていってね。"
      },
      {
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "anger01",
-      "party": "!呪いの旋律",
       "delaySeconds": 5,
+      "party": "!呪いの旋律",
       "content": "だましたわね<<user>>さん。こんな可愛い巫女をひどいめに合わせたのね!"
      }
     ]
@@ -775,11 +1004,20 @@
     "threshold": [
      {
       "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
       "count": {
        "comparison": "max",
        "unit": "tc",
        "value1": 100,
        "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
       }
      }
     ],
@@ -797,16 +1035,16 @@
       "type": "onecomme",
       "botKey": "marisa",
       "iconKey": "surprise02",
-      "party": "!レベルアップ",
       "delaySeconds": 1.5,
+      "party": "!レベルアップ",
       "content": "そんなに私に会いたかったか、<<user>>さん！いいぜ、また「初見」ってコメントしてほしいぜ！"
      },
      {
       "type": "onecomme",
       "botKey": "reimu",
       "iconKey": "anger02",
-      "party": "!ビシッとツッコミ1",
       "delaySeconds": 5,
+      "party": "!ビシッとツッコミ1",
       "content": "魔理沙！怒るわよ。BOTの私たちが配信主に迷惑かけちゃダメでしょ。"
      }
     ]
@@ -817,6 +1055,7 @@
     "id": "1730456801704-8lpzk",
     "name": "WelcomeAgain01",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 9,
@@ -836,6 +1075,7 @@
     "id": "1730456953853-2kr1z",
     "name": "WelcomeAgain02",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 7,
@@ -851,6 +1091,7 @@
     "id": "1731148195677-a91wm",
     "name": "WelcomeSyoken01",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 1,
@@ -870,6 +1111,7 @@
     "id": "1731148223609-ya4xm",
     "name": "WelcomeSyoken02",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 1,
@@ -889,6 +1131,7 @@
     "id": "1731149450144-4z43k",
     "name": "WelcomeHi01",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 1,
@@ -904,6 +1147,7 @@
     "id": "1731149461424-arcth",
     "name": "WelcomeHi02",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 1,
@@ -919,6 +1163,7 @@
     "id": "1731155882263-4ja9n",
     "name": "WelcomeSagi011",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 1,
@@ -954,6 +1199,7 @@
     "id": "1731156154823-jl5w6",
     "name": "WelcomeSagi02",
     "description": "",
+    "placeIds": [],
     "values": [
      {
       "weight": 3,

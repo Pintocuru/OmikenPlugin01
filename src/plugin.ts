@@ -2,6 +2,7 @@
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { StoreType, StoreAllType, StoreApiType } from '@type';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
+import { commentTreatment } from '@core/commentTreatment';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
 import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
@@ -38,27 +39,25 @@ const plugin: OnePlugin = {
    await timerSetup(this);
 
    // プラグインの起動メッセージ
-   systemMessage('info', `おみくじBOTプラグインが起動したよ`);
+   systemMessage('info', `【おみくじBOTプラグイン】が起動したよ`);
   } catch (e) {
-   systemMessage('error', `おみくじBOTプラグインの初期化に失敗`, e);
+   systemMessage('error', `【おみくじBOTプラグイン】の初期化に失敗`, e);
    throw new Error();
   }
  },
 
  // filterComment:コメントを加工・変更する
  async filterComment(this: StoreAllType, comment, service, userData) {
-  // 自身のプラグインの投稿はおみくじを行わない
+  // 自身のプラグインの投稿（botの投稿）はおみくじを行わない
   if (comment.data.userId === configs.botUserId) {
-   // isOwner(isSilent) なら読み上げを行わない
-   if (comment.data.isOwner) comment.data.speechText = ' ';
-  } else {
-   // 残りの処理を非同期で実行
-   this.filterCommentProcess(comment, userData);
+   return commentTreatment(comment);
   }
+  // おみくじBOT処理
+  this.filterCommentProcess(comment, userData);
   return comment;
  },
 
- // filterCommentProcess:BOT処理
+ // filterCommentProcess:おみくじBOT処理
  async filterCommentProcess(this: StoreAllType, comment: Comment, userData: UserNameData) {
   try {
    const COMMENT_EXPIRY_MS = 5000; // 5秒以上経過したコメントはおみくじの対象外

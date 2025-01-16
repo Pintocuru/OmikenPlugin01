@@ -25,7 +25,7 @@ export interface PresetOmikenType extends PresetType {
 // Chara:キャラクターJSONの型定義
 export interface CharaType extends PresetType {
  isIconDisplay: boolean; // アイコンを表示するか
- nickname?: string; // 読み上げ時の名前の読ませ方
+ displayName?: string; // 読み上げ時の名前の読ませ方
  frameId: string | null; // わんコメの枠
  color: {
   '--lcv-name-color': string; // 名前の色

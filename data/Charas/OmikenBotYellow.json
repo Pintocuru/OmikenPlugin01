@@ -1,6 +1,7 @@
 {
  "id": "OmikenBotYellow",
  "name": "おみくじBOT(黄色)",
+ "displayName": "おみくじBOT",
  "description": "シンプル。アイコンなしで表示します。",
  "version": "0.0.1",
  "author": "Pintocuru",
@@ -8,7 +9,6 @@
  "tags": ["シンプル", "アイコンなし"],
  "banner": "_Default/octopus.png",
  "isIconDisplay": false,
- "nickname": "おみくじBOT",
  "frameId": null,
  "party": [
   "!シーン切り替え1",

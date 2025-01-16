@@ -9,7 +9,7 @@
  "banner": "img/YukkuriFortuneOmikuji.png",
  "item": {
   "types": {
-   "comment": ["fortuneOmikujiRule", "fortuneFlowerRule"],
+   "comment": ["YukkuriFortuneOmikujiRule", "fortuneFlowerRule"],
    "timer": [],
    "unused": [],
    "meta": [],
@@ -18,19 +18,19 @@
    "reactions": []
   },
   "rules": {
-   "fortuneOmikujiRule": {
-    "id": "fortuneOmikujiRule",
-    "name": "おみくじ",
+   "YukkuriFortuneOmikujiRule": {
+    "id": "YukkuriFortuneOmikujiRule",
+    "name": "霊夢のおみくじ",
     "description": "本職巫女さん手製。ゆっくり霊夢の、真面目なおみくじ。時々ゆっくり魔理沙も占います。",
     "color": "#ff2200",
     "enableIds": [
-     "fortuneOmikuji01",
-     "fortuneOmikuji02",
-     "fortuneOmikuji03",
-     "fortuneOmikuji04",
-     "fortuneOmikuji05",
-     "fortuneOmikuji06",
-     "fortuneOmikuji07",
+     "YukkuriFortuneOmikuji01",
+     "YukkuriFortuneOmikuji02",
+     "YukkuriFortuneOmikuji03",
+     "YukkuriFortuneOmikuji04",
+     "YukkuriFortuneOmikuji05",
+     "YukkuriFortuneOmikuji06",
+     "YukkuriFortuneOmikuji07",
      "1736320593482-wdmdr"
     ],
     "threshold": [
@@ -93,8 +93,8 @@
    }
   },
   "omikujis": {
-   "fortuneOmikuji01": {
-    "id": "fortuneOmikuji01",
+   "YukkuriFortuneOmikuji01": {
+    "id": "YukkuriFortuneOmikuji01",
     "name": "おみくじ:大吉",
     "description": "",
     "rank": 0,
@@ -128,8 +128,8 @@
      }
     ]
    },
-   "fortuneOmikuji06": {
-    "id": "fortuneOmikuji06",
+   "YukkuriFortuneOmikuji06": {
+    "id": "YukkuriFortuneOmikuji06",
     "name": "おみくじ:凶",
     "description": "",
     "rank": 0,
@@ -162,8 +162,8 @@
      }
     ]
    },
-   "fortuneOmikuji02": {
-    "id": "fortuneOmikuji02",
+   "YukkuriFortuneOmikuji02": {
+    "id": "YukkuriFortuneOmikuji02",
     "name": "おみくじ:吉",
     "description": "",
     "rank": 0,
@@ -197,8 +197,8 @@
      }
     ]
    },
-   "fortuneOmikuji03": {
-    "id": "fortuneOmikuji03",
+   "YukkuriFortuneOmikuji03": {
+    "id": "YukkuriFortuneOmikuji03",
     "name": "おみくじ:中吉",
     "description": "",
     "rank": 0,
@@ -231,8 +231,8 @@
      }
     ]
    },
-   "fortuneOmikuji04": {
-    "id": "fortuneOmikuji04",
+   "YukkuriFortuneOmikuji04": {
+    "id": "YukkuriFortuneOmikuji04",
     "name": "おみくじ:小吉",
     "description": "",
     "rank": 0,
@@ -265,8 +265,8 @@
      }
     ]
    },
-   "fortuneOmikuji05": {
-    "id": "fortuneOmikuji05",
+   "YukkuriFortuneOmikuji05": {
+    "id": "YukkuriFortuneOmikuji05",
     "name": "おみくじ:末吉",
     "description": "",
     "rank": 0,
@@ -299,8 +299,8 @@
      }
     ]
    },
-   "fortuneOmikuji07": {
-    "id": "fortuneOmikuji07",
+   "YukkuriFortuneOmikuji07": {
+    "id": "YukkuriFortuneOmikuji07",
     "name": "おみくじ:残念賞",
     "description": "",
     "rank": 0,

@@ -1,6 +1,7 @@
 {
  "id": "reimu",
  "name": "ゆっくり霊夢",
+ "displayName": "ゆっくり霊夢",
  "description": "優しい振る舞いで人気者のゆっくり霊夢。じゃんけんはとても強い。",
  "version": "0.0.1",
  "author": "Pintocuru",
@@ -9,7 +10,6 @@
  "url": "https://nagipon-sozai.studio.site/",
  "banner": "reimu/Default.png",
  "isIconDisplay": true,
- "nickname": "おみくじBOT",
  "frameId": "OmikenReimu",
  "party": [
   "!シーン切り替え1",

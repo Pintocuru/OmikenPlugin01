@@ -1,0 +1,284 @@
+{
+ "id": "ShokenChecker",
+ "name": "初見判定ちゃん",
+ "description": "初見さんやコメント数をチェックするプリセットです",
+ "version": "0.0.1",
+ "author": "Pintocuru",
+ "order": 12,
+ "tags": ["カウンター", "チェッカー"],
+ "banner": "img/ShokenChecker.png",
+ "item": {
+  "types": {
+   "comment": ["1731154889231", "1731148078732", "1730455954261"],
+   "timer": [],
+   "unused": [],
+   "meta": [],
+   "waitingList": [],
+   "setList": [],
+   "reactions": []
+  },
+  "rules": {
+   "1731154889231": {
+    "id": "1731154889231",
+    "name": "ギフト",
+    "description": "ギフト(メンバー加入含む)をくださった方へのお礼",
+    "color": "#FFEB3B",
+    "enableIds": ["1731155125168-cfu88"],
+    "threshold": [
+     {
+      "conditionType": "gift",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ]
+   },
+   "1731148078732": {
+    "id": "1731148078732",
+    "name": "初見・久しぶり",
+    "description": "そのユーザーの配信枠1コメを参照し、初回や久しぶりと挨拶できます。",
+    "color": "#4CAF50",
+    "enableIds": ["1731148126492-sqbn5", "1731149419725-o1ebm"],
+    "threshold": [
+     {
+      "conditionType": "syoken",
+      "coolDown": 3,
+      "syoken": 4,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ]
+   },
+   "1730455954261": {
+    "id": "1730455954261",
+    "name": "コメント数チェック",
+    "description": "配信枠でのコメント数や、個人のコメント数をカウントします",
+    "color": "#3F51B5",
+    "enableIds": ["1730456057476-pw29g", "1730456354800-4sj0v"],
+    "threshold": []
+   }
+  },
+  "omikujis": {
+   "1730456057476-pw29g": {
+    "id": "1730456057476-pw29g",
+    "name": "配信枠:100回",
+    "description": "その配信枠のコメント数が100ごとに反応します",
+    "rank": 1,
+    "weight": 1,
+    "threshold": [
+     {
+      "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "loop",
+       "unit": "lc",
+       "value1": 100,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "status": "",
+    "placeIds": [],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "この配信の<<lc>>回目のコメントは、<<user>>さんだよ。",
+      "party": "!ニュースタイトル表示3"
+     }
+    ]
+   },
+   "1730456354800-4sj0v": {
+    "id": "1730456354800-4sj0v",
+    "name": "個人総合:100",
+    "description": "個人の総合コメント数が100ごとに反応します",
+    "rank": 0,
+    "weight": 1,
+    "threshold": [
+     {
+      "conditionType": "count",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "loop",
+       "unit": "tc",
+       "value1": 100,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "status": "",
+    "placeIds": [],
+    "post": [
+     {
+      "type": "onecomme",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "<<user>>さんのコメントが、<<tc>>回になったよ。",
+      "party": "!ニュースタイトル表示3"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "!ニュースタイトル表示3"
+     }
+    ]
+   },
+   "1731148126492-sqbn5": {
+    "id": "1731148126492-sqbn5",
+    "name": "初見",
+    "description": "初めてコメントした方にだけ出るエフェクト",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [
+     {
+      "conditionType": "syoken",
+      "coolDown": 3,
+      "syoken": 1,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "status": "",
+    "placeIds": [],
+    "post": [
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "!初見"
+     }
+    ]
+   },
+   "1731149419725-o1ebm": {
+    "id": "1731149419725-o1ebm",
+    "name": "こんにちは",
+    "description": "配信枠の1コメをしたユーザーに対して出てくるエフェクト",
+    "rank": 0,
+    "weight": 1,
+    "threshold": [
+     {
+      "conditionType": "syoken",
+      "coolDown": 3,
+      "syoken": 3,
+      "access": 2,
+      "gift": 0,
+      "count": {
+       "comparison": "max",
+       "unit": "draws",
+       "value1": 0,
+       "value2": 1
+      },
+      "match": {
+       "target": "comment",
+       "case": "starts",
+       "value": ["おみくじ"]
+      }
+     }
+    ],
+    "status": "",
+    "placeIds": ["1731149450144-4z43k"],
+    "post": [
+     {
+      "type": "party",
+      "botKey": "marisa",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "<<user>>の新しいメッセージ",
+      "party": ""
+     }
+    ]
+   },
+   "1731155125168-cfu88": {
+    "id": "1731155125168-cfu88",
+    "name": "ギフト:default01",
+    "description": "ギフト(メンバー加入含む)をしてくださった方へのお礼を、ゆっくり霊夢がしてくれます",
+    "rank": 0,
+    "weight": 3,
+    "threshold": [],
+    "status": "",
+    "placeIds": [],
+    "post": [
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 0,
+      "content": "!金額表示"
+     },
+     {
+      "type": "party",
+      "botKey": "reimu",
+      "iconKey": "Default",
+      "delaySeconds": 0.3,
+      "content": "!saisen_hako"
+     },
+     {
+      "type": "onecomme",
+      "botKey": "OmikenBotPink",
+      "iconKey": "Default",
+      "delaySeconds": 0.5,
+      "party": "!レベルアップ",
+      "content": "<<user>>さんからギフトを頂いたよ!"
+     }
+    ]
+   }
+  },
+  "places": {}
+ }
+}
