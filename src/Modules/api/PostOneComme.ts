@@ -1,12 +1,11 @@
 // src/Modules/api/PostOneComme.ts
 import { SendCommentType, SendTestCommentType } from '@type';
-import { ServiceAPI } from '@api/serviceAPI';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import axios from 'axios';
 
 // わんコメへの投稿
 export async function sendComment(request: SendCommentType, delaySeconds: number = 0): Promise<void> {
- return delayAxiosPost(`${configs.BASE_URL}/comments`, request, delaySeconds, 'Failed to post comment');
+ return delayAxiosPost(`${SETTINGS.BASE_URL}/comments`, request, delaySeconds, 'Failed to post comment');
 }
 
 // テストコメントを使ったシステムメッセージ
@@ -29,13 +28,13 @@ export async function postSystemMessage(
   comment: content
  };
 
- return delayAxiosPost(`${configs.BASE_URL}/comments/test`, request, delaySeconds, 'Failed to post test comment');
+ return delayAxiosPost(`${SETTINGS.BASE_URL}/comments/test`, request, delaySeconds, 'Failed to post test comment');
 }
 
 // WordPartyへの投稿
 export async function postWordParty(content: string, delaySeconds: number = 0): Promise<void> {
  return delayAxiosPost(
-  `${configs.BASE_URL}/reactions`,
+  `${SETTINGS.BASE_URL}/reactions`,
   { reactions: [{ key: content, value: 1 }] },
   delaySeconds,
   'Failed to post WordParty reaction'
@@ -44,7 +43,7 @@ export async function postWordParty(content: string, delaySeconds: number = 0): 
 
 // スピーチへの投稿
 export async function postSpeech(content: string, delaySeconds: number = 0): Promise<void> {
- return delayAxiosPost(`${configs.BASE_URL}/speech`, { text: content }, delaySeconds, 'Failed to post speech');
+ return delayAxiosPost(`${SETTINGS.BASE_URL}/speech`, { text: content }, delaySeconds, 'Failed to post speech');
 }
 
 // 遅延付きaxios.post
@@ -58,6 +57,6 @@ function delayAxiosPost(url: string, data: any, delaySeconds: number, errorMessa
     console.error(errorMessage, error);
     reject(error);
    }
-  }, (delaySeconds + configs.basicDelaySeconds) * 1000);
+  }, (delaySeconds + SETTINGS.basicDelaySeconds) * 1000);
  });
 }

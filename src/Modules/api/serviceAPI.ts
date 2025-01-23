@@ -1,7 +1,7 @@
 // src/Modules/api/serviceAPI.ts
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
 import axios from 'axios';
 
@@ -9,7 +9,7 @@ export class ServiceAPI {
  // 枠情報を取得
  async getServices(): Promise<Service[]> {
   try {
-   const response = await axios.get(`${configs.BASE_URL}/services`);
+   const response = await axios.get(`${SETTINGS.BASE_URL}/services`, {});
    return response.data;
   } catch (error) {
    // セットアップ中に枠情報を取得することもあるので、エラーメッセージは出さない
@@ -29,7 +29,7 @@ export class ServiceAPI {
     throw new Error('無効なframeIdです。');
    }
 
-   const response = await axios.post(`${configs.BASE_URL}/services`, {
+   const response = await axios.post(`${SETTINGS.BASE_URL}/services`, {
     id: frameId,
     name: `おみくじBOT:${name}`,
     speech: true,

@@ -5,7 +5,8 @@
  "main": "public/plugin.js",
  "scripts": {
   "build": "tsc && tsc-alias",
-  "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts"
+  "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts",
+  "build:vite": "vite build"
  },
  "keywords": [
   "わんコメ",
@@ -13,7 +14,11 @@
  ],
  "dependencies": {
   "@onecomme.com/onesdk": "^5.2.3",
-  "electron-store": "^10.0.0"
+  "@rollup/plugin-commonjs": "^28.0.2",
+  "@rollup/plugin-node-resolve": "^16.0.0",
+  "axios": "^1.7.9",
+  "electron-store": "^10.0.0",
+  "vite-plugin-commonjs": "^0.10.4"
  },
  "author": "astie",
  "type": "commonjs",
@@ -23,11 +28,11 @@
   "@types/jest": "^29.5.13",
   "@types/node": "^20.12.7",
   "jest": "^29.7.0",
-  "jest-mock-axios": "^4.8.0",
   "jest-module-name-mapper": "^0.1.5",
   "ts-jest": "^29.2.5",
   "ts-loader": "^9.5.1",
   "tsc-alias": "^1.8.10",
-  "typescript": "^5.4.5"
+  "typescript": "^5.4.5",
+  "vite": "^6.0.11"
  }
 }

@@ -12,7 +12,7 @@ import {
  StoreAllType,
  ScriptsType
 } from '@type';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
 import { OmikujiSelector, OmikujiSelectorTimer } from '@tasks/OmikujiSelector';
 import { OmikujiProcessor } from '@tasks/OmikujiProcess';
@@ -40,7 +40,7 @@ export class InitDataLoader {
     OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
     Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
     Charas: this.loadDirectoryContents<CharaType>('Charas', 'json'),
-    Scripts: this.loadDirectoryContents<ScriptsType>(configs.ScriptsRoot, 'js'),
+    Scripts: this.loadDirectoryContents<ScriptsType>(SETTINGS.ScriptsRoot, 'js'),
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
     TimeConfig: this.initializeTimeConfig(),
@@ -55,7 +55,7 @@ export class InitDataLoader {
  // Scriptsにある関数を読み込み
  private loadDirectoryContents<T>(dirPath: string, extension: 'json' | 'js'): Record<string, T> {
   const result: Record<string, T> = {};
-  const fullPath = extension === 'js' ? dirPath : path.join(configs.dataRoot, dirPath);
+  const fullPath = extension === 'js' ? dirPath : path.join(SETTINGS.dataRoot, dirPath);
 
   try {
    const files = fs.readdirSync(fullPath).filter((file) => file.endsWith(`.${extension}`));

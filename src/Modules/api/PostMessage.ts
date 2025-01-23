@@ -2,7 +2,7 @@
 import { CharaType, OneCommePostType, SendCommentParamsType, SendCommentType } from '@type';
 import { postSpeech, postSystemMessage, postWordParty, sendComment } from '@api/PostOneComme';
 import { ServiceAPI } from '@api/serviceAPI';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import { Service } from '@onecomme.com/onesdk/types/Service';
 import path from 'path';
 
@@ -39,7 +39,7 @@ export class PostMessage {
   if (!content?.trim()) return;
 
   // キャラクターの枠作成チェック
-  if (type === 'onecomme' && chara && chara.isIconDisplay && configs.isCreateService) {
+  if (type === 'onecomme' && chara && chara.isIconDisplay && SETTINGS.isCreateService) {
    const existingService = this.services.some((s) => s.id === chara.frameId);
    if (!existingService) {
     const newService = await this.serviceAPI.createService(
@@ -90,7 +90,7 @@ export class PostMessage {
    },
    comment: {
     id: this.objectToKeyValueString(id),
-    userId: configs.botUserId,
+    userId: SETTINGS.BOT_USER_ID,
     name: chara.displayName || 'おみくじBOT',
     comment: post.content,
     profileImage: this.getCharaImagePath(chara, post.iconKey),
@@ -118,6 +118,6 @@ export class PostMessage {
 
  private getCharaImagePath(chara: CharaType, iconKey: string): string {
   const charaImage = chara.image[iconKey] || chara.image.Default || '';
-  return path.join(configs.imgRoot, charaImage);
+  return path.join(SETTINGS.imgRoot, charaImage);
  }
 }

@@ -1,6 +1,6 @@
 // src/Modules/api/BackupService.ts
 import { systemMessage } from '@core/ErrorHandler';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,7 +8,7 @@ export class BackupService {
  private backupDir: string;
 
  constructor(backupDir: string = 'Omiken') {
-  this.backupDir = path.join(configs.dataRoot, backupDir);
+  this.backupDir = path.join(SETTINGS.dataRoot, backupDir);
 
   // バックアップディレクトリが存在しない場合は作成
   if (!fs.existsSync(this.backupDir)) {

@@ -235,6 +235,7 @@ export class OmikujiProcessor {
   }
  }
 
+ // プレースホルダーの値を設定
  private processPlaceData() {
   const { placeIds } = this.omikuji;
   const currentUserStats = this.getCurrentUserStats();
@@ -246,16 +247,16 @@ export class OmikujiProcessor {
   }
 
   const placeholder = {
-   gameDraws: this.context.game.draws?.toString() ?? '0',
-   gameTotalDraws: this.context.game.totalDraws?.toString() ?? '0',
+   gameDraws: this.context.game.draws ?? 0,
+   gameTotalDraws: this.context.game.totalDraws ?? 0,
    ...(commentData &&
     commentMeta && {
-     draws: currentUserStats?.draws?.toString() ?? '0',
-     totalDraws: currentUserStats?.totalDraws?.toString() ?? '0',
+     draws: currentUserStats?.draws ?? 0,
+     totalDraws: currentUserStats?.totalDraws ?? 0,
      user: commentData.displayName || commentData.name,
-     tc: commentMeta.tc.toString(),
-     lc: commentMeta.lc.toString(),
-     round: commentMeta.no.toString()
+     tc: commentMeta?.tc,
+     lc: commentMeta?.lc,
+     round: commentMeta?.no
     })
   };
 

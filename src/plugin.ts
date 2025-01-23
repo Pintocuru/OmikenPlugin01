@@ -6,7 +6,7 @@ import { commentTreatment } from '@core/commentTreatment';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
 import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
-import { configs } from '@/config';
+import { SETTINGS } from '@/Modules/settings';
 import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
@@ -14,10 +14,10 @@ import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
- uid: configs.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.0.11', // プラグインのバージョン番号
+ uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
+ version: '0.0.13', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
- url: 'https://onecomme.com', // サポートページのURL
+ url: '', // サポートページのURL
  // services:枠情報,filter.comment:コメント
  permissions: ['services', 'filter.comment'],
 
@@ -49,7 +49,7 @@ const plugin: OnePlugin = {
  // filterComment:コメントを加工・変更する
  async filterComment(this: StoreAllType, comment, service, userData) {
   // 自身のプラグインの投稿（botの投稿）はおみくじを行わない
-  if (comment.data.userId === configs.botUserId) {
+  if (comment.data.userId === SETTINGS.BOT_USER_ID) {
    return commentTreatment(comment);
   }
   // おみくじBOT処理
