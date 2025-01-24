@@ -190,7 +190,7 @@
       "iconKey": "Default",
       "delaySeconds": 1,
       "party": "!シーン切り替え1",
-      "content": "<<user>>の運勢は【中吉】<<omikujiD>> "
+      "content": "<<user>>の運勢は【小吉】<<omikujiD>> "
      }
     ]
    },

@@ -3,17 +3,30 @@ import { Service } from '@onecomme.com/onesdk/types/Service';
 import { RGBColor } from '@onecomme.com/onesdk/types/Color';
 import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
-import axios from 'axios';
 
 export class ServiceAPI {
  // 枠情報を取得
  async getServices(): Promise<Service[]> {
   try {
-   const response = await axios.get(`${SETTINGS.BASE_URL}/services`, {});
-   return response.data;
+   // GETリクエストを送信
+   const response = await fetch(`${SETTINGS.BASE_URL}/services`, {
+    method: 'GET',
+    headers: {
+     'Content-Type': 'application/json' // 必要に応じてヘッダーを追加
+    }
+   });
+
+   // レスポンスの確認
+   if (!response.ok) {
+    throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
+   }
+
+   // レスポンスデータを取得
+   const data = await response.json();
+   return data as Service[];
   } catch (error) {
    // セットアップ中に枠情報を取得することもあるので、エラーメッセージは出さない
-   console.info('枠情報取得に失敗。再度枠情報を取得中…');
+   console.info('枠情報取得に失敗。再度枠情報を取得中…', error);
    return [];
   }
  }
@@ -30,14 +43,30 @@ export class ServiceAPI {
     throw new Error('無効なframeIdです。');
    }
 
-   const response = await axios.post(`${SETTINGS.BASE_URL}/services`, {
-    id: frameId,
-    name: `おみくじBOT:${name}`,
-    speech: true,
-    color: this.colorCodeToRGBColor(color)
+   // POSTリクエストを送信
+   const response = await fetch(`${SETTINGS.BASE_URL}/services`, {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json' // JSONデータを送信する場合のヘッダー
+    },
+    body: JSON.stringify({
+     id: frameId,
+     name: `おみくじBOT:${name}`,
+     speech: true,
+     color: this.colorCodeToRGBColor(color) // 必要なデータを設定
+    })
    });
-   return response.data;
+
+   // レスポンスの確認
+   if (!response.ok) {
+    throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
+   }
+
+   // レスポンスデータを取得
+   const data = await response.json();
+   return data as Service;
   } catch (error) {
+   // エラーハンドリング
    systemMessage('warn', `わんコメの枠を作成できませんでした`, error);
    return null;
   }

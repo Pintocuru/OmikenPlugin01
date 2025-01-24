@@ -12,7 +12,8 @@ export default defineConfig({
    '@tasks': path.resolve(__dirname, 'src/Modules/tasks'),
    '@api': path.resolve(__dirname, 'src/Modules/api'),
    '@components': path.resolve(__dirname, 'src/Modules/components'),
-   '@type': path.resolve(__dirname, 'src/Modules/type.ts')
+   '@type': path.resolve(__dirname, 'src/Modules/type.ts'),
+   'form-data': path.resolve(__dirname, 'node_modules/form-data/lib/form_data.js')
   },
   mainFields: ['module', 'main']
  },
@@ -31,16 +32,15 @@ export default defineConfig({
      preferBuiltins: true // Node.jsの組み込みモジュールを優先
     }),
     commonjs({
-     transformMixedEsModules: true // ES/CommonJSの混在を許可
+     transformMixedEsModules: true, // ES/CommonJSの混在を許可
+     requireReturnsDefault: 'auto'
     })
    ],
    external: ['crypto', 'fs', 'path'], // Node.jsの組み込みモジュールを外部化
    output: {
     entryFileNames: 'plugin.js', // 出力ファイル名
     format: 'cjs', // CommonJS形式
-    globals: {
-     axios: 'axios' // `axios` をグローバルに定義
-    }
+    globals: {}
    }
   }
  },

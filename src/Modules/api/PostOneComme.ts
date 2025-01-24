@@ -1,11 +1,10 @@
 // src/Modules/api/PostOneComme.ts
 import { SendCommentType, SendTestCommentType } from '@type';
 import { SETTINGS } from '@/Modules/settings';
-import axios from 'axios';
 
 // わんコメへの投稿
 export async function sendComment(request: SendCommentType, delaySeconds: number = 0): Promise<void> {
- return delayAxiosPost(`${SETTINGS.BASE_URL}/comments`, request, delaySeconds, 'Failed to post comment');
+ return delayFetchPost(`${SETTINGS.BASE_URL}/comments`, request, delaySeconds, 'Failed to post comment');
 }
 
 // テストコメントを使ったシステムメッセージ
@@ -28,12 +27,12 @@ export async function postSystemMessage(
   comment: content
  };
 
- return delayAxiosPost(`${SETTINGS.BASE_URL}/comments/test`, request, delaySeconds, 'Failed to post test comment');
+ return delayFetchPost(`${SETTINGS.BASE_URL}/comments/test`, request, delaySeconds, 'Failed to post test comment');
 }
 
 // WordPartyへの投稿
 export async function postWordParty(content: string, delaySeconds: number = 0): Promise<void> {
- return delayAxiosPost(
+ return delayFetchPost(
   `${SETTINGS.BASE_URL}/reactions`,
   { reactions: [{ key: content, value: 1 }] },
   delaySeconds,
@@ -43,15 +42,27 @@ export async function postWordParty(content: string, delaySeconds: number = 0): 
 
 // スピーチへの投稿
 export async function postSpeech(content: string, delaySeconds: number = 0): Promise<void> {
- return delayAxiosPost(`${SETTINGS.BASE_URL}/speech`, { text: content }, delaySeconds, 'Failed to post speech');
+ return delayFetchPost(`${SETTINGS.BASE_URL}/speech`, { text: content }, delaySeconds, 'Failed to post speech');
 }
 
-// 遅延付きaxios.post
-function delayAxiosPost(url: string, data: any, delaySeconds: number, errorMessage: string): Promise<void> {
+// 遅延付きfetch.post
+function delayFetchPost(url: string, data: any, delaySeconds: number, errorMessage: string): Promise<void> {
  return new Promise((resolve, reject) => {
   setTimeout(async () => {
    try {
-    await axios.post(url, data);
+    const response = await fetch(url, {
+     method: 'POST',
+     headers: {
+      'Content-Type': 'application/json'
+     },
+     body: JSON.stringify(data)
+    });
+
+    // fetchはエラーでもHTTPステータスコードによらず正常終了するため、明示的にチェック
+    if (!response.ok) {
+     throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+    }
+
     resolve();
    } catch (error) {
     console.error(errorMessage, error);
