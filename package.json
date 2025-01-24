@@ -1,5 +1,5 @@
 {
- "name": "omiken-plugin",
+ "name": "omiken-plugin01",
  "version": "0.1.0",
  "description": "わんコメで使える、おみくじBOTプラグイン",
  "main": "public/plugin.js",

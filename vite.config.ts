@@ -12,8 +12,7 @@ export default defineConfig({
    '@tasks': path.resolve(__dirname, 'src/Modules/tasks'),
    '@api': path.resolve(__dirname, 'src/Modules/api'),
    '@components': path.resolve(__dirname, 'src/Modules/components'),
-   '@type': path.resolve(__dirname, 'src/Modules/type.ts'),
-   'form-data': path.resolve(__dirname, 'node_modules/form-data/lib/form_data.js')
+   '@type': path.resolve(__dirname, 'src/Modules/type.ts')
   },
   mainFields: ['module', 'main']
  },
