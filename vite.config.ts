@@ -14,7 +14,7 @@ export default defineConfig({
    '@components': path.resolve(__dirname, 'src/Modules/components'),
    '@type': path.resolve(__dirname, 'src/Modules/type.ts')
   },
-  mainFields: ['module', 'main', 'browser']
+  mainFields: ['module', 'main']
  },
  build: {
   minify: true, // 圧縮するか

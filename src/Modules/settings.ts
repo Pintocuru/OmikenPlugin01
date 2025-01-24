@@ -3,7 +3,7 @@ const { CONFIG } = require('./config.js');
 import path from 'path';
 
 // config.js から取得
-const PLUGIN_UID = CONFIG.PLUGIN_UID || 'OmikenPlugin01';
+const PLUGIN_UID = CONFIG?.PLUGIN_UID || 'OmikenPlugin01';
 
 // 環境変数 NODE_ENV=development を設定していれば開発、そうでないなら本番
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
@@ -24,7 +24,7 @@ export const SETTINGS: Settings = {
  BASE_URL: 'http://localhost:11180/api', // わんコメのapi
  basicDelaySeconds: 1, // わんコメに投稿する際の基本遅延(秒)
  PLUGIN_UID,
- BOT_USER_ID: CONFIG.BOT_USER_ID || 'FirstCounter'
+ BOT_USER_ID: CONFIG?.BOT_USER_ID || 'FirstCounter'
 };
 
 interface Settings {

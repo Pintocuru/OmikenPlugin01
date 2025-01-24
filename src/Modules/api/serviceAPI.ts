@@ -13,6 +13,7 @@ export class ServiceAPI {
    return response.data;
   } catch (error) {
    // セットアップ中に枠情報を取得することもあるので、エラーメッセージは出さない
+   console.info('枠情報取得に失敗。再度枠情報を取得中…');
    return [];
   }
  }

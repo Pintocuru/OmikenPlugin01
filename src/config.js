@@ -2,7 +2,7 @@
 
 const CONFIG = {
  // プラグインID:フォルダ名とこの名前は、必ず合わせてください
- PLUGIN_UID: 'OmikenPlugin01',
+ PLUGIN_UID: 'OmikenPlugin02',
  // このプラグインが投稿するuserId
  BOT_USER_ID: 'FirstCounter'
 };
@@ -11,6 +11,7 @@ const CONFIG = {
 // -----------------------------------------------------
 // 以下設定
 
-if (typeof window !== 'undefined' && window !== null) window.APP_CONFIG = CONFIG;
-if (typeof global !== 'undefined' && global !== null) global.APP_CONFIG = CONFIG;
-module.exports = { CONFIG };
+if (typeof window !== 'undefined') window.CONFIG = CONFIG;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+ module.exports = { CONFIG };
+}
