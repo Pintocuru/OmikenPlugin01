@@ -4,7 +4,6 @@ import { ThresholdChecker } from '@components/ThresholdCheck';
 import { PlayOmikuji } from '@components/PlayOmikuji';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
-
 export interface OmikujiSelectorOptions {
  comment: Comment;
  visit: VisitType;
@@ -151,6 +150,9 @@ export class OmikujiSelectorTimer extends OmikujiSelectorBase {
   omikujis: Record<string, OmikujiType>,
   callback: (result: OmikujiSelectType) => void
  ): void {
+  // 既存のタイマーをクリア
+  this.clearAllTimers();
+
   rules.forEach((rule) => {
    if (!rule.timerConfig) return;
    const { minutes, isBaseZero } = rule.timerConfig;

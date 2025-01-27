@@ -1,8 +1,8 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, StoreAllType, StoreApiType } from '@type';
+import { StoreType, StoreAllType, StoreApiType, VisitType } from '@type';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
-import { commentTreatment } from '@core/commentTreatment';
+import { commentParamsPlus, commentTreatment } from '@core/commentTreatment';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
 import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
@@ -11,25 +11,23 @@ import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
+import { defaultState } from './Modules/defaultState';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.1.0', // プラグインのバージョン番号
+ version: '0.2.0', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://pintocuru.booth.pm/items/6499304', // サポートページのURL
  // services:枠情報,filter.comment:コメント
  permissions: ['services', 'filter.comment'],
 
  // プラグインの初期状態
- defaultState: {
-  Omiken: {},
-  Visits: {},
-  Games: {}
- },
+ defaultState: defaultState,
  // プラグインの初期化
  async init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
   try {
+   console.info(SETTINGS.PLUGIN_UID);
    // わんコメの枠データが取得できる(=セットアップ完了)まで待つ
    await startReadyCheck();
 
@@ -53,8 +51,10 @@ const plugin: OnePlugin = {
    return commentTreatment(comment);
   }
   // おみくじBOT処理
-  this.filterCommentProcess(comment, userData);
-  return comment;
+  await this.filterCommentProcess(comment, userData);
+
+  // パラメータを付与してreturn
+  return commentParamsPlus(comment, this.Visits[comment.data.userId]);
  },
 
  // filterCommentProcess:おみくじBOT処理
@@ -79,7 +79,7 @@ const plugin: OnePlugin = {
    });
   } catch (e) {
    systemMessage('error', `おみくじBOTの処理ができませんでした`, e);
-   throw new Error();
+   return null;
   }
  },
 

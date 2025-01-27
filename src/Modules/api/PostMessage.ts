@@ -79,7 +79,7 @@ export class PostMessage {
 
  private createCommentRequest(post: OneCommePostType, chara: CharaType, defaultFrameId: string): SendCommentType {
   const id: SendCommentParamsType = {
-   id: Date.now().toString(36),
+   id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
    charaId: chara.id,
    param: post.generatorParam || undefined,
    isSilent: post.isSilent?.toString() || undefined

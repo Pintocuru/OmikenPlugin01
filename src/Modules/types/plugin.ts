@@ -35,7 +35,7 @@ export interface StoreApiType extends StoreType {
 // 全体設定用の型
 export interface StoreAllType extends StoreMainType {
  Presets: Record<string, OmikenType>;
- filterCommentProcess(comment: Comment, userData: UserNameData): void;
+ filterCommentProcess(comment: Comment, userData: UserNameData): Promise<void>;
  timerSelector: any; // プラグイン専用の型なのでany
 }
 

@@ -2,12 +2,14 @@
  "name": "omiken-plugin01",
  "version": "0.1.0",
  "description": "わんコメで使える、おみくじBOTプラグイン",
- "main": "public/plugin.js",
  "scripts": {
-  "build": "tsc && tsc-alias",
-  "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts",
-  "build:vite": "vite build"
+  "build": "vite build",
+  "test:plugin": "set NODE_ENV=development&& jest test/plugin.test.ts"
  },
+ "type": "commonjs",
+ "main": "src/plugin.js",
+ "license": "Apache-2.0",
+ "author": "Pintocuru",
  "keywords": [
   "わんコメ",
   "onecomme"
@@ -17,9 +19,6 @@
   "@rollup/plugin-commonjs": "^28.0.2",
   "@rollup/plugin-node-resolve": "^16.0.0"
  },
- "author": "astie",
- "type": "commonjs",
- "license": "ISC",
  "devDependencies": {
   "@types/electron-store": "^3.2.2",
   "@types/jest": "^29.5.13",
