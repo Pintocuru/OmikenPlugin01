@@ -42,23 +42,39 @@ export interface CharaType extends PresetType {
 // ---
 
 export interface ScriptsType extends PresetType {
- func: ScriptsParamType;
+ func: ScriptsParamType; // おみくじ実行時の関数
+ ApiCall?: ApiCallParamType; // API呼び出し時の関数
  scriptParams: ScriptParam[];
  placeholders: ScriptParam[];
 }
 
-// Script全体の型定義
+// funcの引数の型定義
 export type ScriptsParamType = (
  game: GameType,
  comment?: Comment,
  params?: { [id: string]: string | number | boolean }
 ) => ScriptsReturnType;
 
-// Scriptの返り値
+// funcの返り値
 export interface ScriptsReturnType {
  postArray?: OneCommePostType[];
  placeholder: { [id: string]: string | number };
  game: GameType;
+}
+
+// ScriptのAPI呼び出しの引数
+export type ApiCallParamType = (
+ game: GameType,
+ method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+ body?: any
+) => ApiCallReturnType;
+
+// API呼び出しの返り値
+export interface ApiCallReturnType {
+ status: 'success' | 'error';
+ game: GameType;
+ message: string;
+ data?: any;
 }
 
 // gameのパラメータ設定用
