@@ -67,7 +67,7 @@ export type ApiCallParamType = (
  game: GameType,
  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
  body?: any
-) => ApiCallReturnType;
+) => Promise<ApiCallReturnType>;
 
 // API呼び出しの返り値
 export interface ApiCallReturnType {

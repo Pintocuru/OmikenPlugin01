@@ -16,23 +16,35 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // 条件
 export class ThresholdChecker {
+ readonly game: GameType;
  constructor(
   private readonly rule: RulesType,
   private readonly TimeConfig: TimeConfigType,
   private readonly comment?: Comment | undefined,
   private readonly visit?: VisitType | undefined,
-  private readonly Games?: Record<string, GameType> | undefined
- ) {}
+  Games?: Record<string, GameType> | undefined
+ ) {
+  this.game = Games?.[rule.id];
+ }
 
  // 条件チェック（配列全体）
  checkAll(thresholds: ThresholdType[]): boolean {
-  return thresholds.every((threshold) => this.check(threshold));
+  return thresholds.reduce((accumulator, threshold, index, array) => {
+   const result = this.check(threshold);
+   const nextThreshold = array[index + 1];
+
+   if (nextThreshold && threshold.isAnd === true) {
+    return accumulator && result; // AND 条件
+   } else {
+    return accumulator || result; // OR 条件 (最後の要素は OR 条件とみなす)
+   }
+  }, true); // 初期値は true (空の配列の場合に true を返すため)
  }
 
  // 条件チェック(単独)
  check(threshold: ThresholdType): boolean {
   const conditionMap = {
-   target: () => this.matchIsTarget(),
+   target: () => this.matchIsTarget(threshold.target),
    coolDown: () => this.matchIsCoolDown(threshold.coolDown),
    syoken: () => this.matchIsSyoken(threshold.syoken),
    access: () => this.matchIsAccess(threshold.access),
@@ -41,12 +53,19 @@ export class ThresholdChecker {
    match: () => this.matchIsMatch(threshold.match)
   } as const;
 
-  return conditionMap[threshold.conditionType]?.() ?? false;
+  const result = conditionMap[threshold.conditionType]?.() ?? false;
+  return threshold.isNot === true ? !result : result; // isNot を適用
  }
 
- // 前回のコメントと今回のコメントが同一人物なら適用
- private matchIsTarget(): boolean {
-  return this.comment?.data.userId === this.TimeConfig.lastUserId || false;
+ // 連続投稿が数値以上なら適用
+ private matchIsTarget(target: number = 2): boolean {
+  const { currentUserIds } = this.game;
+  if (!currentUserIds?.length) return false;
+
+  const targetUser = currentUserIds[0];
+  const consecutiveCount = currentUserIds.findIndex((id) => id !== targetUser);
+
+  return (consecutiveCount === -1 ? currentUserIds.length : consecutiveCount) >= target;
  }
 
  // クールダウンのチェック
@@ -85,9 +104,7 @@ export class ThresholdChecker {
  private matchIsGift(gift: GiftCondition): boolean {
   if (!this.comment?.data) return false;
 
-  // Noneの場合、ギフトがあればfalse
   const { hasGift } = this.comment.data;
-  if (gift === GiftCondition.None) return !hasGift;
   // ギフトがない場合、false
   if (!hasGift) return false;
 
@@ -119,21 +136,17 @@ export class ThresholdChecker {
 
  // 数値を参照する
  private matchIsCount(count: CountCondition): boolean {
-  if (!this.comment && (count.unit === 'tc' || count.unit === 'interval')) return false;
+  if (!this.comment && (count.unit === 'tc' || count.unit === 'intvlSec')) return false;
 
-  const userStats = this.Games?.[this.rule?.id]?.userStats[this.comment?.data.userId];
-  const gameData = this.Games?.[this.rule?.id];
-  const meta = this.comment?.meta;
+  const { lc = 0, tc = 0, interval = 0 } = this.comment?.meta;
 
   // drawsはインクリメント前なので+1しておく
   const unitMap: Record<CountCondition['unit'], number> = {
-   draws: userStats?.draws + 1 || 0,
-   totalDraws: userStats?.totalDraws + 1 || 0,
-   gameDraws: gameData?.draws + 1 || 0,
-   gameTotalDraws: gameData?.totalDraws + 1 || 0,
-   lc: meta?.lc || 0,
-   tc: meta?.tc || 0,
-   interval: Math.floor((meta?.interval || 0) / 1000)
+   draws: this.game?.userStats[this.comment?.data.userId]?.draws + 1 || 0,
+   gameDraws: this.game?.draws + 1 || 0,
+   lc,
+   tc,
+   intvlSec: Math.floor(interval / 1000)
   };
 
   return this.matchIsCountHelper(unitMap[count.unit], count);

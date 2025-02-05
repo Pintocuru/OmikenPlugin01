@@ -12,15 +12,16 @@ import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 import { defaultState } from './Modules/defaultState';
+import { SendType } from '@onecomme.com/onesdk/types/Api';
 
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.2.0', // プラグインのバージョン番号
+ version: '0.2.0-beta01', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://pintocuru.booth.pm/items/6499304', // サポートページのURL
  // services:枠情報,filter.comment:コメント
- permissions: ['services', 'filter.comment'],
+ permissions: ['services', 'filter.comment', 'meta', 'waitingList', 'setList', 'reactions'],
 
  // プラグインの初期状態
  defaultState: defaultState,
@@ -90,6 +91,26 @@ const plugin: OnePlugin = {
    this.timerSelector.destroy();
    this.timerSelector = undefined;
   }
+ },
+
+ subscribe(type: SendType, args: any[]) {
+  if (type === 'meta') {
+   // meta
+   // https://types.onecomme.com/interfaces/types_Service.Service
+  } else if (type === 'waitingList') {
+   // waitingList 参加リスト
+   // https://types.onecomme.com/interfaces/types_Order.OrderItem
+  } else if (type === 'setList') {
+   // setList セットリスト
+   // https://types.onecomme.com/interfaces/types_Setlist.SetListAPIResponse
+  } else if (type === 'reactions') {
+   // reactions
+   // https://types.onecomme.com/interfaces/types_Comment.Reaction
+  } else {
+   systemMessage('info', `${type},${args}`);
+   console.info(type, args);
+  }
+  // pinned / bookmarked の機能もあってもいいかも…
  },
 
  // Rest APIを使った送受信

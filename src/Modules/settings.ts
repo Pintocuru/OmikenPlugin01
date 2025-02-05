@@ -1,5 +1,4 @@
 // src/Modules/settings.ts
-const { CONFIG } = require('./config.js');
 import path from 'path';
 
 // ルートディレクトリ名を取得
@@ -19,13 +18,14 @@ export const SETTINGS: Settings = {
   ? path.join(__dirname, '../../../data') // 開発環境用
   : path.join(__dirname, ''), // 本番環境用
  ScriptsRoot: isProduction // gameのディレクトリ
-  ? path.join(__dirname, '../../dist/Scripts') // 開発環境用
+  ? path.join(__dirname, 'data/Scripts') // 開発環境用
   : path.join(__dirname, 'Scripts'), // 本番環境用
  isCreateService: true, // わんコメに自動で枠を作成してもいいか
  BASE_URL: 'http://localhost:11180/api', // わんコメのapi
  basicDelaySeconds: 1, // わんコメに投稿する際の基本遅延(秒)
  PLUGIN_UID,
- BOT_USER_ID: CONFIG?.BOT_USER_ID || 'FirstCounter'
+ BOT_USER_ID: 'FirstCounter',
+ BOT_DEFAULT_NAME: 'おみくじBOT'
 };
 
 interface Settings {
@@ -37,4 +37,5 @@ interface Settings {
  basicDelaySeconds: number;
  PLUGIN_UID: string;
  BOT_USER_ID: string;
+ BOT_DEFAULT_NAME: string;
 }

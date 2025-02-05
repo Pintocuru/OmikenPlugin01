@@ -1,6 +1,6 @@
 {
  "name": "omiken-plugin01",
- "version": "0.2.0",
+ "version": "0.1.1",
  "description": "わんコメで使える、おみくじBOTプラグイン",
  "scripts": {
   "build": "vite build",

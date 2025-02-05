@@ -10,7 +10,7 @@ export class PostMessage {
  private readonly serviceAPI: ServiceAPI;
  private services: Service[] = [];
 
- constructor(private posts: OneCommePostType[], private charas?: Record<string, CharaType>) {
+ constructor(private posts: OneCommePostType[], private Charas?: Record<string, CharaType>) {
   this.serviceAPI = new ServiceAPI();
  }
 
@@ -22,7 +22,7 @@ export class PostMessage {
    // 順次処理を保証
    await Promise.all(
     this.posts.map(async (post) => {
-     const chara = post.type === 'onecomme' ? this.charas[post.botKey] : undefined;
+     const chara = post.type === 'onecomme' && post.botKey !== undefined ? this.Charas?.[post.botKey] : undefined;
      await this.postFork(post, chara);
     })
    );
@@ -41,7 +41,7 @@ export class PostMessage {
   // キャラクターの枠作成チェック
   if (type === 'onecomme' && chara && chara.isIconDisplay && SETTINGS.isCreateService) {
    const existingService = this.services.some((s) => s.id === chara.frameId);
-   if (!existingService) {
+   if (!existingService && chara.frameId !== null) {
     const newService = await this.serviceAPI.createService(
      chara.name,
      chara.frameId,
@@ -65,7 +65,7 @@ export class PostMessage {
      sendComment(request, delaySeconds);
     } else {
      // キャラ情報がない、または枠情報がないなら、テストコメントで投稿
-     postSystemMessage(content, 'おみくじBOT', delaySeconds);
+     postSystemMessage(content, SETTINGS.BOT_DEFAULT_NAME, delaySeconds);
     }
    },
    party: async () => postWordParty(content, delaySeconds),
@@ -116,8 +116,14 @@ export class PostMessage {
    .join(',');
  }
 
- private getCharaImagePath(chara: CharaType, iconKey: string): string {
-  const charaImage = chara.image[iconKey] || chara.image.Default || '';
+ // キャラクター画像を読み込む
+ private getCharaImagePath(chara: CharaType, iconKey?: string): string {
+  const charaImage = chara.image?.[iconKey ?? 'Default'];
+  if (!charaImage) return DEFAULT_BASE64_IMAGE;
   return path.join(SETTINGS.imgRoot, charaImage);
  }
 }
+
+// デフォルト画像 http://flat-icon-design.com/?p=271
+const DEFAULT_BASE64_IMAGE =
+ 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAVBJREFUeNpi/P37OQMpgImBRECuhj93Hvz/8hWPut8XrkIYLBDVH1OLgQxWA202azNmfS2Gr9+BXGYJ0V9HTv2+eBVIgszuqRM01gdpgJsNNAaIfv36ycbGDuR++PBWQEAYbsnXV6//vX6Nzw/fvn8F6kEW+fL5CxYN/2CMv/8ZMfWwQNzKoCDzi4313amLn378+P3nr3BJ+vdjZ789ec7E8P8nDy+btgrHp2//hYWgocQkIcY7s/uNrPTbL1+BqtmU5Xlc7QQzYsC2MX578fZXdPC3hqJ/IoKIYGX99Vv4yClmJhBXMCMWZLW4KFAbRPZtz0z0ePh24BiLgqyCqBCXgTaHniZEkD82iImHC6gTFPQvX0MEGSFp6d+/fy+fPWeasfiXq+0/WSm4eR+XrGMWF4FbhdAA1/Pr1y9i0xITE5O4lCQbGxsJiY8YPQABBgBWpJPZmpoVPwAAAABJRU5ErkJggg==';

@@ -114,7 +114,9 @@ export type PlaceValueType = {
 // 共通の条件型
 export interface ThresholdType {
  conditionType: ConditionType;
- target?: null; // 前回のコメントと今回のコメントが同一人物なら適用
+ isNot?: boolean; // 条件を反転させる
+ isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
+ target?: number; // 連続投稿がこの数値以上なら適用
  coolDown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
  syoken?: SyokenCondition; // 初見・久しぶり
  access?: AccessCondition; // ユーザーの役職
@@ -143,7 +145,6 @@ export enum AccessCondition {
 
 // gift:ギフトのRank
 export enum GiftCondition {
- None = -1, // ギフトなし
  All = 0, // 全て(メンバー加入含む)
  Blue = 1, // 200円未満
  LightBlue = 2, // 200円〜499円
@@ -158,19 +159,17 @@ export enum GiftCondition {
 // count:数値を参照する
 export interface CountCondition {
  comparison:
-  | 'min' // 数値以下(未満、～より上はありません)
+  | 'min' // 数値以下
   | 'max' // 数値以上
   | 'range' // value1以上 value2以下
   | 'equal' // 等しい
   | 'loop'; // 数値をvalue1で割った数
  unit:
   | 'draws' // その枠でrulesに該当した回数(個人)
-  | 'totalDraws' // 過去すべてのrulesに該当した回数(合計)
   | 'gameDraws' // その配信枠でrulesに該当した回数(合計)
-  | 'gameTotalDraws' // 過去すべてのrulesに該当した回数(合計)
   | 'lc' // 配信枠のコメント数(プラグインで独自に付与)
   | 'tc' // 総数の個人コメ数(userData.tc)
-  | 'interval'; // そのユーザーの前回のコメントからの経過時間(ミリ秒)(userData.interval)
+  | 'intvlSec'; // そのユーザーの前回のコメントからの経過時間(秒)(userData.interval*1000)
  value1: number;
  value2: number;
 }
