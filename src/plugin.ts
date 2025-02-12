@@ -94,21 +94,25 @@ const plugin: OnePlugin = {
  },
 
  subscribe(type: SendType, args: any[]) {
-  // 現在はmetaのみ
-  if (type === 'meta') {
-   // https://types.onecomme.com/interfaces/types_Service.Service
-  } else if (type === 'waitingList') {
-   // waitingList 参加リスト
-   // https://types.onecomme.com/interfaces/types_Order.OrderItem
-  } else if (type === 'setList') {
-   // setList セットリスト
-   // https://types.onecomme.com/interfaces/types_Setlist.SetListAPIResponse
-  } else if (type === 'reactions') {
-   // reactions
-   // https://types.onecomme.com/interfaces/types_Comment.Reaction
-  } else {
-   systemMessage('info', `${type},${args}`);
-   console.info(type, args);
+  switch (type) {
+   case 'meta':
+    // https://types.onecomme.com/interfaces/types_Service.Service
+    break;
+   case 'waitingList':
+    // waitingList 参加リスト
+    // https://types.onecomme.com/interfaces/types_Order.OrderItem
+    break;
+   case 'setList':
+    // setList セットリスト
+    // https://types.onecomme.com/interfaces/types_Setlist.SetListAPIResponse
+    break;
+   case 'reactions':
+    // reactions
+    // https://types.onecomme.com/interfaces/types_Comment.Reaction
+    break;
+   default:
+    systemMessage('info', `${type},${args}`);
+    console.info(type, args);
   }
   // pinned / bookmarked の機能もあってもいいかも…
  },
