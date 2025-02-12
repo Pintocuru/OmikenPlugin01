@@ -1,34 +1,26 @@
 // src/types/Omiken.ts
-import { CommentCriterion } from './OmikenThresholdType';
+import { CommentThreshold, MetaThreshold, ThresholdType, TimerThreshold } from './OmikenThresholdType';
 
 // Omiken:おみくじ&初見判定ちゃんBOT用型定義
 export interface OmikenType {
- types: Record<TypesType, string[]>;
- rules: Record<string, RulesType>; // おみくじのルールを管理
+ comment: Record<string, CommentRulesType>;
+ timer: Record<string, TimerRulesType>;
+ meta: Record<string, MetaRulesType>;
  omikujis: Record<string, OmikujiType>; // おみくじ関連のメッセージ
  places: Record<string, PlaceType>; // プレースホルダー
 }
-
-// コンテンツの型マッピング
-export type OmikenTypeMap = {
- types: string[];
- rules: RulesType;
- omikujis: OmikujiType;
- places: PlaceType;
-};
 
 ///////////////////////////////////
 // types
 ///////////////////////////////////
 
-export type TypesType =
+export type RuleTypes =
  | 'comment' // コメントでの起動
  | 'timer' // タイマー(定期的な起動)
- | 'meta'
- | 'waitingList'
- | 'setList'
- | 'reactions'
- | 'unused'; // 無効;
+ | 'meta'; // 配信枠の情報での起動
+// | 'waitingList' // 参加型管理
+// | 'setList' // セットリスト
+// | 'reactions' // リアクション
 
 ///////////////////////////////////
 // rules/omikuji/place 共通
@@ -45,16 +37,47 @@ export interface BaseType {
 // rules
 ///////////////////////////////////
 
-// rules:おみくじルールの型定義
-export interface RulesType extends BaseType {
+// 共通のベース型を定義
+interface CommonRuleType extends BaseType {
+ isValid: boolean; // 有効かどうか
  color: string; // エディターでの識別用カラー
- enableIds: string[]; // このrulesで使用する、omikujiリスト
- threshold: CommentCriterion[]; //発動条件
- timerConfig?: {
-  // タイマー用設定リスト
+ order: number; // 判定の順番
+ script?: {
+  scriptId: string; // 使用するアドオンのid
+  settings: Record<string, string | number | boolean>; // アドオンの設定
+ };
+}
+
+// comment:コメントからおみくじを判定・抽選する
+interface CommentRulesType extends CommonRuleType {
+ ruleType: 'comment';
+ threshold: CommentThreshold[];
+ enables: RulesSubType<CommentThreshold>[];
+}
+
+// timer:定期的におみくじを判定する
+interface TimerRulesType extends CommonRuleType {
+ ruleType: 'timer';
+ threshold: TimerThreshold[];
+ enables: RulesSubType<TimerThreshold>[];
+ timerConfig: {
   minutes: number;
   isBaseZero: boolean;
  };
+}
+
+// meta:配信枠の情報からおみくじを判定する
+interface MetaRulesType extends CommonRuleType {
+ ruleType: 'meta';
+ threshold: MetaThreshold[];
+ enables: RulesSubType<MetaThreshold>[];
+}
+
+export interface RulesSubType<T extends ThresholdType> {
+ rank: number; // 優先度
+ weight: number; // 出現割合
+ threshold: T[]; //発動条件
+ omikujiId: string; // 適用するおみくじのid
 }
 
 ///////////////////////////////////
@@ -63,14 +86,9 @@ export interface RulesType extends BaseType {
 
 // おみくじメッセージの型定義
 export interface OmikujiType extends BaseType {
- rank: number; // 優先度
- weight: number; // 出現割合
- threshold: CommentCriterion[]; // 発動条件
- status?: string; // ユーザーに対するステータスの付与
- script?: {
-  scriptId: string; // 使用する外部スクリプトのid
-  params: Record<string, string | number | boolean>; // 外部スクリプトに渡す引数(Scriptから取得する)
- };
+ addStatus?: string | null; // visit.statusの変更(nullで消去)
+ addPoints?: number | null; // visit.pointの変更(nullで消去)
+ scriptParams: Record<string, string | number | boolean> | null; // 外部スクリプトに渡す引数(Scriptから取得する)
  placeIds: string[]; // 使用するプレースホルダーのid
  post: OneCommePostType[];
 }
@@ -81,10 +99,10 @@ export interface OneCommePostType {
   | 'onecomme' // わんコメへの投稿
   | 'party' // WordPartyの投稿
   | 'speech' // わんコメのスピーチ機能
-  | 'error'; // わんコメへの投稿(プラグインのエラーメッセージ用)
+  | 'system'; // わんコメの投稿をコメントテスターで行う
  botKey?: string; // ボットキー
  iconKey?: string; // アイコンキー
- party?: string; // 発動するWordParty
+ party?: string; // 投稿と同時に発動するWordParty
  isSilent?: boolean; // BOTのメッセージを読み上げない
  generatorParam?: string; // ジェネレーターに渡す引数
  delaySeconds: number; // メッセージを送信するまでの遅延時間
@@ -96,11 +114,11 @@ export interface OneCommePostType {
 ///////////////////////////////////
 // プレースホルダー項目の型定義
 export interface PlaceType extends BaseType {
- placeIds: string[];
+ placeIds: string[]; // 他のプレースホルダーを参照するためのIDリスト
  values: PlaceValueType[];
 }
 
 export type PlaceValueType = {
  weight: number; // 出現割合
- value: string; // 値（他のプレースホルダーへの参照可能: <<place_name>>）
+ value: `<<${string}>>` | string; // 値（他のプレースホルダーへの参照可能: <<place_name>>）
 };

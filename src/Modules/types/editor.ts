@@ -1,6 +1,6 @@
 // src/types/editor.ts
 import { OmikenTypeMap, OmikenType, TypesType } from './Omiken';
-import { CharaType, PresetOmikenType,  ScriptsType } from './preset';
+import { CharaType, PresetOmikenType, ScriptsType } from './preset';
 
 // エディター用型定義
 
@@ -11,6 +11,15 @@ export interface AppEditorType {
  Charas: Record<string, CharaType>; // preset:Chara
  Scripts: Record<string, ScriptsType>; // preset:Script
 }
+
+// コンテンツの型マッピング
+export type OmikenTypeMap = {
+ comment: CommentRulesType;
+ timer: TimerRulesType;
+ meta: MetaRulesType;
+ omikujis: OmikujiType;
+ places: PlaceType;
+};
 
 // メインカテゴリーの型
 export type CategoryMain = ListCategory | 'presets';

@@ -1,17 +1,27 @@
 // src/types/OmikenThresholdType.ts
-import { TypesType } from './Omiken';
 
 ///////////////////////////////////
 // Threshold(rules,omikuji)
 ///////////////////////////////////
 
-interface CommentThreshold {
+export type ThresholdType = CommentThreshold | TimerThreshold | MetaThreshold;
+
+// コメント用Threshold
+export interface CommentThreshold {
  type: 'comment';
  isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
  criteria: CommentCriterion[];
 }
 
-interface MetaThreshold {
+// タイマー用Threshold
+export interface TimerThreshold {
+ type: 'timer';
+ isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
+ criteria: TimerCriterion[];
+}
+
+// メタ用Threshold
+export interface MetaThreshold {
  type: 'meta';
  isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
  criteria: MetaCriterion[];
@@ -19,19 +29,42 @@ interface MetaThreshold {
 
 // commentの条件型
 export interface CommentCriterion {
- conditionType: ConditionCommentType;
+ conditionType: CommentConditionType;
  isNot?: boolean; // 条件を反転させる
  target?: number; // 連続投稿がこの数値以上なら適用
  coolDown?: number; // おみくじ機能が機能してから指定した時間(秒)が経過していない場合に適用
  syoken?: SyokenCondition; // 初見・久しぶり
  access?: AccessCondition; // ユーザーの役職
  gift?: GiftCondition; // ギフトの有無
+ draws?: DrawsCondition; // 過去にヒットしたおみくじの回数を数える
  count?: CountCondition; // 数値を参照する
  match?: MatchCondition; // 文字列を参照する
 }
 
 // condition選択用
-export type ConditionCommentType = 'target' | 'coolDown' | 'syoken' | 'access' | 'gift' | 'count' | 'match';
+export const CommentConditionTypes = {
+ TARGET: 'target',
+ COOL_DOWN: 'coolDown',
+ SYOKEN: 'syoken',
+ ACCESS: 'access',
+ GIFT: 'gift',
+ COUNT: 'count',
+ MATCH: 'match'
+} as const;
+export type CommentConditionType = (typeof CommentConditionTypes)[keyof typeof CommentConditionTypes];
+
+// Draws:過去にヒットしたおみくじの回数を数える
+export interface DrawsCondition {
+ comparison:
+  | 'min' // 数値以下
+  | 'max' // 数値以上
+  | 'equal' // 等しい
+  | 'loop'; // 数値をvalueで割った数
+ unit:
+  | 'draws' // その枠でrulesに該当した回数(個人)
+  | 'gameDraws'; // その配信枠でrulesに該当した回数(合計)
+ value: number;
+}
 
 // syoken:初見・コメント履歴の種別
 export const SyokenCondition = {
@@ -69,43 +102,43 @@ export interface CountCondition {
  comparison:
   | 'min' // 数値以下
   | 'max' // 数値以上
-  | 'range' // value1以上 value2以下
   | 'equal' // 等しい
-  | 'loop'; // 数値をvalue1で割った数
+  | 'loop'; // 数値をvalueで割った数
  unit:
-  | 'draws' // その枠でrulesに該当した回数(個人)
-  | 'gameDraws' // その配信枠でrulesに該当した回数(合計)
+  | 'point' // ユーザーのvisit.point
   | 'lc' // 配信枠のコメント数(プラグインで独自に付与)
   | 'tc' // 総数の個人コメ数(userData.tc)
   | 'intvlSec'; // そのユーザーの前回のコメントからの経過時間(秒)(userData.interval*1000)
- value1: number;
- value2: number;
+ value: number;
 }
 
 // match:文字列を参照する
 export interface MatchCondition {
  target:
-  | 'status' // ユーザーごとのstatus
+  | 'status' // ユーザーのvisit.status
   | 'comment' // コメント(comment.data.comment)
   | 'name' // 名前(comment.data.name)
   | 'displayName'; // ニックネーム(comment.data.displayName)
- case:
-  | 'exact' // 完全一致
-  | 'starts' // 前方一致
-  | 'include'; // 部分一致
  value: string[]; // 検索ワード
 }
+// Timerの条件型
+export interface TimerCriterion {
+ conditionType: TimerConditionType;
+ isNot?: boolean; // 条件を反転させる
+ draws?: DrawsCondition; // 過去にヒットしたおみくじの回数を数える
+}
+export type TimerConditionType = 'draws';
 
 // metaの条件型
 export interface MetaCriterion {
- conditionType: ConditionMetaType;
+ conditionType: MetaConditionType;
  isNot?: boolean; // 条件を反転させる
- isLive?: boolean; // 配信中か
- metaTitle?: string[]; // 配信中のタイトルを参照する
+ draws?: DrawsCondition; // 過去にヒットしたおみくじの回数を数える
  metaCount?: MetaCountCondition; // 数値を参照する
+ dynamic?: MetaDynamicCondition; // 数値の変化しやすい、高評価数・閲覧数を参照
 }
 
-export type ConditionMetaType = 'isLive' | 'metaCount' | 'metaMatch' | 'access' | 'gift' | 'count' | 'match';
+export type MetaConditionType = 'draws' | 'metaCount' | 'dynamic';
 
 // metaCount:数値を参照する
 export interface MetaCountCondition {
@@ -113,15 +146,24 @@ export interface MetaCountCondition {
   | 'min' // 数値以下
   | 'max' // 数値以上
   | 'equal' // 等しい
-  | 'loop' // 数値をvalue1で割った数
+  | 'loop'; // 数値をvalueで割った数
+ unit:
+  | 'streamDuration' // 配信開始時間から経過した時間(分)
+  | 'totalGifts' // 配信枠でのギフト総額
+  | 'followers'; // フォロワー数
+ value: number;
+}
+
+// dynamic:高評価数・閲覧数を参照
+export interface MetaDynamicCondition {
+ comparison:
+  | 'min' // 数値以下
+  | 'max' // 数値以上
   | 'different' // 前回の数値とは異なる
   | 'increasing' // 前回の数値よりも大きい
   | 'newMaximum'; // 当配信の最大値よりも大きい
  unit:
-  | 'streamDuration' // 配信開始時間から経過した時間(分)
-  | 'totalGifts' // 配信枠でのギフト総額
-  | 'followers' // フォロワー数
   | 'likes' // 高評価数
   | 'viewers'; // 閲覧数
- value1: number;
+ value: number;
 }
