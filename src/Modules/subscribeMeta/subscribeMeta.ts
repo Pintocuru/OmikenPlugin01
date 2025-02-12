@@ -1,4 +1,4 @@
-// src/Modules/tasks/CommentBotProcessor.ts
+// src/Modules/subscribeMeta/subscribeMeta.ts
 import { PluginUpdateData, PluginMainType, VisitType } from '@type';
 import { OmikujiSelector } from '@tasks/OmikujiSelector';
 import { OmikujiProcessor } from '@tasks/OmikujiProcess';

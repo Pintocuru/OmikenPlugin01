@@ -1,6 +1,6 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { StoreType, StoreAllType, StoreApiType, VisitType } from '@type';
+import { PluginStoreType, PluginAllType, PluginApiType, VisitType } from '@type';
 import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
 import { commentParamsPlus, commentTreatment } from '@core/commentTreatment';
 import { systemMessage } from '@core/ErrorHandler';
@@ -17,18 +17,17 @@ import { SendType } from '@onecomme.com/onesdk/types/Api';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.2.0-beta01', // プラグインのバージョン番号
+ version: '0.3.0-beta01', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://pintocuru.booth.pm/items/6499304', // サポートページのURL
  // services:枠情報,filter.comment:コメント
- permissions: ['services', 'filter.comment', 'meta', 'waitingList', 'setList', 'reactions'],
+ permissions: ['services', 'filter.comment', 'meta'],
 
  // プラグインの初期状態
  defaultState: defaultState,
  // プラグインの初期化
- async init(this: StoreAllType, { store }: { store: ElectronStore<StoreType> }) {
+ async init(this: PluginAllType, { store }: { store: ElectronStore<PluginStoreType> }) {
   try {
-   console.info(SETTINGS.PLUGIN_UID);
    // わんコメの枠データが取得できる(=セットアップ完了)まで待つ
    await startReadyCheck();
 
@@ -46,20 +45,20 @@ const plugin: OnePlugin = {
  },
 
  // filterComment:コメントを加工・変更する
- async filterComment(this: StoreAllType, comment, service, userData) {
+ async filterComment(this: PluginAllType, comment, service, userData) {
   // 自身のプラグインの投稿（botの投稿）はおみくじを行わない
   if (comment.data.userId === SETTINGS.BOT_USER_ID) {
    return commentTreatment(comment);
   }
   // おみくじBOT処理
-  await this.filterCommentProcess(comment, userData);
+  if (userData) await this.filterCommentProcess(comment, userData);
 
   // パラメータを付与してreturn
   return commentParamsPlus(comment, this.Visits[comment.data.userId]);
  },
 
  // filterCommentProcess:おみくじBOT処理
- async filterCommentProcess(this: StoreAllType, comment: Comment, userData: UserNameData) {
+ async filterCommentProcess(this: PluginAllType, comment: Comment, userData: UserNameData) {
   try {
    const COMMENT_EXPIRY_MS = 5000; // 5秒以上経過したコメントはおみくじの対象外
    this.TimeConfig.lc++; // TimeConfig.lcをインクリメント
@@ -76,7 +75,8 @@ const plugin: OnePlugin = {
    // おみくじの処理
    const result = await botProcessor.process();
    Object.entries(result).forEach(([key, value]) => {
-    if (value && this[key]) this[key] = value;
+    const storeKey = key as keyof PluginAllType;
+    if (value && this[storeKey]) this[storeKey] = value;
    });
   } catch (e) {
    systemMessage('error', `おみくじBOTの処理ができませんでした`, e);
@@ -85,7 +85,7 @@ const plugin: OnePlugin = {
  },
 
  // 終了時の処理
- destroy(this: StoreAllType): void {
+ destroy(this: PluginAllType): void {
   // タイマーが存在する場合のみ破棄
   if (this.timerSelector) {
    this.timerSelector.destroy();
@@ -94,8 +94,8 @@ const plugin: OnePlugin = {
  },
 
  subscribe(type: SendType, args: any[]) {
+  // 現在はmetaのみ
   if (type === 'meta') {
-   // meta
    // https://types.onecomme.com/interfaces/types_Service.Service
   } else if (type === 'waitingList') {
    // waitingList 参加リスト
@@ -114,9 +114,9 @@ const plugin: OnePlugin = {
  },
 
  // Rest APIを使った送受信
- async request(this: StoreAllType, req): Promise<PluginResponse> {
+ async request(this: PluginAllType, req): Promise<PluginResponse> {
   // データ型のマッピング
-  const responseMap: StoreApiType = {
+  const responseMap: PluginApiType = {
    store: this.store,
    Omiken: this.Omiken,
    Presets: this.Presets,
@@ -127,7 +127,11 @@ const plugin: OnePlugin = {
   };
 
   const result = await new RequestHandler(responseMap).request(req);
-  if (result.data) Object.assign(this, result.data);
+  if (result.data) {
+   Object.entries(result.data).forEach(([key, value]) => {
+    if (key in this) (this as any)[key] = value;
+   });
+  }
   return result.response;
  }
 };

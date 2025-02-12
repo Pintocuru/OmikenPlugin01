@@ -69,12 +69,12 @@ export class ThresholdChecker {
  }
 
  // クールダウンのチェック
- private matchIsCoolDown(coolDown: number): boolean {
+ private matchIsCoolDown(coolDown: number = 3): boolean {
   return Date.now() < this.TimeConfig.lastTime + coolDown * 1000;
  }
 
  // 初見・久しぶりのチェック
- private matchIsSyoken(syoken: SyokenCondition): boolean {
+ private matchIsSyoken(syoken: SyokenCondition = SyokenCondition.SYOKEN): boolean {
   // (仕様書とは異なる)meta.free は配信枠1コメめかどうか
   if (!this.comment?.meta.free) return false;
 
@@ -88,7 +88,7 @@ export class ThresholdChecker {
  }
 
  // ユーザーの役職
- private matchIsAccess(access: AccessCondition): boolean {
+ private matchIsAccess(access: AccessCondition = 2): boolean {
   if (!this.comment?.data) return false;
 
   const { isOwner, isModerator, isMember } = this.comment.data as {
@@ -101,7 +101,7 @@ export class ThresholdChecker {
  }
 
  // ギフトを参照する
- private matchIsGift(gift: GiftCondition): boolean {
+ private matchIsGift(gift: GiftCondition = 0): boolean {
   if (!this.comment?.data) return false;
 
   const { hasGift } = this.comment.data;
@@ -135,7 +135,7 @@ export class ThresholdChecker {
  }
 
  // 数値を参照する
- private matchIsCount(count: CountCondition): boolean {
+ private matchIsCount(count: CountCondition = { comparison: 'max', unit: 'draws', value1: 1, value2: 1 }): boolean {
   if (!this.comment && (count.unit === 'tc' || count.unit === 'intvlSec')) return false;
 
   const { lc = 0, tc = 0, interval = 0 } = this.comment?.meta;

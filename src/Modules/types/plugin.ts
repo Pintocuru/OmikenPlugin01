@@ -6,19 +6,20 @@ import { Service } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Colors, Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
+import { PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
 // ---------------------------------------------------
 
 // ElectronStore用の型
-export interface StoreType {
- store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
+export interface PluginStoreType {
  Omiken: OmikenType;
  Visits: Record<string, VisitType>;
  Games: Record<string, GameType>;
 }
 
 // おみくじBOT用の型
-export interface StoreMainType extends StoreType {
+export interface PluginMainType extends PluginStoreType {
+ store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsType>;
@@ -26,14 +27,15 @@ export interface StoreMainType extends StoreType {
 }
 
 // API用の型
-export interface StoreApiType extends StoreType {
- Presets: Readonly<Record<string, OmikenType>>;
+export interface PluginApiType extends PluginStoreType {
+ store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
+ Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsType>;
 }
 
 // 全体設定用の型
-export interface StoreAllType extends StoreMainType {
+export interface PluginAllType extends PluginMainType {
  Presets: Record<string, OmikenType>;
  filterCommentProcess(comment: Comment, userData: UserNameData): Promise<void>;
  timerSelector: any; // プラグイン専用の型なのでany
@@ -143,10 +145,22 @@ export interface SendTestCommentType {
 
 // ---
 
+// APIの返り値の型定義
+export type RequestResult = {
+ response: PluginResponse;
+ data?: Partial<PluginApiType>;
+};
+
 // API用
 
 // パラメータの型定義
-export type ParamsType = PingModeParams | DataModeParams | AllDataModeParams | BackupModeParams;
+export type ParamsType =
+ | PingModeParams
+ | DataModeParams
+ | AllDataModeParams
+ | StoreModeParams
+ | BackupModeParams
+ | AddonModeParams;
 
 // Ping用型定義
 interface PingModeParams {
@@ -169,6 +183,13 @@ interface AllDataModeParams {
  type?: never;
 }
 
+// ストア（永続化）用型定義
+interface StoreModeParams {
+ method: 'POST';
+ mode: Mode.Store;
+ type: DataType.Omiken | DataType.Visits | DataType.Games;
+}
+
 // バックアップ用型定義
 interface BackupModeParams {
  method: 'POST';
@@ -176,12 +197,23 @@ interface BackupModeParams {
  type: DataType.Omiken | DataType.Presets;
 }
 
+// アドオン用型定義
+export interface AddonModeParams {
+ method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+ mode: Mode.Addon;
+ type: never;
+ scriptId: string; // Scripts にある script.id を指定
+ ruleId?: string; // Games にある rule.id を指定（省略可）
+}
+
 // モードを定義
 export enum Mode {
- Ping = 'ping', // データ取得
- Data = 'data', // データ取得
+ Ping = 'ping', // ping取得
+ Data = 'data', // 各種データ取得
+ AllData = 'allData', // すべてのデータ取得(エディター用)
+ Store = 'store', // おみくじデータの永続化(エディター用)
  Backup = 'backup', // バックアップ(エディター用)
- AllData = 'allData' // すべてのデータ取得
+ Addon = 'addon' // アドオン用
 }
 
 // データの種類を定義

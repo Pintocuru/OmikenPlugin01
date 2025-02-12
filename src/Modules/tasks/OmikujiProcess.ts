@@ -7,8 +7,8 @@ import {
  ScriptParam,
  ScriptsReturnType,
  ScriptsType,
- StoreMainType,
- StoreType,
+ PluginMainType,
+ PluginStoreType,
  UserStatsType,
  VisitType
 } from '@type';
@@ -30,7 +30,7 @@ export class OmikujiProcessor {
  private placeProcessor?: PlaceProcess;
 
  constructor(
-  private readonly storeAll: StoreMainType,
+  private readonly storeAll: PluginMainType,
   private readonly omikuji: OmikujiSelectType,
   private readonly comment?: Comment
  ) {
@@ -85,7 +85,7 @@ export class OmikujiProcessor {
   }
  }
 
- async process(): Promise<Partial<StoreType>> {
+ async process(): Promise<Partial<PluginStoreType>> {
   this.updateDrawsStatus();
   await this.executeScript();
   this.processPlaceData();

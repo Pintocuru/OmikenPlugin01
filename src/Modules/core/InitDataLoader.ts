@@ -3,13 +3,13 @@ import {
  OmikenType,
  RulesType,
  CharaType,
- StoreType,
+ PluginStoreType,
  GameType,
  TypesType,
  VisitType,
  TimeConfigType,
  OmikujiSelectType,
- StoreAllType,
+ PluginAllType,
  ScriptsType
 } from '@type';
 import { SETTINGS } from '@/Modules/settings';
@@ -24,12 +24,12 @@ import { ServiceAPI } from '../api/serviceAPI';
 export class InitDataLoader {
  private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
 
- constructor(store: ElectronStore<StoreType>) {
+ constructor(store: ElectronStore<PluginStoreType>) {
   this.store = store;
  }
 
  // Omiken/presetデータ読み込み
- load(): Partial<StoreAllType> {
+ load(): Partial<PluginAllType> {
   try {
    // TODO 後でdefault値を入れたいかも
    const Omiken = this.store.get('Omiken', {}) as OmikenType;
@@ -52,7 +52,7 @@ export class InitDataLoader {
   }
  }
 
- // Scriptsにある関数を読み込み
+ // Presets/Charas/Scripts読み込み
  private loadDirectoryContents<T>(dirPath: string, extension: 'json' | 'js'): Record<string, T> {
   const result: Record<string, T> = {};
   const fullPath = extension === 'js' ? dirPath : path.join(SETTINGS.dataRoot, dirPath);
@@ -148,7 +148,7 @@ export function filterTypes(types: Record<TypesType, string[]>, rules: Record<st
 }
 
 // timerのセットアップ
-export async function timerSetup(StoreAll: StoreAllType) {
+export async function timerSetup(StoreAll: PluginAllType) {
  // timerが空の場合、処理を終了
  if (StoreAll.OmikenTypesArray?.timer.length === 0) return;
 

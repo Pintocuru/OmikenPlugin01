@@ -1,8 +1,8 @@
 // src/Modules/defaultState.ts
 
-import { StoreType } from '@type';
+import { PluginStoreType } from '@type';
 
-export const defaultState: StoreType = {
+export const defaultState: PluginStoreType = {
  Omiken: {
   types: {
    comment: [

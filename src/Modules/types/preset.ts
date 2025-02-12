@@ -1,6 +1,6 @@
 // src/types/preset.ts
 import { BaseType, OmikenType, OneCommePostType } from './Omiken';
-import { GameType } from './plugin';
+import { GameType, PluginStoreType } from './plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // presetデータ
@@ -51,8 +51,8 @@ export interface ScriptsType extends PresetType {
 // funcの引数の型定義
 export type ScriptsParamType = (
  game: GameType,
- comment?: Comment,
- params?: { [id: string]: string | number | boolean }
+ comment: Comment,
+ params: { [id: string]: string | number | boolean }
 ) => ScriptsReturnType;
 
 // funcの返り値
@@ -64,7 +64,7 @@ export interface ScriptsReturnType {
 
 // ScriptのAPI呼び出しの引数
 export type ApiCallParamType = (
- game: GameType,
+ game: GameType | null,
  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
  body?: any
 ) => Promise<ApiCallReturnType>;
@@ -72,9 +72,8 @@ export type ApiCallParamType = (
 // API呼び出しの返り値
 export interface ApiCallReturnType {
  status: 'success' | 'error';
- game: GameType;
  message: string;
- data?: any;
+ data?: Partial<PluginStoreType>;
 }
 
 // gameのパラメータ設定用
