@@ -1,6 +1,6 @@
 // src/types/preset.ts
 import { BaseType, OmikenType, OneCommePostType } from './Omiken';
-import { GameType, PluginStoreType } from './plugin';
+import { GameType, PluginStoreType, SelectOmikujiOptions } from './plugin';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // presetデータ
@@ -42,21 +42,22 @@ export interface CharaType extends PresetType {
 // ---
 
 export interface ScriptsType extends PresetType {
- func: ScriptsParamType; // おみくじ実行時の関数
+ OmikujiFunc: OmikujiFuncParamType; // おみくじ実行時の関数
  ApiCall?: ApiCallParamType; // API呼び出し時の関数
- scriptParams: ScriptParam[];
- placeholders: ScriptParam[];
+ settings: Array<ScriptParam<string | number | boolean>>;
+ params: Array<ScriptParam<string | number | boolean>>;
+ placeholders: Array<ScriptParam<string | number | boolean>>;
 }
 
 // funcの引数の型定義
-export type ScriptsParamType = (
+export type OmikujiFuncParamType = (
  game: GameType,
- comment: Comment,
- params: { [id: string]: string | number | boolean }
-) => ScriptsReturnType;
+ params: Array<ScriptParam<string | number | boolean>>,
+ options: SelectOmikujiOptions
+) => OmikujiFuncReturnType;
 
 // funcの返り値
-export interface ScriptsReturnType {
+export interface OmikujiFuncReturnType {
  postArray?: OneCommePostType[];
  placeholder: { [id: string]: string | number };
  game: GameType;
@@ -77,9 +78,7 @@ export interface ApiCallReturnType {
 }
 
 // gameのパラメータ設定用
-export interface ScriptParam extends BaseType {
- // TODO isEverは、ちゃんとrulesでScriptを設定できるまでの暫定機能
- isEver?: boolean; // 一度設定すると、JSONをいじらない限り同じ値になる
- type?: 'string' | 'number' | 'boolean'; // valueのタイプ(デフォルトはstring)
- value: string | number | boolean; // 入る値
+export interface ScriptParam<T> extends BaseType {
+ type: 'string' | 'number' | 'boolean';
+ value: T;
 }

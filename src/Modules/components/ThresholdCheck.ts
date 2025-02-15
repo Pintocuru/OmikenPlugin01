@@ -1,31 +1,15 @@
 // src/Modules/components/ThresholdCheck.ts
 
-import {
- AccessCondition,
- CountCondition,
- GameType,
- GiftCondition,
- MatchCondition,
- RulesType,
- SyokenCondition,
- ThresholdType,
- TimeConfigType,
- VisitType
-} from '@type';
+import { GameType, OmikenRulesType, SelectOmikujiOptions, TimeConfigType, VisitType } from '@type';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 // 条件
 export class ThresholdChecker {
- readonly game: GameType;
  constructor(
-  private readonly rule: RulesType,
-  private readonly TimeConfig: TimeConfigType,
-  private readonly comment?: Comment | undefined,
-  private readonly visit?: VisitType | undefined,
-  Games?: Record<string, GameType> | undefined
- ) {
-  this.game = Games?.[rule.id];
- }
+  private readonly options: SelectOmikujiOptions,
+  private readonly rule: OmikenRulesType,
+  private readonly game?: GameType
+ ) {}
 
  // 条件チェック（配列全体）
  checkAll(thresholds: ThresholdType[]): boolean {

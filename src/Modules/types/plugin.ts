@@ -1,8 +1,7 @@
 // src/types/plugin.ts
-
-import { OmikenType, OmikujiType, RulesType, TypesType } from './Omiken';
+import { OmikenType, OmikujiType } from './Omiken';
 import { CharaType, ScriptParam, ScriptsType } from './preset';
-import { Service } from '@onecomme.com/onesdk/types/Service';
+import { Service, ServiceMeta } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Colors, Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
@@ -20,7 +19,6 @@ export interface PluginStoreType {
 // おみくじBOT用の型
 export interface PluginMainType extends PluginStoreType {
  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
- OmikenTypesArray?: Record<TypesType, RulesType[]>;
  Charas: Record<string, CharaType>;
  Scripts: Record<string, ScriptsType>;
  TimeConfig: TimeConfigType;
@@ -38,7 +36,7 @@ export interface PluginApiType extends PluginStoreType {
 export interface PluginAllType extends PluginMainType {
  Presets: Record<string, OmikenType>;
  filterCommentProcess(comment: Comment, userData: UserNameData): Promise<void>;
- timerSelector: any; // プラグイン専用の型なのでany
+ TimerSelector: any; // プラグイン専用の型なのでany
 }
 
 // プラグインのデータを更新するreturn用の型
@@ -89,9 +87,37 @@ export interface UserStatsType extends DrawsType {
 
 // ---
 
+// おみくじ抽選で使用するデータ群
+export type SelectOmikujiOptions = SelectOmikujiOptionsComment | SelectOmikujiOptionsTimer | SelectOmikujiOptionsMeta;
+
+export interface SelectOmikujiOptionsComment {
+ type: 'comment';
+ comment: Comment;
+ visit: VisitType;
+ meta?: never;
+ timeConfig: TimeConfigType;
+}
+
+export interface SelectOmikujiOptionsTimer {
+ type: 'timer';
+ comment?: never;
+ visit?: never;
+ meta?: never;
+ timeConfig: TimeConfigType;
+}
+
+export interface SelectOmikujiOptionsMeta {
+ type: 'meta';
+ comment?: never;
+ visit?: never;
+ meta: ServiceMeta;
+ timeConfig: TimeConfigType;
+}
+
 // 選択したおみくじ
-export interface OmikujiSelectType extends OmikujiType {
- selectRuleId: string; // 選択されたルールのid
+export interface SelectOmikujiIds {
+ omikujiId: string;
+ ruleId: string; // 選択されたルールのid
 }
 
 // TimeConfig
@@ -99,7 +125,11 @@ export interface TimeConfigType {
  pluginTime: number; // プラグインを起動した時刻
  lc: number; // プラグインを起動してからカウントしたコメント数
  lastTime: number; // 最後におみくじ機能が実行された時刻
- lastUserId: string; // TODO 廃止(Gamesが担う) 最後におみくじを行ったuserId
+ meta: {
+  initFollowers: number; // 配信開始時のフォロワー数
+  maxLikes: number; // 配信時の高評価数の最大値
+  maxViewers: number; // 配信時の視聴数の最大値
+ };
 }
 
 // ---

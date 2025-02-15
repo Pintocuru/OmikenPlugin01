@@ -1,127 +1,54 @@
 // src/Modules/tasks/OmikujiSelector.ts
-import { GameType, OmikujiSelectType, OmikujiType, RulesType, TimeConfigType, TypesType, VisitType } from '@type';
+import {
+ CommentRulesType,
+ GameType,
+ OmikenRulesType,
+ OmikujiType,
+ RulesSubType,
+ SelectOmikujiIds,
+ SelectOmikujiOptions,
+ TimeConfigType,
+ TimerRulesType,
+ VisitType
+} from '@type';
 import { ThresholdChecker } from '@components/ThresholdCheck';
 import { PlayOmikuji } from '@components/PlayOmikuji';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
-export interface OmikujiSelectorOptions {
- comment: Comment;
- visit: VisitType;
- timeConfig: TimeConfigType;
-}
+// おみくじセレクト
+export function selectOmikuji(
+ options: SelectOmikujiOptions,
+ rules: Record<string, OmikenRulesType>,
+ games: Record<string, GameType>
+): SelectOmikujiIds | null {
+ // ルールを順序に従ってソート
+ const sortedRules = Object.values(rules).sort((a, b) => a.order - b.order);
 
-// omikujiをセレクトする
-export class OmikujiSelector {
- static create(mode: TypesType, options?: OmikujiSelectorOptions): OmikujiSelectorBase {
-  switch (mode) {
-   case 'comment':
-    return new OmikujiSelectorComment(options);
+ for (const rule of sortedRules) {
+  // ルールのしきい値をチェック
+  const checker = new ThresholdChecker(options, rule, games[rule.id]);
+  if (!checker.checkAll(rule.threshold)) continue;
 
-   case 'timer':
-    return new OmikujiSelectorTimer();
+  // 有効なエントリをフィルタリング
+  const validEntries = rule.enables.filter((entry) => checker.checkAll(entry.threshold));
 
-   // 今後の開発に期待
-   case 'meta':
-   case 'waitingList':
-   case 'setList':
-    throw new Error(`Mode ${mode} is not implemented yet`);
-
-   default:
-    throw new Error(`Unsupported mode: ${mode}`);
-  }
+  // 共通の抽選ロジックを使用
+  const omikuji = new PlayOmikuji(validEntries).draw() as RulesSubType<any>;
+  if (omikuji) return { omikujiId: omikuji.omikujiId, ruleId: rule.id };
  }
-}
 
-// おみくじ(アイテム抽選)
-export abstract class OmikujiSelectorBase {
- abstract selectOmikuji(
-  rules: RulesType[],
-  omikujis: Record<string, OmikujiType>,
-  Games: Record<string, GameType>
- ): OmikujiSelectType | null;
-
- protected playOmikuji(items: OmikujiType[]): OmikujiType | null {
-  if (items.length === 0) return null;
-
-  // rankが最も高い値を取得しフィルタリング
-  const maxRank = Math.max(...items.map((item) => item.rank));
-  const highestRankItems = items.filter((item) => item.rank === maxRank);
-
-  // weightを計算し抽選
-  const totalWeight = highestRankItems.reduce((sum, item) => sum + Math.max(item.weight, 1), 0);
-  if (totalWeight <= 0) return null;
-  let random = Math.random() * totalWeight;
-  return highestRankItems.find((item) => (random -= Math.max(item.weight, 1)) < 0) ?? null;
- }
+ return null;
 }
 
 // ---
 
-// comment:
-export class OmikujiSelectorComment extends OmikujiSelectorBase {
- constructor(private readonly options: OmikujiSelectorOptions) {
-  super();
- }
-
- // 各ルールに対して処理を実行し、ruleも一緒に返す
- selectOmikuji(
-  rules: RulesType[],
-  omikujis: Record<string, OmikujiType>,
-  Games: Record<string, GameType>
- ): OmikujiSelectType | null {
-  return (
-   rules
-    .map((rule) => {
-     const omikuji = this.processRule(rule, omikujis, Games);
-     return omikuji ? { ...omikuji, selectRuleId: rule.id } : null;
-    })
-    .find((result) => result !== null) || null
-  );
- }
-
- private processRule(
-  rule: RulesType,
-  omikujis: Record<string, OmikujiType>,
-  Games: Record<string, GameType>
- ): OmikujiType | null {
-  const { timeConfig, comment, visit } = this.options;
-  const checker = new ThresholdChecker(rule, timeConfig, comment, visit, Games);
-
-  // ルールが有効でない場合は null を返す
-  if (!checker.checkAll(rule.threshold)) return null;
-
-  // 有効なおみくじをフィルタリング
-  const validOmikujis = rule.enableIds
-   .map((id) => omikujis[id])
-   .filter((omikuji) => checker.checkAll(omikuji.threshold));
-
-  if (validOmikujis.length > 0) {
-   const play = new PlayOmikuji(validOmikujis);
-   return play.draw() as OmikujiType;
-  } else return null;
- }
-}
-
-// ---
-
-export class OmikujiSelectorTimer extends OmikujiSelectorBase {
+// timerのセットアップ
+export class OmikujiSelectorTimer {
  private timers: NodeJS.Timeout[] = [];
+ private timeConfig?: TimeConfigType;
 
  constructor() {
-  super();
   this.clearAllTimers();
- }
-
- // 全ルールに対するおみくじ選択
- selectOmikuji(rules: RulesType[], omikujis: Record<string, OmikujiType>): OmikujiSelectType | null {
-  return (
-   rules
-    .map((rule) => {
-     const omikuji = this.selectOmikujiForRule(rule, omikujis);
-     return omikuji ? { ...omikuji, selectRuleId: rule.id } : null;
-    })
-    .find((result) => result !== null) || null
-  );
  }
 
  // 次の実行時刻までの待機時間を計算（ミリ秒）
@@ -146,14 +73,17 @@ export class OmikujiSelectorTimer extends OmikujiSelectorBase {
 
  // タイマーを設定して定期実行を開始（複数ルール対応）
  setupTimers(
-  rules: RulesType[],
+  rules: Record<string, TimerRulesType>,
   omikujis: Record<string, OmikujiType>,
   callback: (result: OmikujiSelectType) => void
  ): void {
   // 既存のタイマーをクリア
   this.clearAllTimers();
 
-  rules.forEach((rule) => {
+  // ルールを順序に従ってソート
+  const sortedRules = Object.values(rules).sort((a, b) => a.order - b.order);
+
+  for (const rule of sortedRules) {
    if (!rule.timerConfig) return;
    const { minutes, isBaseZero } = rule.timerConfig;
    // バリデーション 1分以上60分以下の間でない場合はスキップ
@@ -166,6 +96,8 @@ export class OmikujiSelectorTimer extends OmikujiSelectorBase {
 
    setTimeout(() => {
     const timer = setInterval(() => {
+     if (!this.timeConfig) return;
+     const hoge = new OmikujiSelector({ type: 'timer', timeConfig: this.timeConfig });
      const result = this.selectOmikujiForRule(rule, omikujis);
      if (result) callback(result);
     }, minutes * 60000);
@@ -175,7 +107,7 @@ export class OmikujiSelectorTimer extends OmikujiSelectorBase {
     const result = this.selectOmikujiForRule(rule, omikujis);
     if (result) callback(result);
    }, initialDelay);
-  });
+  }
  }
 
  // 単一ルールに対するおみくじ選択

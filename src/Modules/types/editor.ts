@@ -1,5 +1,13 @@
 // src/types/editor.ts
-import { OmikenTypeMap, OmikenType, TypesType } from './Omiken';
+import {
+ CommentRulesType,
+ MetaRulesType,
+ OmikenType,
+ OmikujiType,
+ PlaceType,
+ RuleTypes,
+ TimerRulesType
+} from './Omiken';
 import { CharaType, PresetOmikenType, ScriptsType } from './preset';
 
 // エディター用型定義
@@ -36,7 +44,7 @@ export type CategoryActive<T extends CategoryMain = CategoryMain> = {
 };
 
 // リスト用カテゴリー
-export type ListCategory = 'types' | 'rules' | 'omikujis' | 'places';
+export type ListCategory = RuleTypes | 'omikujis' | 'places';
 export type ListType = OmikenTypeMap[ListCategory];
 export type ListEntry<T extends ListCategory> = {
  isOpen: boolean; // ダイアログの開閉状態
@@ -52,10 +60,9 @@ export type ListEntryCollect = {
 // ファイル操作用
 export type OmikenEntry<T extends ListCategory> = {
  type: T;
- update?: T extends 'types' ? never : OmikenTypeMap[T];
+ update?: OmikenTypeMap[T];
  addKeys?: AddKeysCategory[T];
- delKeys?: T extends 'types' ? TypesType[] : string | string[];
- reTypes?: T extends 'types' ? Record<TypesType, string[]> : never;
+ delKeys?: string | string[];
 };
 
 type AddKeysCategory = {

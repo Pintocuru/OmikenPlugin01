@@ -1,17 +1,18 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
 import { PluginStoreType, PluginAllType, PluginApiType, VisitType } from '@type';
-import { InitDataLoader, startReadyCheck, timerSetup } from '@core/InitDataLoader';
+import { InitDataLoader, timerSetup } from '@core/InitDataLoader';
 import { commentParamsPlus, commentTreatment } from '@core/commentTreatment';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
 import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
 import { SETTINGS } from '@/Modules/settings';
+import { defaultState } from '@/Modules/defaultState';
+import { startReadyCheck } from '@components/startReadyCheck';
 import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { OnePlugin, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
-import { defaultState } from './Modules/defaultState';
 import { SendType } from '@onecomme.com/onesdk/types/Api';
 
 const plugin: OnePlugin = {
@@ -34,12 +35,12 @@ const plugin: OnePlugin = {
    // 初期化
    Object.assign(this, new InitDataLoader(store).load());
    // timerのセットアップ
-   await timerSetup(this);
+   await this.TimerSelector(this);
 
    // プラグインの起動メッセージ
    systemMessage('info', `【おみくじBOTプラグイン】が起動したよ`);
-  } catch (e) {
-   systemMessage('error', `【おみくじBOTプラグイン】の初期化に失敗`, e);
+  } catch (err) {
+   systemMessage('error', `【おみくじBOTプラグイン】の初期化に失敗`, err);
    throw new Error();
   }
  },
@@ -84,13 +85,12 @@ const plugin: OnePlugin = {
   }
  },
 
- // 終了時の処理
- destroy(this: PluginAllType): void {
-  // タイマーが存在する場合のみ破棄
-  if (this.timerSelector) {
-   this.timerSelector.destroy();
-   this.timerSelector = undefined;
-  }
+ //
+ async TimerSelector(StoreAll: PluginAllType): Promise<void> {
+  // timerが空の場合、処理を終了
+  if (!StoreAll.Omiken.timer) return;
+
+  // TODO 「プラグイン停止時にちゃんと止まる」タイマー機能を改めて書く
  },
 
  subscribe(type: SendType, args: any[]) {
@@ -137,6 +137,15 @@ const plugin: OnePlugin = {
    });
   }
   return result.response;
+ },
+
+ // 終了時の処理
+ destroy(this: PluginAllType): void {
+  // タイマーが存在する場合のみ破棄
+  if (this.TimerSelector) {
+   this.TimerSelector.destroy();
+   this.TimerSelector = undefined;
+  }
  }
 };
 

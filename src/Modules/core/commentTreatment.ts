@@ -1,7 +1,8 @@
 // src/Modules/core/commentTreatment.ts
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { SendCommentParamsType, VisitType } from '@type';
+import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
+// Botコメントの処理
 export function commentTreatment(comment: Comment): Comment {
  const params = getIdParams(comment.data.id);
  if (!params) return comment;

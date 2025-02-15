@@ -1,11 +1,9 @@
 // src/Modules/core/InitDataLoader.js
 import {
  OmikenType,
- RulesType,
  CharaType,
  PluginStoreType,
  GameType,
- TypesType,
  VisitType,
  TimeConfigType,
  OmikujiSelectType,
@@ -14,15 +12,13 @@ import {
 } from '@type';
 import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
-import { OmikujiSelector, OmikujiSelectorTimer } from '@tasks/OmikujiSelector';
 import { OmikujiProcessor } from '@tasks/OmikujiProcess';
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
-import { ServiceAPI } from '../api/serviceAPI';
 
 export class InitDataLoader {
- private store: any; // ElectronStore<StoreType> にするとエラーが出るためanyにしています。
+ private store: any; // ElectronStore<StoreType> にするとエラーが出るためany
 
  constructor(store: ElectronStore<PluginStoreType>) {
   this.store = store;
@@ -31,20 +27,15 @@ export class InitDataLoader {
  // Omiken/presetデータ読み込み
  load(): Partial<PluginAllType> {
   try {
-   // TODO 後でdefault値を入れたいかも
-   const Omiken = this.store.get('Omiken', {}) as OmikenType;
-
    return {
     store: this.store,
-    Omiken,
-    OmikenTypesArray: filterTypes(Omiken.types, Omiken.rules),
+    Omiken: this.store.get('Omiken', {}) as OmikenType,
     Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
     Charas: this.loadDirectoryContents<CharaType>('Charas', 'json'),
     Scripts: this.loadDirectoryContents<ScriptsType>(SETTINGS.ScriptsRoot, 'js'),
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
-    TimeConfig: this.initializeTimeConfig(),
-    timerSelector: OmikujiSelector.create('timer') as OmikujiSelectorTimer
+    TimeConfig: this.initializeTimeConfig()
    };
   } catch (e) {
    systemMessage('error', `プラグインデータの読み込み中にエラーが発生`, e);
@@ -113,7 +104,16 @@ export class InitDataLoader {
 
  // TimeConfigを初期化する
  private initializeTimeConfig(): TimeConfigType {
-  return { pluginTime: Date.now(), lc: 0, lastTime: 0, lastUserId: '' };
+  return {
+   pluginTime: Date.now(),
+   lc: 0,
+   lastTime: 0,
+   meta: {
+    initFollowers: 0,
+    maxLikes: 0,
+    maxViewers: 0
+   }
+  };
  }
 }
 
@@ -139,54 +139,17 @@ function readJsonFile<T>(filePath: string): T | null {
  }
 }
 
-// rulesを配列にする
-export function filterTypes(types: Record<TypesType, string[]>, rules: Record<string, RulesType>) {
- return Object.keys(types).reduce((result, typeKey) => {
-  result[typeKey] = types[typeKey].map((id: string) => rules[id]).filter((rule) => rule !== undefined);
-  return result;
- }, {} as Record<TypesType, RulesType[]>);
-}
-
 // timerのセットアップ
 export async function timerSetup(StoreAll: PluginAllType) {
  // timerが空の場合、処理を終了
- if (StoreAll.OmikenTypesArray?.timer.length === 0) return;
+ if (!StoreAll.Omiken.timer) return;
 
  // timerのセットアップ
  StoreAll.timerSelector.setupTimers(
-  StoreAll.OmikenTypesArray.timer,
+  StoreAll.Omiken.timer,
   StoreAll.Omiken.omikujis,
   async (result: OmikujiSelectType) => {
    await new OmikujiProcessor(StoreAll, result).process();
   }
  );
-}
-
-// データが取得できる、または枠が作成されるまで待つ
-export async function startReadyCheck() {
- const CONFIG = {
-  INITIAL_INTERVAL: 1000, // 最初の1秒間隔
-  EXTENDED_INTERVAL: 15000, // 15秒間隔
-  THRESHOLD_TIME: 10000 // 10秒間は1秒間隔で再チェック
- };
- const startTime = Date.now();
-
- while (true) {
-  try {
-   const dataArray = await new ServiceAPI().getServices();
-   // 枠が作成された時点で
-   if (dataArray?.length > 0) {
-    console.info('Data is ready.');
-    break;
-   }
-  } catch (error) {
-   console.log('API not ready yet:', error);
-  }
-
-  const elapsedTime = Date.now() - startTime;
-  const interval = elapsedTime >= CONFIG.THRESHOLD_TIME ? CONFIG.EXTENDED_INTERVAL : CONFIG.INITIAL_INTERVAL;
-
-  // 指定された間隔で再チェック
-  await new Promise((resolve) => setTimeout(resolve, interval));
- }
 }

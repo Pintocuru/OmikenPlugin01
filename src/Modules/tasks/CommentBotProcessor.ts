@@ -1,17 +1,24 @@
 // src/Modules/tasks/CommentBotProcessor.ts
-import { PluginUpdateData, PluginMainType, VisitType } from '@type';
-import { OmikujiSelector } from '@tasks/OmikujiSelector';
+import {
+ PluginUpdateData,
+ PluginMainType,
+ VisitType,
+ PluginAllType,
+ SelectOmikujiOptions,
+ SelectOmikujiOptionsComment
+} from '@type';
+import { selectOmikuji } from '@tasks/OmikujiSelector';
 import { OmikujiProcessor } from '@tasks/OmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
 export class CommentBotProcessor {
- private visit: VisitType;
- private isFirstVisit: boolean;
- private isTester: boolean;
+ private visit: VisitType = {} as VisitType;
+ private isFirstVisit: boolean = false;
+ private isTester: boolean = false;
 
  // 初期化
- constructor(private storeAll: PluginMainType, private comment: Comment, private userData: UserNameData) {
+ constructor(private storeAll: PluginAllType, private comment: Comment, private userData: UserNameData) {
   this.initializeVisit();
   this.storeAll.Visits[comment.data.userId] = this.visit;
   this.processComment();
@@ -68,21 +75,17 @@ export class CommentBotProcessor {
  // おみくじの処理
  async process(): Promise<PluginUpdateData> {
   // コメントモードでの使用
-  const selector = OmikujiSelector.create('comment', {
+  const options: SelectOmikujiOptionsComment = {
+   type: 'comment',
    comment: this.comment,
    visit: this.visit,
    timeConfig: this.storeAll.TimeConfig
-  });
-
-  // commentのrules からおみくじを抽選
-  const omikujiSelect = selector.selectOmikuji(
-   this.storeAll.OmikenTypesArray.comment,
-   this.storeAll.Omiken.omikujis,
-   this.storeAll.Games
-  );
+  };
+  // おみくじを抽選
+  const selectOmikujiIds = selectOmikuji(options, this.storeAll.Omiken.comment, this.storeAll.Games);
 
   // おみくじがない場合はvisitだけ返す
-  if (!omikujiSelect) {
+  if (!selectOmikujiIds) {
    return {
     Visits: this.storeAll.Visits,
     Games: this.storeAll.Games,
@@ -90,7 +93,11 @@ export class CommentBotProcessor {
    };
   }
 
+  const { ruleId, omikujiId } = selectOmikujiIds;
+  const rule = this.storeAll.Omiken[options.type][ruleId];
+  const omikuji = this.storeAll.Omiken.omikujis[omikujiId];
+
   // Omikujiの処理
-  return new OmikujiProcessor(this.storeAll, omikujiSelect, this.comment).process();
+  return new OmikujiProcessor(rule, omikuji, this.storeAll, options).process();
  }
 }

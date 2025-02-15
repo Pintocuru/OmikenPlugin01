@@ -37,11 +37,13 @@ export interface BaseType {
 // rules
 ///////////////////////////////////
 
+export type OmikenRulesType = CommentRulesType | TimerRulesType | MetaRulesType;
+
 // 共通のベース型を定義
 interface CommonRuleType extends BaseType {
  isValid: boolean; // 有効かどうか
- color: string; // エディターでの識別用カラー
  order: number; // 判定の順番
+ color: string; // エディターでの識別用カラー
  script?: {
   scriptId: string; // 使用するアドオンのid
   settings: Record<string, string | number | boolean>; // アドオンの設定
@@ -49,14 +51,14 @@ interface CommonRuleType extends BaseType {
 }
 
 // comment:コメントからおみくじを判定・抽選する
-interface CommentRulesType extends CommonRuleType {
+export interface CommentRulesType extends CommonRuleType {
  ruleType: 'comment';
  threshold: CommentThreshold[];
  enables: RulesSubType<CommentThreshold>[];
 }
 
 // timer:定期的におみくじを判定する
-interface TimerRulesType extends CommonRuleType {
+export interface TimerRulesType extends CommonRuleType {
  ruleType: 'timer';
  threshold: TimerThreshold[];
  enables: RulesSubType<TimerThreshold>[];
@@ -67,7 +69,7 @@ interface TimerRulesType extends CommonRuleType {
 }
 
 // meta:配信枠の情報からおみくじを判定する
-interface MetaRulesType extends CommonRuleType {
+export interface MetaRulesType extends CommonRuleType {
  ruleType: 'meta';
  threshold: MetaThreshold[];
  enables: RulesSubType<MetaThreshold>[];
@@ -88,6 +90,7 @@ export interface RulesSubType<T extends ThresholdType> {
 export interface OmikujiType extends BaseType {
  addStatus?: string | null; // visit.statusの変更(nullで消去)
  addPoints?: number | null; // visit.pointの変更(nullで消去)
+ addPointsOperation?: 'add' | 'subtract' | 'replace'; // pointプロパティの操作方法(default:add)
  scriptParams: Record<string, string | number | boolean> | null; // 外部スクリプトに渡す引数(Scriptから取得する)
  placeIds: string[]; // 使用するプレースホルダーのid
  post: OneCommePostType[];
