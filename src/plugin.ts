@@ -1,14 +1,14 @@
 // src/plugin.ts
 // プラグインの型定義 : https://types.onecomme.com/interfaces/types_Plugin.OnePlugin
-import { PluginStoreType, PluginAllType, PluginApiType, VisitType } from '@type';
-import { InitDataLoader, timerSetup } from '@core/InitDataLoader';
+import { PluginStoreType, PluginAllType, PluginApiType } from '@type';
+import { InitDataLoader } from '@core/InitDataLoader';
 import { commentParamsPlus, commentTreatment } from '@core/commentTreatment';
+import { startReadyCheck } from '@core/startReadyCheck';
 import { systemMessage } from '@core/ErrorHandler';
 import { RequestHandler } from '@api/ApiRequest';
-import { CommentBotProcessor } from '@tasks/CommentBotProcessor';
+import { BotComment } from '@bots/BotComment';
 import { SETTINGS } from '@/Modules/settings';
 import { defaultState } from '@/Modules/defaultState';
-import { startReadyCheck } from '@components/startReadyCheck';
 import ElectronStore from 'electron-store';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
@@ -18,7 +18,7 @@ import { SendType } from '@onecomme.com/onesdk/types/Api';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.3.0-beta01', // プラグインのバージョン番号
+ version: '0.3.0-beta02', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://pintocuru.booth.pm/items/6499304', // サポートページのURL
  // services:枠情報,filter.comment:コメント
@@ -65,7 +65,7 @@ const plugin: OnePlugin = {
    this.TimeConfig.lc++; // TimeConfig.lcをインクリメント
 
    // インスタンスの発行
-   const botProcessor = new CommentBotProcessor(this, comment, userData);
+   const botProcessor = new BotComment(this, comment, userData);
    // ユーザー情報の更新
    this.Visits[comment.data.userId] = botProcessor.returnVisit();
 

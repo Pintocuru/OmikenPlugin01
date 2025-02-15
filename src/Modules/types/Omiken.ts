@@ -54,14 +54,14 @@ interface CommonRuleType extends BaseType {
 // comment:コメントからおみくじを判定・抽選する
 export interface CommentRulesType extends CommonRuleType {
  ruleType: 'comment';
- threshold: CommentThreshold[];
+ threshold: CommentThreshold;
  enables: RulesSubType<CommentThreshold>[];
 }
 
 // timer:定期的におみくじを判定する
 export interface TimerRulesType extends CommonRuleType {
  ruleType: 'timer';
- threshold: TimerThreshold[];
+ threshold: TimerThreshold;
  enables: RulesSubType<TimerThreshold>[];
  timerConfig: {
   minutes: number;
@@ -72,14 +72,14 @@ export interface TimerRulesType extends CommonRuleType {
 // meta:配信枠の情報からおみくじを判定する
 export interface MetaRulesType extends CommonRuleType {
  ruleType: 'meta';
- threshold: MetaThreshold[];
+ threshold: MetaThreshold;
  enables: RulesSubType<MetaThreshold>[];
 }
 
 export interface RulesSubType<T extends ThresholdType> {
  rank: number; // 優先度
  weight: number; // 出現割合
- threshold: T[]; //発動条件
+ threshold: T; //発動条件
  omikujiId: string; // 適用するおみくじのid
 }
 

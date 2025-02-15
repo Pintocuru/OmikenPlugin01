@@ -5,6 +5,7 @@
 ///////////////////////////////////
 
 export type ThresholdType = CommentThreshold | TimerThreshold | MetaThreshold;
+export type CriterionType = CommentCriterion | TimerCriterion | MetaCriterion;
 
 // コメント用Threshold
 export interface CommentThreshold {
@@ -121,6 +122,7 @@ export interface MatchCondition {
   | 'displayName'; // ニックネーム(comment.data.displayName)
  value: string[]; // 検索ワード
 }
+
 // Timerの条件型
 export interface TimerCriterion {
  conditionType: TimerConditionType;
@@ -163,7 +165,7 @@ export interface MetaDynamicCondition {
   | 'increasing' // 前回の数値よりも大きい
   | 'newMaximum'; // 当配信の最大値よりも大きい
  unit:
-  | 'likes' // 高評価数
-  | 'viewers'; // 閲覧数
+  | 'upVote' // 高評価数
+  | 'viewer'; // 閲覧数
  value: number;
 }

@@ -9,7 +9,6 @@ import {
  PluginStoreType,
  RequestResult
 } from '@type';
-import { filterTypes } from '@core/InitDataLoader';
 import { systemMessage } from '@core/ErrorHandler';
 import { PluginRequest, PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
@@ -87,8 +86,7 @@ export class RequestHandler {
   try {
    this.responseMap.store.set('Omiken', newOmiken);
    Object.assign(this.responseMap, {
-    Omiken: newOmiken,
-    OmikenTypesArray: filterTypes(newOmiken.types, newOmiken.rules)
+    Omiken: newOmiken
    });
    return {
     response: this.createResponse(200, 'ファイルが正常に保存されました'),

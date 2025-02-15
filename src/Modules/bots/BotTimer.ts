@@ -1,46 +1,5 @@
-// src/Modules/tasks/OmikujiSelector.ts
-import {
- CommentRulesType,
- GameType,
- OmikenRulesType,
- OmikujiType,
- RulesSubType,
- SelectOmikujiIds,
- SelectOmikujiOptions,
- TimeConfigType,
- TimerRulesType,
- VisitType
-} from '@type';
-import { ThresholdChecker } from '@components/ThresholdCheck';
-import { PlayOmikuji } from '@components/PlayOmikuji';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
-
-// おみくじセレクト
-export function selectOmikuji(
- options: SelectOmikujiOptions,
- rules: Record<string, OmikenRulesType>,
- games: Record<string, GameType>
-): SelectOmikujiIds | null {
- // ルールを順序に従ってソート
- const sortedRules = Object.values(rules).sort((a, b) => a.order - b.order);
-
- for (const rule of sortedRules) {
-  // ルールのしきい値をチェック
-  const checker = new ThresholdChecker(options, rule, games[rule.id]);
-  if (!checker.checkAll(rule.threshold)) continue;
-
-  // 有効なエントリをフィルタリング
-  const validEntries = rule.enables.filter((entry) => checker.checkAll(entry.threshold));
-
-  // 共通の抽選ロジックを使用
-  const omikuji = new PlayOmikuji(validEntries).draw() as RulesSubType<any>;
-  if (omikuji) return { omikujiId: omikuji.omikujiId, ruleId: rule.id };
- }
-
- return null;
-}
-
-// ---
+// src/Modules/bots/BotTimer.ts
+import { TimeConfigType } from '@type';
 
 // timerのセットアップ
 export class OmikujiSelectorTimer {

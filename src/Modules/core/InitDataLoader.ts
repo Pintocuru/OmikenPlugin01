@@ -6,13 +6,11 @@ import {
  GameType,
  VisitType,
  TimeConfigType,
- OmikujiSelectType,
  PluginAllType,
  ScriptsType
 } from '@type';
 import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
-import { OmikujiProcessor } from '@tasks/OmikujiProcess';
 import ElectronStore from 'electron-store';
 import fs from 'fs';
 import path from 'path';
@@ -137,19 +135,4 @@ function readJsonFile<T>(filePath: string): T | null {
   systemMessage('error', `ファイル読み込みエラー: ${filePath}`, error);
   return null;
  }
-}
-
-// timerのセットアップ
-export async function timerSetup(StoreAll: PluginAllType) {
- // timerが空の場合、処理を終了
- if (!StoreAll.Omiken.timer) return;
-
- // timerのセットアップ
- StoreAll.timerSelector.setupTimers(
-  StoreAll.Omiken.timer,
-  StoreAll.Omiken.omikujis,
-  async (result: OmikujiSelectType) => {
-   await new OmikujiProcessor(StoreAll, result).process();
-  }
- );
 }

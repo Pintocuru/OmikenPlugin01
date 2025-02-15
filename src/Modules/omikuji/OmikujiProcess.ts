@@ -11,10 +11,10 @@ import {
  SelectOmikujiOptions
 } from '@type';
 import { systemMessage } from '@core/ErrorHandler';
-import { PlaceProcess } from '@tasks/PlaceProcess';
+import { PlaceProcess } from '@omikuji/PlaceProcess';
 import { PostMessage } from '@api/PostMessage';
 
-export class OmikujiProcessor {
+export class OmikujiProcess {
  private context!: {
   game: GameType & { userStats: Record<string, UserStatsType> };
   visit?: VisitType;

@@ -1,18 +1,11 @@
-// src/Modules/tasks/CommentBotProcessor.ts
-import {
- PluginUpdateData,
- PluginMainType,
- VisitType,
- PluginAllType,
- SelectOmikujiOptions,
- SelectOmikujiOptionsComment
-} from '@type';
-import { selectOmikuji } from '@tasks/OmikujiSelector';
-import { OmikujiProcessor } from '@tasks/OmikujiProcess';
+// src/Modules/bots/BotComment.ts
+import { PluginUpdateData, VisitType, PluginAllType, SelectOmikujiOptionsComment } from '@type';
+import { OmikujiSelector } from '@omikuji/OmikujiSelector';
+import { OmikujiProcess } from '@omikuji/OmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
-export class CommentBotProcessor {
+export class BotComment {
  private visit: VisitType = {} as VisitType;
  private isFirstVisit: boolean = false;
  private isTester: boolean = false;
@@ -82,7 +75,7 @@ export class CommentBotProcessor {
    timeConfig: this.storeAll.TimeConfig
   };
   // おみくじを抽選
-  const selectOmikujiIds = selectOmikuji(options, this.storeAll.Omiken.comment, this.storeAll.Games);
+  const selectOmikujiIds = OmikujiSelector(options, this.storeAll.Omiken.comment, this.storeAll.Games);
 
   // おみくじがない場合はvisitだけ返す
   if (!selectOmikujiIds) {
@@ -98,6 +91,6 @@ export class CommentBotProcessor {
   const omikuji = this.storeAll.Omiken.omikujis[omikujiId];
 
   // Omikujiの処理
-  return new OmikujiProcessor(rule, omikuji, this.storeAll, options).process();
+  return new OmikujiProcess(rule, omikuji, this.storeAll, options).process();
  }
 }

@@ -1,11 +1,10 @@
-// src/Modules/subscribeMeta/subscribeMeta.ts
+// src/Modules/bots/BotMeta.ts
 import { PluginUpdateData, PluginMainType, VisitType } from '@type';
-import { OmikujiSelector } from '@tasks/OmikujiSelector';
-import { OmikujiProcessor } from '@tasks/OmikujiProcess';
+import { OmikujiProcess } from '@tasks/OmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 
-export class CommentBotProcessor {
+export class BotMeta {
  private visit: VisitType;
  private isFirstVisit: boolean;
  private isTester: boolean;
@@ -91,6 +90,6 @@ export class CommentBotProcessor {
   }
 
   // Omikujiの処理
-  return new OmikujiProcessor(this.storeAll, omikujiSelect, this.comment).process();
+  return new OmikujiProcess(this.storeAll, omikujiSelect, this.comment).process();
  }
 }

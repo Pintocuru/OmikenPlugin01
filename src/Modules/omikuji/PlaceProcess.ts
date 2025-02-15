@@ -1,6 +1,6 @@
 // src/Modules/tasks/PlaceProcess.ts
 import { PlaceType, PlaceValueType, OmikujiType } from '@type';
-import { PlayOmikuji } from '@components/PlayOmikuji';
+import { PlayOmikuji } from '@omikuji/PlayOmikuji';
 
 export class PlaceProcess {
  private placeholders: Record<string, string | number> = {};

@@ -1,5 +1,5 @@
 // src/Modules/components/startReadyCheck.ts
-import { ServiceAPI } from '../api/serviceAPI';
+import { ServiceAPI } from '@api/serviceAPI';
 
 // データが取得できる、または枠が作成されるまで待つ
 export async function startReadyCheck() {

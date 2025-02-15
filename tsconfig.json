@@ -15,17 +15,17 @@
       "@/*": [
         "src/*"
       ],
-      "@core/*": [
-        "src/Modules/core/*"
-      ],
-      "@tasks/*": [
-        "src/Modules/tasks/*"
-      ],
       "@api/*": [
         "src/Modules/api/*"
       ],
-      "@components/*": [
-        "src/Modules/components/*"
+      "@bots/*": [
+        "src/Modules/bots/*"
+      ],
+      "@core/*": [
+        "src/Modules/core/*"
+      ],
+      "@omikuji/*": [
+        "src/Modules/omikuji/*"
       ],
       "@type": [
         "src/Modules/type.ts"
