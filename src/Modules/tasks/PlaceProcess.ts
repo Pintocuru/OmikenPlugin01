@@ -5,8 +5,8 @@ import { PlayOmikuji } from '@components/PlayOmikuji';
 export class PlaceProcess {
  private placeholders: Record<string, string | number> = {};
 
- constructor(private selectOmikuji: OmikujiType) {
-  this.selectOmikuji = structuredClone(selectOmikuji);
+ constructor(private omikuji: OmikujiType) {
+  this.omikuji = structuredClone(omikuji);
  }
 
  // placeholdersに入れる
@@ -29,12 +29,13 @@ export class PlaceProcess {
    }
   };
 
-  this.selectOmikuji.placeIds.forEach((id) => processPlace(id));
+  this.omikuji.placeIds.forEach((id) => processPlace(id));
  }
 
  // プレースホルダーを置き換えし、selectOmikujiを返す
  replacementPlace(): OmikujiType {
-  const replacePlaceholders = (text: string = ''): string => {
+  const replacePlaceholders = (text: string | null | undefined): string => {
+   if (!text) return '';
    let result = text;
    const pattern = /<<(.*?)>>/g;
 
@@ -47,8 +48,20 @@ export class PlaceProcess {
   };
 
   return {
-   ...this.selectOmikuji,
-   post: this.selectOmikuji.post.map((post) => ({
+   ...this.omikuji,
+   addStatus:
+    this.omikuji.addStatus === null
+     ? null
+     : this.omikuji.addStatus === undefined
+     ? undefined
+     : replacePlaceholders(this.omikuji.addStatus),
+   addPoints:
+    this.omikuji.addPoints === null
+     ? null
+     : this.omikuji.addPoints === undefined
+     ? undefined
+     : replacePlaceholders(this.omikuji.addPoints),
+   post: this.omikuji.post.map((post) => ({
     ...post,
     content: replacePlaceholders(post.content),
     party: replacePlaceholders(post.party)

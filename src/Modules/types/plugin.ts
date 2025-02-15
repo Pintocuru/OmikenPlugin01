@@ -66,7 +66,6 @@ interface DrawsType {
 // おみくじデータ
 export interface GameType extends DrawsType {
  ruleId: string; // rulesのID(key)
- settings: ScriptParam[]; // scriptParamsで設定したisEverのデータが入る
  userStats: Record<string, UserStatsType>;
  currentUserIds: string[]; // ユーザー履歴
  [key: string]: any; // scriptで自由に使えるObject

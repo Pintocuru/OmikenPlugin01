@@ -1,5 +1,6 @@
 // src/types/Omiken.ts
 import { CommentThreshold, MetaThreshold, ThresholdType, TimerThreshold } from './OmikenThresholdType';
+import { ScriptParam } from './preset';
 
 // Omiken:おみくじ&初見判定ちゃんBOT用型定義
 export interface OmikenType {
@@ -46,7 +47,7 @@ interface CommonRuleType extends BaseType {
  color: string; // エディターでの識別用カラー
  script?: {
   scriptId: string; // 使用するアドオンのid
-  settings: Record<string, string | number | boolean>; // アドオンの設定
+  settings: Array<ScriptParam<string | number | boolean>>; // アドオンの設定
  };
 }
 
@@ -88,10 +89,9 @@ export interface RulesSubType<T extends ThresholdType> {
 
 // おみくじメッセージの型定義
 export interface OmikujiType extends BaseType {
- addStatus?: string | null; // visit.statusの変更(nullで消去)
- addPoints?: number | null; // visit.pointの変更(nullで消去)
- addPointsOperation?: 'add' | 'subtract' | 'replace'; // pointプロパティの操作方法(default:add)
- scriptParams: Record<string, string | number | boolean> | null; // 外部スクリプトに渡す引数(Scriptから取得する)
+ addStatus?: `<<${string}>>` | string | null; // visit.statusの変更(nullで消去)
+ addPoints?: `<<${string}>>` | string | null; // visit.pointの変更(nullで消去)
+ scriptParams: Array<ScriptParam<string | number | boolean>> | null; // 外部スクリプトに渡す引数(Scriptから取得する)
  placeIds: string[]; // 使用するプレースホルダーのid
  post: OneCommePostType[];
 }

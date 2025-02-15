@@ -51,9 +51,10 @@ export interface ScriptsType extends PresetType {
 
 // funcの引数の型定義
 export type OmikujiFuncParamType = (
+ options: SelectOmikujiOptions,
  game: GameType,
- params: Array<ScriptParam<string | number | boolean>>,
- options: SelectOmikujiOptions
+ settings: Array<ScriptParam<string | number | boolean>>,
+ params: Array<ScriptParam<string | number | boolean>>
 ) => OmikujiFuncReturnType;
 
 // funcの返り値

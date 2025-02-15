@@ -1,11 +1,7 @@
 // src/Modules/tasks/OmikujiProcess.ts
-
 import {
  GameType,
  PluginUpdateData,
- ScriptParam,
- OmikujiFuncReturnType,
- ScriptsType,
  PluginMainType,
  PluginStoreType,
  UserStatsType,
@@ -17,261 +13,104 @@ import {
 import { systemMessage } from '@core/ErrorHandler';
 import { PlaceProcess } from '@tasks/PlaceProcess';
 import { PostMessage } from '@api/PostMessage';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
-
-// 変更できる部分の型定義
-type OmikujiContext = {
- game: GameType & {
-  userStats: Record<string, UserStatsType>;
- };
- visit?: VisitType;
-};
 
 export class OmikujiProcessor {
- private context: OmikujiContext = {} as OmikujiContext;
- private placeProcessor?: PlaceProcess;
+ private context!: {
+  game: GameType & { userStats: Record<string, UserStatsType> };
+  visit?: VisitType;
+ };
 
  constructor(
   private readonly rule: OmikenRulesType,
   private readonly omikuji: OmikujiType,
-  private readonly storeAll: PluginMainType,
-  private readonly options: SelectOmikujiOptions
+  private readonly store: PluginMainType,
+  private readonly options: SelectOmikujiOptions,
+  private placeProcessor: PlaceProcess = new PlaceProcess(omikuji)
  ) {
-  this.placeProcessor = new PlaceProcess(omikuji);
-  this.setupContext();
- }
-
- // ユーザーStats取得用のgetter
- private getCurrentUserStats(): UserStatsType | undefined {
-  if (this.options.type !== 'comment') return undefined;
-  const userId = this.options.comment.data.userId;
-  return this.context.game.userStats[userId];
- }
-
- // ユーザーStats更新用のメソッド
- private updateUserStats(updates: Partial<UserStatsType>): void {
-  if (this.options.type !== 'comment') return undefined;
-  const userId = this.comment.data.userId;
-
-  this.context.game.userStats[userId] = {
-   ...this.getCurrentUserStats(),
-   ...updates,
-   userId
-  };
- }
-
- private setupContext() {
-  // ゲームの初期化
-  this.context.game = this.storeAll.Games[this.rule.id] ?? {
-   ruleId: this.rule.id,
-   draws: 0,
-   totalDraws: 0,
-   settings: [],
-   currentUserIds: [],
-   userStats: {}
-  };
-
-  // 訪問データの設定
-  if (this.options.type === 'comment') {
-   const userId = this.options.comment.data.userId;
-   this.context.visit = this.storeAll.Visits[userId];
-
-   // userStatsの初期化（必要な場合）
-   if (!this.getCurrentUserStats()) {
-    this.updateUserStats({
-     userId: this.options.comment.data.userId,
-     name: this.options.comment.data.name,
-     draws: 0,
-     totalDraws: 0
-    });
-   }
-  }
+  this.initializeContext();
  }
 
  async process(): Promise<Partial<PluginStoreType>> {
-  this.updateDrawsStatus();
+  this.updateGameStats();
   await this.executeScript();
-  this.processPlaceData();
-  this.postFinalMessages();
-  this.storeChanges();
-  return this.pluginsUpdate();
+  this.updatePlaceData();
+  await this.postFinalMessages();
+  this.persistChanges();
+  return this.createPluginUpdate();
  }
 
- private updateDrawsStatus() {
-  const userId = this.options.comment?.data.userId;
-  if (!userId) return;
+ private initializeContext() {
+  const { Games, Visits } = this.store;
+  const { id } = this.rule;
+  const { type, comment } = this.options;
 
-  // game情報の更新
-  this.context.game = {
-   ...this.context.game,
-   ruleId: this.rule.id,
-   draws: (this.context.game.draws ?? 0) + 1,
-   totalDraws: (this.context.game.totalDraws ?? 0) + 1,
-   currentUserIds: [userId, ...(this.context.game.currentUserIds || [])].slice(0, 10)
+  this.context = {
+   game: Games[id] ?? { ruleId: id, draws: 0, totalDraws: 0, settings: [], currentUserIds: [], userStats: {} },
+   visit: type === 'comment' ? Visits[comment.data.userId] : undefined
   };
 
-  // userStatsの更新
-  if (this.options.type === 'comment') {
-   // 初期ポイントを設定
-   let newPoint = this.options.visit.point ?? 0;
-
-   // pointOperation に応じたポイントの操作
-   if (this.omikuji.addPoints) {
-    switch (this.omikuji.addPointsOperation) {
-     case 'subtract':
-      newPoint -= this.omikuji.addPoints;
-      break;
-     case 'replace':
-      newPoint = this.omikuji.addPoints;
-      break;
-     default:
-      newPoint += this.omikuji.addPoints; // デフォルトは add として扱う
-      break;
-    }
-   }
-
-   this.updateUserStats({
-    userId: this.options.comment.data.userId,
-    name: this.options.comment.data.name,
-    draws: (this.getCurrentUserStats()?.draws ?? 0) + 1,
-    totalDraws: (this.getCurrentUserStats()?.totalDraws ?? 0) + 1,
-    ...(this.omikuji.addStatus && { status: this.omikuji.addStatus }),
-    ...(this.omikuji.addPoints && { point: newPoint })
-   });
+  if (type === 'comment' && !this.getUserStats()) {
+   this.updateUserStats({ userId: comment.data.userId, name: comment.data.name, draws: 0, totalDraws: 0 });
   }
  }
 
- // アドオン
+ private getUserStats(): UserStatsType | undefined {
+  return this.options.type === 'comment' ? this.context.game.userStats[this.options.comment.data.userId] : undefined;
+ }
+
+ private updateGameStats() {
+  if (this.options.type !== 'comment') return;
+
+  const { userId } = this.options.comment.data;
+  const { game } = this.context;
+
+  this.context.game = {
+   ...game,
+   draws: (game.draws ?? 0) + 1,
+   totalDraws: (game.totalDraws ?? 0) + 1,
+   currentUserIds: [userId, ...(game.currentUserIds ?? [])].slice(0, 10)
+  };
+
+  this.updateUserStats({
+   draws: (this.getUserStats()?.draws ?? 0) + 1,
+   totalDraws: (this.getUserStats()?.totalDraws ?? 0) + 1
+  });
+ }
+
  private async executeScript() {
-  if (!this.rule.script) return;
+  const { script } = this.rule;
+  if (!script) return;
 
-  // アドオンの実行
-  const scriptResult = await this.scriptsCall();
+  try {
+   const { scriptId, settings } = script;
+   const scriptData = this.store.Scripts[scriptId];
 
-  if (scriptResult) {
-   // プレース情報の更新
-   this.placeProcessor.updatePlace(scriptResult.placeholder);
-
-   // postArrayがあるなら、わんコメに投稿
-   if (scriptResult.postArray?.length > 0) {
-    new PostMessage(scriptResult.postArray, this.storeAll.Charas).post();
+   if (!scriptData?.OmikujiFunc) {
+    systemMessage('warn', '外部スクリプトが読み込めません', scriptData);
+    return;
    }
 
-   // game情報を更新
-   if (scriptResult.game) this.context.game = scriptResult.game;
-  }
- }
+   const result = this.omikuji.scriptParams
+    ? scriptData.OmikujiFunc(this.options, this.context.game, settings, this.omikuji.scriptParams)
+    : undefined;
 
- // アドオンの実行
- private async scriptsCall(): Promise<OmikujiFuncReturnType | undefined> {
-  if (!this.rule.script) return;
-  try {
-   const { scriptId, settings } = this.rule.script;
-   const params = this.omikuji.scriptParams;
-   const scriptData = this.storeAll.Scripts[scriptId];
-
-   if (!this.isValidScript(scriptData)) return undefined;
-
-   const processedParams = this.processScriptParams(scriptData.params, params, this.context.game.settings);
-
-   return scriptData.OmikujiFunc(this.context.game, this.comment, processedParams);
-  } catch (error) {
-   this.handleScriptError(error);
-   return undefined;
-  }
- }
-
- private processScriptParams(
-  params: Array<ScriptParam<string | number | boolean>>,
-  inputParams: Record<string, string | number | boolean>,
-  settings: Array<ScriptParam<string | number | boolean>> = []
- ): { [id: string]: string | number | boolean } {
-  // 永続化設定の更新
-  this.updateGameSettings(params, settings);
-
-  // パラメータの型変換
-  const convertedParams = this.convertInputParams(params, inputParams);
-
-  // パラメータの統合（優先順位: converted > settings > default）
-  return params.reduce(
-   (acc, param) => ({
-    ...acc,
-    [param.id]: convertedParams[param.id] ?? settings.find((s) => s.id === param.id)?.value ?? param.value
-   }),
-   {}
-  );
- }
-
- // 設定の更新
- private updateGameSettings(scriptParams: ScriptParam[], settings: ScriptParam[]): void {
-  const mergedSettings = new Map(
-   [...settings, ...scriptParams.filter((param) => param.isEver)].map((param) => [param.id, param])
-  );
-
-  this.context.game.settings = Array.from(mergedSettings.values());
- }
-
- private convertInputParams(
-  scriptParams: ScriptParam[],
-  inputParams: Record<string, string | number | boolean>
- ): { [id: string]: string | number | boolean } {
-  const result: { [id: string]: string | number | boolean } = {};
-
-  for (const param of scriptParams) {
-   if (inputParams[param.id]) {
-    result[param.id] = this.convertScriptParam(inputParams[param.id], param.type);
-   }
-  }
-
-  return result;
- }
-
- private isValidScript(scriptData: ScriptsType): boolean {
-  if (!scriptData || typeof scriptData.OmikujiFunc !== 'function') {
-   systemMessage('warn', `外部スクリプトが読み込めません`, scriptData);
-   return false;
-  }
-  return true;
- }
-
- private handleScriptError(e: unknown): void {
-  systemMessage('error', `外部スクリプトエラー`, e);
-  throw new Error();
- }
-
- // typeを参照し、paramsの文字列をnumber/booleanに変換
- private convertScriptParam(
-  value: string | number | boolean,
-  type: ScriptParam['type'] = 'string'
- ): string | number | boolean {
-  try {
-   switch (type) {
-    case 'number':
-     const num = Number(value);
-     return isNaN(num) ? 0 : num;
-    case 'boolean':
-     if (typeof value === 'string') {
-      return ['true', '1', 'yes'].includes(value.toLowerCase());
-     }
-    default:
-     return value;
+   if (result) {
+    this.placeProcessor.updatePlace(result.placeholder);
+    if (result.postArray?.length) await new PostMessage(result.postArray, this.store.Charas).post();
+    if (result.game) this.context.game = result.game;
    }
   } catch (error) {
-   console.error(`Parameter conversion error: ${error}`);
-   return value;
+   systemMessage('error', '外部スクリプトエラー', error);
+   throw new Error();
   }
  }
 
- // プレースホルダーの値を設定
- private processPlaceData() {
-  const { placeIds } = this.omikuji;
-  const currentUserStats = this.getCurrentUserStats();
-  const commentData = this.comment?.data;
-  const commentMeta = this.comment?.meta;
+ private updatePlaceData() {
+  if (this.omikuji.placeIds) this.placeProcessor.placeDataHandle(this.store.Omiken.places);
 
-  if (placeIds) {
-   this.placeProcessor.placeDataHandle(this.storeAll.Omiken.places);
-  }
+  const currentUserStats = this.getUserStats();
+  const commentData = this.options.comment?.data;
+  const commentMeta = this.options.comment?.meta;
 
   const placeholder = {
    gameDraws: this.context.game.draws ?? 0,
@@ -281,50 +120,81 @@ export class OmikujiProcessor {
      draws: currentUserStats?.draws ?? 0,
      totalDraws: currentUserStats?.totalDraws ?? 0,
      user: commentData.displayName || commentData.name,
-     tc: commentMeta?.tc,
-     lc: commentMeta?.lc,
-     round: commentMeta?.no
+     tc: commentMeta.tc,
+     lc: commentMeta.lc,
+     round: commentMeta.no
     })
   };
 
   this.placeProcessor.updatePlace(placeholder);
  }
 
- private storeChanges() {
-  // 永続化
-  this.storeAll.store.set(`Games.${this.omikuji.selectRuleId}`, this.context.game);
+ private async postFinalMessages() {
+  const finalOmikuji = this.placeProcessor.replacementPlace();
+  await new PostMessage(finalOmikuji.post, this.store.Charas).post();
 
-  if (this.comment && this.context.visit) {
-   this.storeAll.store.set(`Visits.${this.comment.data.userId}`, this.context.visit);
+  if (this.context.visit) {
+   if (finalOmikuji.addStatus !== undefined) this.context.visit.status = finalOmikuji.addStatus ?? '';
+   if (finalOmikuji.addPoints !== undefined) this.updateVisitPoints(finalOmikuji.addPoints);
   }
  }
 
- private pluginsUpdate(): PluginUpdateData {
-  const result: PluginUpdateData = {
-   Games: {
-    ...this.storeAll.Games,
-    [this.omikuji.selectRuleId]: this.context.game
+ private updateVisitPoints(addPoints: string | null) {
+  if (!this.context.visit) return;
+
+  let point = this.context.visit.point;
+  const match = addPoints?.match(/^([+=-]?)(\d+)$/);
+
+  if (match) {
+   const [_, operation, value] = match;
+   const numValue = parseInt(value, 10);
+
+   switch (operation) {
+    case '-':
+     point -= numValue;
+     break;
+    case '=':
+     point = numValue;
+     break;
+    default:
+     point += numValue;
    }
+  } else if (addPoints !== null) {
+   const numValue = parseInt(addPoints, 10);
+   if (!isNaN(numValue)) point += numValue;
+  } else {
+   point = 0;
+  }
+
+  this.context.visit.point = point;
+ }
+
+ private persistChanges() {
+  this.store.store.set(`Games.${this.rule.id}`, this.context.game);
+  if (this.options.type === 'comment' && this.context.visit) {
+   this.store.store.set(`Visits.${this.options.comment.data.userId}`, this.context.visit);
+  }
+ }
+
+ private createPluginUpdate(): PluginUpdateData {
+  const result: PluginUpdateData = {
+   Games: { ...this.store.Games, [this.rule.id]: this.context.game }
   };
 
-  if (this.comment && this.context.visit) {
-   result.TimeConfig = {
-    ...this.storeAll.TimeConfig,
-    lastTime: Date.now(),
-    lastUserId: this.comment.data.userId
-   };
-   result.Visits = {
-    ...this.storeAll.Visits,
-    [this.comment.data.userId]: { ...this.context.visit }
-   };
+  if (this.options.type === 'comment' && this.context.visit) {
+   result.TimeConfig = { ...this.store.TimeConfig, lastTime: Date.now() };
+   result.Visits = { ...this.store.Visits, [this.options.comment.data.userId]: { ...this.context.visit } };
   }
 
   return result;
  }
 
- private async postFinalMessages() {
-  // プレースホルダーを置き換え、投稿するデータを用意
-  const finalOmikuji = this.placeProcessor.replacementPlace();
-  await new PostMessage(finalOmikuji.post, this.storeAll.Charas).post();
+ private updateUserStats(updates: Partial<UserStatsType>) {
+  if (this.options.type !== 'comment') return;
+
+  const { userId } = this.options.comment.data;
+  const current = this.getUserStats() as UserStatsType;
+
+  this.context.game.userStats[userId] = { ...current, ...updates, userId };
  }
 }
