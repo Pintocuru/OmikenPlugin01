@@ -1,6 +1,6 @@
 // src/Modules/tasks/OmikujiSelector.ts
 import { GameType, OmikenRulesType, RulesSubType, SelectOmikujiIds, SelectOmikujiOptions } from '@type';
-import { ThresholdChecker } from '@omikuji/ThresholdCheck';
+import { ThresholdChecker } from '@omikuji/ThresholdChecker';
 import { PlayOmikuji } from '@omikuji/PlayOmikuji';
 
 // おみくじセレクト

@@ -1,12 +1,16 @@
 // src/Modules/omikuji/ThresholdMetaChecker.ts
 
-import { MetaCriterion, MetaCountCondition, MetaDynamicCondition, DrawsCondition } from '@type';
+import { MetaCriterion, MetaCountCondition, MetaDynamicCondition, DrawsCondition, GameType } from '@type';
 import { ServiceMeta } from '@onecomme.com/onesdk/types/Service';
 import { TimeConfigType } from '@type';
 import { matchIsCountHelper } from './ThresholdHelpers';
 
 export class ThresholdMetaChecker {
- constructor(private readonly meta: ServiceMeta | undefined, private readonly timeConfig: TimeConfigType) {}
+ constructor(
+  private readonly meta: ServiceMeta | undefined,
+  private readonly timeConfig: TimeConfigType,
+  private readonly game?: GameType
+ ) {}
 
  checkMetaCriterion(criterion: MetaCriterion): boolean {
   const conditionMap = {

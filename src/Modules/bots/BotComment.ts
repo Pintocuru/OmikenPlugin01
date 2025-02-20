@@ -75,7 +75,7 @@ export class BotComment {
    timeConfig: this.storeAll.TimeConfig
   };
   // おみくじを抽選
-  const selectOmikujiIds = OmikujiSelector(options, this.storeAll.Omiken.comment, this.storeAll.Games);
+  const selectOmikujiIds = OmikujiSelector(options, this.storeAll.Omiken.comments, this.storeAll.Games);
 
   // おみくじがない場合はvisitだけ返す
   if (!selectOmikujiIds) {
@@ -87,7 +87,7 @@ export class BotComment {
   }
 
   const { ruleId, omikujiId } = selectOmikujiIds;
-  const rule = this.storeAll.Omiken[options.type][ruleId];
+  const rule = this.storeAll.Omiken.comments[ruleId];
   const omikuji = this.storeAll.Omiken.omikujis[omikujiId];
 
   // Omikujiの処理

@@ -1,29 +1,35 @@
-// src/types/OmikenThresholdType.ts
+// src/types/OmikenThresholdTypes.ts
+import { RuleCategory } from './OmikenTypes';
 
 ///////////////////////////////////
 // Threshold(rules,omikuji)
 ///////////////////////////////////
 
-export type ThresholdType = CommentThreshold | TimerThreshold | MetaThreshold;
-export type CriterionType = CommentCriterion | TimerCriterion | MetaCriterion;
+export type ThresholdTypesMap<T extends RuleCategory> = {
+ comments: CommentThreshold;
+ timers: TimerThreshold;
+ metas: MetaThreshold;
+}[T];
+
+export type CriterionTypesMap<T extends RuleCategory> = ThresholdTypesMap<T>['criteria'][number];
 
 // コメント用Threshold
 export interface CommentThreshold {
- type: 'comment';
+ type: 'comments';
  isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
  criteria: CommentCriterion[];
 }
 
 // タイマー用Threshold
 export interface TimerThreshold {
- type: 'timer';
+ type: 'timers';
  isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
  criteria: TimerCriterion[];
 }
 
 // メタ用Threshold
 export interface MetaThreshold {
- type: 'meta';
+ type: 'metas';
  isAnd?: boolean; // 次の条件との関係 (true:AND/false:OR)
  criteria: MetaCriterion[];
 }
@@ -53,19 +59,6 @@ export const CommentConditionTypes = {
  MATCH: 'match'
 } as const;
 export type CommentConditionType = (typeof CommentConditionTypes)[keyof typeof CommentConditionTypes];
-
-// Draws:過去にヒットしたおみくじの回数を数える
-export interface DrawsCondition {
- comparison:
-  | 'min' // 数値以下
-  | 'max' // 数値以上
-  | 'equal' // 等しい
-  | 'loop'; // 数値をvalueで割った数
- unit:
-  | 'draws' // その枠でrulesに該当した回数(個人)
-  | 'gameDraws'; // その配信枠でrulesに該当した回数(合計)
- value: number;
-}
 
 // syoken:初見・コメント履歴の種別
 export const SyokenCondition = {
@@ -98,13 +91,24 @@ export const GiftCondition = {
 } as const;
 export type GiftCondition = (typeof GiftCondition)[keyof typeof GiftCondition];
 
+type ComparisonType =
+ | 'min' // 数値以下
+ | 'max' // 数値以上
+ | 'equal' // 等しい
+ | 'loop'; // 数値をvalueで割った数
+
+// Draws:過去にヒットしたおみくじの回数を数える
+export interface DrawsCondition {
+ comparison: ComparisonType;
+ unit:
+  | 'draws' // その枠でrulesに該当した回数(個人)
+  | 'gameDraws'; // その配信枠でrulesに該当した回数(合計)
+ value: number;
+}
+
 // count:数値を参照する
 export interface CountCondition {
- comparison:
-  | 'min' // 数値以下
-  | 'max' // 数値以上
-  | 'equal' // 等しい
-  | 'loop'; // 数値をvalueで割った数
+ comparison: ComparisonType;
  unit:
   | 'point' // ユーザーのvisit.point
   | 'lc' // 配信枠のコメント数(プラグインで独自に付与)
@@ -144,11 +148,7 @@ export type MetaConditionType = 'draws' | 'metaCount' | 'dynamic';
 
 // metaCount:数値を参照する
 export interface MetaCountCondition {
- comparison:
-  | 'min' // 数値以下
-  | 'max' // 数値以上
-  | 'equal' // 等しい
-  | 'loop'; // 数値をvalueで割った数
+ comparison: ComparisonType;
  unit:
   | 'streamDuration' // 配信開始時間から経過した時間(分)
   | 'totalGifts' // 配信枠でのギフト総額

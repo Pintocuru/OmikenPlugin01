@@ -7,7 +7,7 @@ import {
  VisitType,
  TimeConfigType,
  PluginAllType,
- ScriptsType
+ ScriptType
 } from '@type';
 import { SETTINGS } from '@/Modules/settings';
 import { systemMessage } from '@core/ErrorHandler';
@@ -30,7 +30,7 @@ export class InitDataLoader {
     Omiken: this.store.get('Omiken', {}) as OmikenType,
     Presets: this.loadDirectoryContents<OmikenType>('Presets', 'json'),
     Charas: this.loadDirectoryContents<CharaType>('Charas', 'json'),
-    Scripts: this.loadDirectoryContents<ScriptsType>(SETTINGS.ScriptsRoot, 'js'),
+    Scripts: this.loadDirectoryContents<ScriptType>(SETTINGS.ScriptsRoot, 'js'),
     Visits: this.store.get('Visits', {}) as Record<string, VisitType>,
     Games: this.initializeGames(),
     TimeConfig: this.initializeTimeConfig()

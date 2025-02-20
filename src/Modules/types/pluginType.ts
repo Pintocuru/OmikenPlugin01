@@ -1,11 +1,11 @@
-// src/types/plugin.ts
-import { OmikenType, OmikujiType } from './Omiken';
-import { CharaType, ScriptParam, ScriptsType } from './preset';
+// src/types/pluginType.ts
+import { OmikenType, RuleCategory } from './OmikenTypes';
+import { CharaType, ScriptType } from './preset';
+import { EditorSettingsType } from './editor';
 import { Service, ServiceMeta } from '@onecomme.com/onesdk/types/Service';
 import { BaseResponse } from '@onecomme.com/onesdk/types/BaseResponse';
 import { Colors, Comment } from '@onecomme.com/onesdk/types/Comment';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
-import { PluginResponse } from '@onecomme.com/onesdk/types/Plugin';
 
 // ---------------------------------------------------
 
@@ -14,13 +14,14 @@ export interface PluginStoreType {
  Omiken: OmikenType;
  Visits: Record<string, VisitType>;
  Games: Record<string, GameType>;
+ EditorSettings: EditorSettingsType;
 }
 
 // おみくじBOT用の型
 export interface PluginMainType extends PluginStoreType {
  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  Charas: Record<string, CharaType>;
- Scripts: Record<string, ScriptsType>;
+ Scripts: Record<string, ScriptType>;
  TimeConfig: TimeConfigType;
 }
 
@@ -29,7 +30,7 @@ export interface PluginApiType extends PluginStoreType {
  store: any; // ElectronStore不具合のためany ElectronStore<StoreType>
  Presets: Record<string, OmikenType>;
  Charas: Record<string, CharaType>;
- Scripts: Record<string, ScriptsType>;
+ Scripts: Record<string, ScriptType>;
 }
 
 // 全体設定用の型
@@ -87,30 +88,30 @@ export interface UserStatsType extends DrawsType {
 // ---
 
 // おみくじ抽選で使用するデータ群
-export type SelectOmikujiOptions = SelectOmikujiOptionsComment | SelectOmikujiOptionsTimer | SelectOmikujiOptionsMeta;
+export type SelectOmikujiOptions<T extends RuleCategory> = SelectOmikujiOptionsMap[T];
 
-export interface SelectOmikujiOptionsComment {
- type: 'comment';
- comment: Comment;
- visit: VisitType;
- meta?: never;
- timeConfig: TimeConfigType;
-}
-
-export interface SelectOmikujiOptionsTimer {
- type: 'timer';
- comment?: never;
- visit?: never;
- meta?: never;
- timeConfig: TimeConfigType;
-}
-
-export interface SelectOmikujiOptionsMeta {
- type: 'meta';
- comment?: never;
- visit?: never;
- meta: ServiceMeta;
- timeConfig: TimeConfigType;
+export interface SelectOmikujiOptionsMap {
+ comments: {
+  type: 'comment';
+  comment: Comment;
+  visit: VisitType;
+  meta?: never;
+  timeConfig: never;
+ };
+ timers: {
+  type: 'timer';
+  comment?: never;
+  visit?: never;
+  meta?: never;
+  timeConfig: TimeConfigType;
+ };
+ metas: {
+  type: 'meta';
+  comment?: never;
+  visit?: never;
+  meta: ServiceMeta;
+  timeConfig: never;
+ };
 }
 
 // 選択したおみくじ
@@ -170,87 +171,4 @@ export interface SendTestCommentType {
  speech: boolean;
  username: string;
  comment: string;
-}
-
-// ---
-
-// APIの返り値の型定義
-export type RequestResult = {
- response: PluginResponse;
- data?: Partial<PluginApiType>;
-};
-
-// API用
-
-// パラメータの型定義
-export type ParamsType =
- | PingModeParams
- | DataModeParams
- | AllDataModeParams
- | StoreModeParams
- | BackupModeParams
- | AddonModeParams;
-
-// Ping用型定義
-interface PingModeParams {
- method: 'GET';
- mode: Mode.Ping;
- type?: never;
-}
-
-// データ取得用型定義
-interface DataModeParams {
- method: 'GET';
- mode: Mode.Data;
- type: DataType.Omiken | DataType.Presets | DataType.Charas | DataType.Scripts | DataType.Visits | DataType.Games;
-}
-
-// 一括でのデータ取得用型定義
-interface AllDataModeParams {
- method: 'GET';
- mode: Mode.AllData;
- type?: never;
-}
-
-// ストア（永続化）用型定義
-interface StoreModeParams {
- method: 'POST';
- mode: Mode.Store;
- type: DataType.Omiken | DataType.Visits | DataType.Games;
-}
-
-// バックアップ用型定義
-interface BackupModeParams {
- method: 'POST';
- mode: Mode.Backup;
- type: DataType.Omiken | DataType.Presets;
-}
-
-// アドオン用型定義
-export interface AddonModeParams {
- method: 'GET' | 'POST' | 'PUT' | 'DELETE';
- mode: Mode.Addon;
- type: never;
- scriptId: string; // Scripts にある script.id を指定
- ruleId?: string; // Games にある rule.id を指定（省略可）
-}
-
-// モードを定義
-export enum Mode {
- Ping = 'ping', // ping取得
- Data = 'data', // 各種データ取得
- AllData = 'allData', // すべてのデータ取得(エディター用)
- Store = 'store', // おみくじデータの永続化(エディター用)
- Backup = 'backup', // バックアップ(エディター用)
- Addon = 'addon' // アドオン用
-}
-
-// データの種類を定義
-export enum DataType {
- Omiken = 'Omiken', // おみくじデータ
- Presets = 'Presets', // preset(おみくじデータ)
- Charas = 'Charas', // キャラデータ
- Scripts = 'Scripts', // スクリプト
- Visits = 'Visits', // 個人データ
- Games = 'Games' // スクリプトデータ
 }

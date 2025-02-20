@@ -1,6 +1,6 @@
 // src/Modules/bots/BotMeta.ts
 import { PluginUpdateData, PluginMainType, VisitType } from '@type';
-import { OmikujiProcess } from '@tasks/OmikujiProcess';
+import { OmikujiProcess } from '@omikuji/OmikujiProcess';
 import { UserNameData } from '@onecomme.com/onesdk/types/UserData';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 

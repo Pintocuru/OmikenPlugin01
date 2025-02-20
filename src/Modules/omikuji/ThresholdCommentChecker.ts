@@ -8,7 +8,8 @@ import {
  CountCondition,
  MatchCondition,
  TimeConfigType,
- GameType
+ GameType,
+ VisitType
 } from '@type';
 import { Comment } from '@onecomme.com/onesdk/types/Comment';
 import { matchRegexPattern } from './ThresholdRegexUtils';
@@ -18,7 +19,8 @@ export class ThresholdCommentChecker {
  constructor(
   private readonly comment: Comment | undefined,
   private readonly timeConfig: TimeConfigType,
-  private readonly game?: GameType
+  private readonly game?: GameType,
+  private readonly visit?: VisitType
  ) {}
 
  checkCommentCriterion(criterion: CommentCriterion): boolean {
@@ -112,7 +114,7 @@ export class ThresholdCommentChecker {
 
  // 数値を参照する
  private matchIsCount(count: CountCondition = { comparison: 'max', unit: 'lc', value: 1 }): boolean {
-  if (this.options.type !== 'comment') return false;
+  if (!this.comment) return false;
 
   const { lc = 0, tc = 0, interval = 0 } = this.comment?.meta ?? {};
   const { point = 0 } = this.visit ?? {};
@@ -130,7 +132,7 @@ export class ThresholdCommentChecker {
 
  // 文字列を参照する
  private matchIsMatch(match: MatchCondition = { target: 'comment', value: [] }): boolean {
-  if (this.options.type !== 'comment') return false;
+  if (!this.comment) return false;
 
   const { comment = '', name = '', displayName = '' } = this.comment?.data ?? {};
   const { status = '' } = this.visit ?? {};

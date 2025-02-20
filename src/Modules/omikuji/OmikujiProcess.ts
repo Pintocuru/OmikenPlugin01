@@ -7,8 +7,9 @@ import {
  UserStatsType,
  VisitType,
  OmikujiType,
- OmikenRulesType,
- SelectOmikujiOptions
+ SelectOmikujiOptions,
+ RuleCategory,
+ RulesTypeMap
 } from '@type';
 import { systemMessage } from '@core/ErrorHandler';
 import { PlaceProcess } from '@omikuji/PlaceProcess';
@@ -21,10 +22,10 @@ export class OmikujiProcess {
  };
 
  constructor(
-  private readonly rule: OmikenRulesType,
+  private readonly rule: RulesTypeMap<RuleCategory>,
   private readonly omikuji: OmikujiType,
   private readonly store: PluginMainType,
-  private readonly options: SelectOmikujiOptions,
+  private readonly options: SelectOmikujiOptions<RuleCategory>,
   private placeProcessor: PlaceProcess = new PlaceProcess(omikuji)
  ) {
   this.initializeContext();
@@ -77,31 +78,34 @@ export class OmikujiProcess {
   });
  }
 
- private async executeScript() {
+ private async executeScript(): Promise<void> {
   const { script } = this.rule;
   if (!script) return;
 
+  const { scriptId, settings } = script;
+  const { OmikujiFunc } = this.store.Scripts[scriptId];
+
+  if (!OmikujiFunc) {
+   systemMessage('warn', '外部スクリプトが読み込めません');
+   return;
+  }
+
+  const { isRunScript, scriptParams } = this.omikuji;
+  if (!isRunScript || !scriptParams) return;
+
   try {
-   const { scriptId, settings } = script;
-   const scriptData = this.store.Scripts[scriptId];
+   const result = OmikujiFunc(this.options, this.context.game, settings, scriptParams[scriptId]);
+   if (!result) return;
 
-   if (!scriptData?.OmikujiFunc) {
-    systemMessage('warn', '外部スクリプトが読み込めません', scriptData);
-    return;
-   }
-
-   const result = this.omikuji.scriptParams
-    ? scriptData.OmikujiFunc(this.options, this.context.game, settings, this.omikuji.scriptParams)
-    : undefined;
-
-   if (result) {
-    this.placeProcessor.updatePlace(result.placeholder);
-    if (result.postArray?.length) await new PostMessage(result.postArray, this.store.Charas).post();
-    if (result.game) this.context.game = result.game;
-   }
+   // わんコメへの投稿
+   if (result.postArray?.length) await new PostMessage(result.postArray, this.store.Charas).post();
+   // プレースホルダーの更新
+   this.placeProcessor.updatePlace(result.placeholder);
+   // セーブデータの更新
+   if (result.game) this.context.game = result.game;
   } catch (error) {
-   systemMessage('error', '外部スクリプトエラー', error);
-   throw new Error();
+   systemMessage('error', '外部スクリプトの実行中にエラーが発生しました', error);
+   throw new Error('外部スクリプトの実行に失敗しました');
   }
  }
 

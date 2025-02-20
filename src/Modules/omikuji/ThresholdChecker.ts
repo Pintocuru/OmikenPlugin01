@@ -1,26 +1,12 @@
 // src/Modules/omikuji/ThresholdCheck.ts
 import {
- AccessCondition,
- CommentCriterion,
- CountCondition,
- CriterionType,
- DrawsCondition,
+ CriterionTypesMap,
  GameType,
- GiftCondition,
- MatchCondition,
- MetaCountCondition,
- MetaCriterion,
- MetaDynamicCondition,
- OmikenRulesType,
+ RuleCategory,
+ RulesTypeMap,
  SelectOmikujiOptions,
- SyokenCondition,
- ThresholdType,
- TimeConfigType,
- TimerCriterion,
- VisitType
+ ThresholdTypesMap
 } from '@type';
-import { Comment } from '@onecomme.com/onesdk/types/Comment';
-import { ServiceMeta } from '@onecomme.com/onesdk/types/Service';
 import { ThresholdCommentChecker } from './ThresholdCommentChecker';
 import { ThresholdTimerChecker } from './ThresholdTimerChecker';
 import { ThresholdMetaChecker } from './ThresholdMetaChecker';
@@ -31,22 +17,27 @@ export class ThresholdChecker {
  private metaChecker: ThresholdMetaChecker;
 
  constructor(
-  private readonly options: SelectOmikujiOptions,
-  private readonly rule: OmikenRulesType,
+  private readonly options: SelectOmikujiOptions<RuleCategory>,
+  private readonly rule: RulesTypeMap<RuleCategory>,
   private readonly game?: GameType
  ) {
   // 各チェッカーの初期化
   this.commentChecker = new ThresholdCommentChecker(
    options.type === 'comment' ? options.comment : undefined,
    options.timeConfig,
-   game
+   game,
+   options.visit
   );
   this.timerChecker = new ThresholdTimerChecker(options.timeConfig, game);
-  this.metaChecker = new ThresholdMetaChecker(options.type === 'meta' ? options.meta : undefined, options.timeConfig);
+  this.metaChecker = new ThresholdMetaChecker(
+   options.type === 'meta' ? options.meta : undefined,
+   options.timeConfig,
+   game
+  );
  }
 
  // 条件チェック（配列全体）
- checkAll(threshold: ThresholdType): boolean {
+ checkAll(threshold: ThresholdTypesMap<RuleCategory>): boolean {
   return threshold.criteria.reduce(
    (accumulator, criterion) => {
     const result = this.check(criterion);
@@ -62,14 +53,14 @@ export class ThresholdChecker {
  }
 
  // 個別の条件チェック
- check(criterion: CriterionType): boolean {
+ check(criterion: CriterionTypesMap<RuleCategory>): boolean {
   switch (this.options.type) {
    case 'comment':
-    return this.commentChecker.checkCommentCriterion(criterion as CommentCriterion);
+    return this.commentChecker.checkCommentCriterion(criterion as CriterionTypesMap<'comments'>);
    case 'timer':
-    return this.timerChecker.checkTimerCriterion(criterion as TimerCriterion);
+    return this.timerChecker.checkTimerCriterion(criterion as CriterionTypesMap<'timers'>);
    case 'meta':
-    return this.metaChecker.checkMetaCriterion(criterion as MetaCriterion);
+    return this.metaChecker.checkMetaCriterion(criterion as CriterionTypesMap<'metas'>);
    default:
     return false;
   }

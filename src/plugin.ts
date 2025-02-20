@@ -35,7 +35,7 @@ const plugin: OnePlugin = {
    // 初期化
    Object.assign(this, new InitDataLoader(store).load());
    // timerのセットアップ
-   await this.TimerSelector(this);
+   //await this.TimerSelector(this);
 
    // プラグインの起動メッセージ
    systemMessage('info', `【おみくじBOTプラグイン】が起動したよ`);
@@ -88,7 +88,7 @@ const plugin: OnePlugin = {
  //
  async TimerSelector(StoreAll: PluginAllType): Promise<void> {
   // timerが空の場合、処理を終了
-  if (!StoreAll.Omiken.timer) return;
+  if (!StoreAll.Omiken.timers) return;
 
   // TODO 「プラグイン停止時にちゃんと止まる」タイマー機能を改めて書く
  },
