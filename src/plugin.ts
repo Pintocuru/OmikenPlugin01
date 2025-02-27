@@ -18,7 +18,7 @@ import { SendType } from '@onecomme.com/onesdk/types/Api';
 const plugin: OnePlugin = {
  name: 'おみくじBOTプラグイン', // プラグイン名
  uid: SETTINGS.PLUGIN_UID, // プラグイン固有の一意のID
- version: '0.3.0-beta02', // プラグインのバージョン番号
+ version: '0.3.0-beta03', // プラグインのバージョン番号
  author: 'Pintocuru', // 開発者名
  url: 'https://pintocuru.booth.pm/items/6499304', // サポートページのURL
  // services:枠情報,filter.comment:コメント
@@ -127,7 +127,8 @@ const plugin: OnePlugin = {
    Charas: this.Charas,
    Scripts: this.Scripts,
    Visits: this.Visits,
-   Games: this.Games
+   Games: this.Games,
+   EditorSettings: this.EditorSettings
   };
 
   const result = await new RequestHandler(responseMap).request(req);

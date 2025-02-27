@@ -1,5 +1,5 @@
 // src/types/preset.ts
-import { BaseType, OmikenType, OneCommePostType } from './OmikenTypes';
+import { BaseType, OmikenType, OneCommePostType, RuleCategory } from './OmikenTypes';
 import { GameType, PluginStoreType, SelectOmikujiOptions } from './pluginType';
 
 // preset全体の型定義
@@ -63,7 +63,7 @@ export interface ScriptType extends PresetBaseType {
 
 // funcの引数の型定義
 export type OmikujiFuncParamType = (
- options: SelectOmikujiOptions,
+ options: SelectOmikujiOptions<RuleCategory>,
  game: GameType,
  settings: ScriptParam<ParamType>[],
  params: ScriptParam<ParamType>[]
