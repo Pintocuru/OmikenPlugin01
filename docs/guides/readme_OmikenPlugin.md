@@ -1,6 +1,9 @@
+# おみくじ BOT プラグイン OmikenPlugin for わんコメ v0.1.0
+
 最終更新日：2025/02/07
 
 配信者のためのコメントアプリ「わんコメ」で使用できる、プラグイン です。
+
 この内容は、[BOOTH](https://booth.pm/) で配布している、 [おみくじ BOT プラグイン OmikenBOT Plugin](https://booth.pm/ja/items/6499304) の readme となります。
 
 ## このプラグインを利用するときは
@@ -12,8 +15,7 @@
 
 ## 1.このプラグインは何？
 
-![![readme_05.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/ed507ee1-44be-91c9-cf59-273386cbe615.jpeg)
-](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/454ea0ac-3b21-c80e-a34d-7a5388f3d113.jpeg)
+![](images/1-1.avif)
 
 ### 🎯1-1.自動返信してくれる BOT で、わんコメの配信をもっと楽しく
 
@@ -21,7 +23,7 @@
 
 ### ✨ 1-2.できること
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/33e8aaa2-4d7e-65ff-9035-b59800e058c0.jpeg)
+![](images/1-2.avif)
 
 1. **コメントに反応するおみくじシステム**
    - `おみくじ` とコメントすると、今日の運勢を表示
@@ -46,7 +48,7 @@
 
 ### 2-1. わんコメに「おみくじ BOT プラグイン」を追加する
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/487a3483-7a33-ddbc-1129-824b84974bd5.jpeg)
+![](images/2-1.avif)
 
 1. [おみくじ BOT プラグイン OmikenPlugin](https://booth.pm/ja/items/5471598) をダウンロード
 2. わんコメを起動し、右上【…】（三点リーダー）から「プラグイン」を選択
@@ -55,15 +57,15 @@
 
 ### 2-2. プラグイン対応のジェネレーターをわんコメに追加する
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/e8931156-feac-dd4c-dbd1-de5f4fd2109b.jpeg)
+![](images/2-2.avif)
 
 1. 上記の解凍したファイルに「OmikenTemplate.zip」があることを確認
 2. わんコメの右上【…】（三点リーダー）から「テンプレート」を選択
-3. 「OmikenTemplate.zip」をテンプレートのウィンドウにドラッグ・アンド・ドロップ(解凍は不要です)
+3. 「OmikenTemplate.zip」をテンプレートのウィンドウにドラッグ・アンド・ドロップ (解凍は不要です)
 
 ### 2-3. ジェネレーターを OBS に追加する
 
-![クリップボード01.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/170db81f-2528-dcdd-1822-724abf5b0193.jpeg)
+![クリップボード01.jpg](images/2-3.avif)
 
 1. わんコメの右上【…】から「テンプレート」を選択
 2. 「カスタム」タブから、ジェネレーターを見つける。
@@ -71,7 +73,7 @@
 
 ### 2-4. OBS の設定・プロパティを変更する
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/4eb2f8b9-498d-eb82-1d7e-debd8dc173f6.jpeg)
+![](images/2-4.avif)
 
 1. テンプレートの名称変更
    - 追加したテンプレート「index.html」という名称を、わかりやすい名前（例：おみくじ BOT 等）に変更。
@@ -79,7 +81,7 @@
 
 ## 3.プラグインの使い方
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/487a3483-7a33-ddbc-1129-824b84974bd5.jpeg)
+![](images/3-1.avif)
 
 ### 3-1. プラグインを起動する
 
@@ -87,7 +89,7 @@
 2. 「おみくじ BOT プラグイン」の右にあるスイッチを ON にする
 3. わんコメ本体に【おみくじ BOT プラグイン】が起動したよ　というコメントが出ていれば、起動できています。
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/6c70a9db-fec3-4aee-4bac-9e49a5f2b861.png)
+![](images/3-2.avif)
 
 万が一　「【おみくじ BOT プラグイン】の初期化に失敗」　と出たときは、ご報告ください。
 
@@ -95,7 +97,7 @@
 
 - 下記の内容は、初期状態であることが前提です。おみくじメーカーで編集した場合、下記の結果と異なる場合があります
 
-![03.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/3a1d19f1-e753-a9c1-257d-817208dd3dbc.png)
+![03.png](images/3-3.avif)
 
 1. わんコメの右上にある【…】（三点リーダー）をクリックし、**「コメントテスター」**を選択
 2. コメントテスターにて、コメントに「おみくじ」と入力して送信する
@@ -107,7 +109,7 @@
 
 ## 4.おみくじメーカーによるカスタマイズ
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/578513a8-33b3-ad7e-72ba-504a85c924bd.jpeg)
+![](images/4-1.avif)
 
 - 「OmikenPlugin01」フォルダ内に同梱している、 「editor.html」 から、おみくじの編集を行います
   (詳細は編集中です。申し訳ありません 💦)
@@ -138,7 +140,7 @@ A: おみくじの結果が表示されない場合は、以下の点をご確�
 
 #### Q. おみくじをメンバー限定にしたい
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/8e772b58-fc1a-769d-955f-854d93e7b88b.jpeg)
+![](images/5-1.avif)
 
 A: メンバー限定にするには、おみくじメーカーの「条件設定」で「メンバー」を設定してください。
 
@@ -148,7 +150,7 @@ A: はい、おみくじの内容は自由に変更していただいて構い�
 
 #### Q. じゃんけんの勝率低すぎない？
 
-![](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/555376/62d7af43-cc31-be59-deb3-7f04110ae34b.jpeg)
+![](images/5-2.avif)
 
 A: これでも高い方です。ケイスケ ホンダはもっと強いです。
 
@@ -156,7 +158,7 @@ A: これでも高い方です。ケイスケ ホンダはもっと強いです�
 
 #### Q. OmikenBOT の Omiken って何？
 
-A: おみくじ(omikuji)＋初見(syoken)から取ってます。前作「初見判定ちゃん<https://booth.pm/ja/items/5471598> の名残です。」
+A: おみくじ (omikuji)＋初見 (syoken) から取ってます。前作「初見判定ちゃん<https://booth.pm/ja/items/5471598> の名残です。」
 
 詳細 : <https://dic.pixiv.net/a/%E6%9C%AC%E7%94%B0%E3%81%A8%E3%81%98%E3%82%83%E3%82%93%E3%81%91%E3%82%93>
 
@@ -196,7 +198,7 @@ A: 「コメントが表示されない」ケースが報告されています�
 
 ### v0.2.1 25/02/07
 
-- Readme を[Qiita](https://qiita.com/) で書くことにしました。それにより、readme 関連のバンドルが変更されています
+- Readme を [Qiita](https://qiita.com/) で書くことにしました。それにより、readme 関連のバンドルが変更されています
 - OmikenPlugin01 は 7z で圧縮していましたが、zip で圧縮するようにしました。
 - プラグインとおみくじメーカーの変更はありません。
 

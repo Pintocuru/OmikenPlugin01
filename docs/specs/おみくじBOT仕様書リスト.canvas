@@ -1,0 +1,19 @@
+{
+	"nodes":[
+		{"id":"b550f994e39535fc","type":"file","file":"OmikenPlugin01/docs/specs/おみくじ BOT プラグイン 本体 技術仕様書.md","x":40,"y":-800,"width":400,"height":480},
+		{"id":"c0bb05a9b8aa3b7d","type":"file","file":"OmikenPlugin01/docs/specs/おみくじBOTプラグイン アドオン集 仕様書.md","x":40,"y":-273,"width":400,"height":200},
+		{"id":"2855ebcdfbf2aca5","type":"file","file":"OmikenPlugin01/docs/specs/おみくじ BOT プラグイン　JSON データ仕様書.md","x":40,"y":0,"width":400,"height":200},
+		{"id":"b310d9980dcb6dc6","type":"file","file":"OmikenPlugin01/docs/specs/おみくじメーカー 仕様書.md","x":40,"y":280,"width":400,"height":200},
+		{"id":"4333b5d411743f03","type":"file","file":"OmikenPlugin01/docs/specs/わんコメテンプレート フレームワーク 仕様書.md","x":40,"y":560,"width":400,"height":200},
+		{"id":"6fb7cc8c9ee952fa","type":"file","file":"OmikenPlugin01/docs/specs/おみくじ BOT プラグイン マスター仕様書.md","x":-600,"y":-520,"width":400,"height":400},
+		{"id":"42d22df342a86766","type":"file","file":"OmikenPlugin01/docs/specs/おみくじBOT仕様書集.md","x":-600,"y":80,"width":400,"height":400}
+	],
+	"edges":[
+		{"id":"7bee03d0a76a3fd9","fromNode":"42d22df342a86766","fromSide":"right","toNode":"c0bb05a9b8aa3b7d","toSide":"left"},
+		{"id":"5047a8ff858d7540","fromNode":"42d22df342a86766","fromSide":"right","toNode":"b550f994e39535fc","toSide":"left"},
+		{"id":"d52bb6a20ff1a510","fromNode":"42d22df342a86766","fromSide":"right","toNode":"2855ebcdfbf2aca5","toSide":"left"},
+		{"id":"45f80e53bf8d25c2","fromNode":"42d22df342a86766","fromSide":"right","toNode":"b310d9980dcb6dc6","toSide":"left"},
+		{"id":"714dbce0c38b9dd0","fromNode":"42d22df342a86766","fromSide":"right","toNode":"4333b5d411743f03","toSide":"left"},
+		{"id":"65f5be11535705c0","fromNode":"42d22df342a86766","fromSide":"right","toNode":"6fb7cc8c9ee952fa","toSide":"right"}
+	]
+}
